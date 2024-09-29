@@ -1,16 +1,9 @@
-import {
-	pgEnum,
-	pgTable,
-	text,
-	timestamp,
-	uuid,
-	boolean,
-} from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const membershipEnum = pgEnum('membership', ['free', 'pro']);
 
 export const profilesTable = pgTable('profiles', {
-	userId: uuid('user_id').primaryKey().notNull(),
+	userId: text('user_id').primaryKey().notNull(),
 	membership: membershipEnum('membership').notNull().default('free'),
 	email: text('email').unique(),
 	username: text('username'),

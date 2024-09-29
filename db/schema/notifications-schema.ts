@@ -4,7 +4,7 @@ import { Games } from './games-schema';
 
 export const notificationsTable = pgTable('Notifications', {
 	id: uuid('id').primaryKey(),
-	userId: uuid('user_id').references(() => profilesTable.userId),
+	userId: text('user_id').references(() => profilesTable.userId),
 	gameId: uuid('game_id').references(() => Games.id),
 	message: text('message'),
 	isRead: boolean('is_read').default(false),

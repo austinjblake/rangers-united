@@ -24,15 +24,6 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const { userId } = auth();
-
-	if (userId) {
-		const profile = await getProfileByUserIdAction(userId);
-		if (!profile) {
-			await createProfileAction({ userId });
-		}
-	}
-
 	return (
 		<ClerkProvider>
 			<html lang='en'>

@@ -3,7 +3,7 @@ import { profilesTable } from './profiles-schema';
 
 export const Games = pgTable('Games', {
 	id: uuid('id').primaryKey(),
-	hostId: uuid('host_id').references(() => profilesTable.userId),
+	hostId: text('host_id').references(() => profilesTable.userId),
 	location: text('location'),
 	date: timestamp('date'),
 	flgs: boolean('flgs').default(false),
