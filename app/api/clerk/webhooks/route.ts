@@ -50,12 +50,13 @@ export async function POST(req: Request) {
 	// Handle the webhook
 	const eventType = evt.type;
 	if (eventType === 'user.created') {
-		const { id, email_addresses, ...attributes } = evt.data;
+		const { id, email_addresses, username, ...attributes } = evt.data;
 
 		try {
 			const result = await createProfileAction({
 				userId: id,
 				email: email_addresses[0].email_address,
+				username: username || '',
 			});
 
 			if (result.status === 'error') {
@@ -77,6 +78,7 @@ interface WebhookEvent {
 	data: {
 		id: string;
 		email_addresses: { email_address: string }[];
+		username?: string;
 		[key: string]: any;
 	};
 	object: string;
