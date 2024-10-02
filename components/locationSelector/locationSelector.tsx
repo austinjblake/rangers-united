@@ -15,7 +15,7 @@ import { NewLocation } from './components/newLocation';
 import { FlgsSearch } from './components/flgsSearch';
 import { LocationDetails } from './components/locationDetails';
 import { Info } from 'lucide-react';
-import { createLocation } from '@/actions/locations-actions';
+import { createLocation, geoLocateLocation } from '@/actions/locations-actions';
 import { toast } from '@/components/ui/use-toast';
 import {
 	Tooltip,
@@ -40,6 +40,15 @@ export default function LocationSelector({
 	const [showDetails, setShowDetails] = useState(false);
 	const [activeTab, setActiveTab] = useState('saved');
 	const [saveError, setSaveError] = useState(false);
+
+	const updateDetails = (updatedLocation: Partial<SelectLocation>) => {
+		if (selectedLocation) {
+			setSelectedLocation({
+				...selectedLocation,
+				...updatedLocation,
+			});
+		}
+	};
 
 	// set chosen location
 	const handleLocationSelect = (location: SelectLocation) => {
@@ -69,6 +78,7 @@ export default function LocationSelector({
 				location: location.location,
 				isPrivate: location.isPrivate,
 				isFLGS: location.isFLGS,
+				readableAddress: location.readableAddress,
 			});
 
 			if (result.status === 'success') {
@@ -103,8 +113,8 @@ export default function LocationSelector({
 
 	const handleUseLocation = async () => {
 		if (!selectedLocation) return;
-		console.log('Firing location function. selectedLocation', selectedLocation);
-		onUseLocation(selectedLocation);
+		const geoLocation = await geoLocateLocation(selectedLocation);
+		onUseLocation(geoLocation.data);
 	};
 
 	return (
@@ -141,6 +151,7 @@ export default function LocationSelector({
 							<FlgsSearch
 								onSelect={handleLocationSelect}
 								selectedLocation={selectedLocation}
+								onSave={handleSaveLocation}
 							/>
 						</TabsContent>
 					</Tabs>
@@ -150,6 +161,7 @@ export default function LocationSelector({
 						onSave={handleSaveLocation}
 						onCancel={handleCancelDetails}
 						saveError={saveError}
+						updateDetails={updateDetails}
 					/>
 				)}
 			</CardContent>

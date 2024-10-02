@@ -9,7 +9,7 @@ import {
 	fetchAllFLGSLocations,
 	fetchLocationsByProximity,
 } from '@/db/queries/locations-queries';
-import { InsertLocation } from '@/db/schema/locations-schema';
+import { InsertLocation, SelectLocation } from '@/db/schema/locations-schema';
 import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
 import { geocodeAddress } from '@/lib/geocode';
 import { v4 as uuidv4 } from 'uuid';
@@ -166,5 +166,27 @@ export const getNearbyFLGS = async (address: string, radius: number) => {
 	} catch (error) {
 		console.error('Error fetching nearby FLGS:', error);
 		return { status: 'error', message: 'Failed to fetch nearby FLGS' };
+	}
+};
+
+// 9. Geolocate a location that won't be saved to the database
+export const geoLocateLocation = async (locationData: SelectLocation) => {
+	try {
+		const userId = await requireAuth();
+		// Step 1: Geocode the address using a geocoding API to get lat/lon
+		const { lat, lon } = await geocodeAddress(locationData.location);
+		// Step 2: Format the lat/lon into a geography POINT
+		const geoPoint = formatGeographyPoint(lat, lon);
+		const newLocationData = {
+			...locationData,
+			userId,
+			location: geoPoint,
+			id: uuidv4(),
+		};
+
+		return { status: 'success', data: newLocationData };
+	} catch (error) {
+		console.error('Error creating location:', error);
+		throw error;
 	}
 };

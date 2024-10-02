@@ -1,0 +1,1 @@
+ALTER TABLE "Locations" ALTER COLUMN "readable_address" DROP NOT NULL;

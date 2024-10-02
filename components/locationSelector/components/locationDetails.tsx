@@ -17,6 +17,7 @@ type LocationDetailsProps = {
 	onSave: (location: SelectLocation) => void;
 	onCancel: () => void;
 	saveError: boolean;
+	updateDetails: (updatedLocation: Partial<SelectLocation>) => void;
 };
 
 export function LocationDetails({
@@ -24,11 +25,26 @@ export function LocationDetails({
 	onSave,
 	onCancel,
 	saveError,
+	updateDetails,
 }: LocationDetailsProps) {
 	const [nickname, setNickname] = useState(location.name);
 	const [locationType, setLocationType] = useState<'private' | 'flgs'>(
 		location.isFLGS ? 'flgs' : 'private'
 	);
+
+	const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newNickname = e.target.value;
+		setNickname(newNickname);
+		updateDetails({ name: newNickname });
+	};
+
+	const handleLocationTypeChange = (value: 'private' | 'flgs') => {
+		setLocationType(value);
+		updateDetails({
+			isPrivate: value === 'private',
+			isFLGS: value === 'flgs',
+		});
+	};
 
 	const handleSave = () => {
 		if (nickname.trim() === '') {
@@ -50,15 +66,12 @@ export function LocationDetails({
 					id='nickname'
 					placeholder='Enter a nickname for this location'
 					value={nickname}
-					onChange={(e) => setNickname(e.target.value)}
+					onChange={handleNicknameChange}
 					required
 				/>
 			</div>
 
-			<RadioGroup
-				value={locationType}
-				onValueChange={(value: 'private' | 'flgs') => setLocationType(value)}
-			>
+			<RadioGroup value={locationType} onValueChange={handleLocationTypeChange}>
 				<div className='flex items-center space-x-2'>
 					<RadioGroupItem value='private' id='private' />
 					<Label htmlFor='private'>Private Location</Label>
@@ -102,7 +115,7 @@ export function LocationDetails({
 				>
 					<ArrowLeft className='mr-2' /> Back
 				</Button>
-				<Button onClick={handleSave} disabled={nickname.trim() === ''}>
+				<Button onClick={handleSave} disabled={nickname?.trim() === ''}>
 					Save to My Locations
 				</Button>
 			</div>

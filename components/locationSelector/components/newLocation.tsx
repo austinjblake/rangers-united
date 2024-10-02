@@ -14,13 +14,9 @@ export function NewLocation({ onSelect, setShowDetails }: NewLocationProps) {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		onSelect({
-			id: '',
-			userId: '',
-			name: '',
 			location: address,
-			isPrivate: true,
-			isFLGS: false,
-		});
+			readableAddress: address,
+		} as SelectLocation);
 		setShowDetails(true);
 	};
 

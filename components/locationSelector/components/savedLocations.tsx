@@ -77,7 +77,7 @@ export function SavedLocations({
 
 	return (
 		<>
-			<ScrollArea className='h-[150px] w-full rounded-md border p-4'>
+			<ScrollArea className='h-[175px] w-full rounded-md border p-4'>
 				{locations.map((location) => (
 					<div
 						key={location.id}
@@ -90,17 +90,26 @@ export function SavedLocations({
 							}
 							onClick={() => onSelect(location)}
 						>
-							<div className='flex items-center'>
+							<div className='flex items-center w-full'>
 								{location.isPrivate ? (
-									<HomeIcon className='h-4 w-4 mr-2' />
+									<span title='Private Location'>
+										<HomeIcon className='h-4 w-4 mr-2 flex-shrink-0' />
+									</span>
 								) : (
-									<StoreIcon className='h-4 w-4 mr-2' />
+									<span title='Friendly Local Game Store'>
+										<StoreIcon className='h-4 w-4 mr-2 flex-shrink-0' />
+									</span>
 								)}
-								<div className='font-semibold'>
-									{location.name}
-									{selectedLocation?.id === location.id && (
-										<span className='ml-2 text-sm text-green-500'>✓</span>
-									)}
+								<div className='flex flex-col overflow-hidden'>
+									<div className='font-semibold truncate'>
+										{location.name}
+										{selectedLocation?.id === location.id && (
+											<span className='ml-2 text-sm text-green-500'>✓</span>
+										)}
+									</div>
+									<div className='text-sm text-gray-500 truncate'>
+										{location.readableAddress}
+									</div>
 								</div>
 							</div>
 						</Button>
@@ -108,7 +117,7 @@ export function SavedLocations({
 							variant='ghost'
 							size='icon'
 							onClick={() => handleDeleteClick(location)}
-							className='ml-2'
+							className='ml-2 flex-shrink-0'
 						>
 							<Trash2Icon className='h-4 w-4' />
 						</Button>

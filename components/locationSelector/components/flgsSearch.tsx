@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 type FlgsSearchProps = {
 	onSelect: (location: SelectLocation) => void;
 	selectedLocation: SelectLocation | null;
+	onSave: (location: SelectLocation) => void;
 };
 
 type FLGSResult = {
@@ -26,7 +27,11 @@ type FLGSResult = {
 	business_status: string;
 };
 
-export function FlgsSearch({ onSelect, selectedLocation }: FlgsSearchProps) {
+export function FlgsSearch({
+	onSelect,
+	selectedLocation,
+	onSave,
+}: FlgsSearchProps) {
 	const [address, setAddress] = useState('');
 	const [searchResults, setSearchResults] = useState<FLGSResult[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +69,22 @@ export function FlgsSearch({ onSelect, selectedLocation }: FlgsSearchProps) {
 			isPrivate: false,
 			userId: null,
 			isFLGS: true,
+			readableAddress: location.formatted_address,
 		});
+	};
+
+	const handleSave = () => {
+		if (selectedLocation) {
+			onSave({
+				id: selectedLocation.id,
+				name: selectedLocation.name,
+				location: selectedLocation.location,
+				isPrivate: false,
+				userId: null,
+				isFLGS: true,
+				readableAddress: selectedLocation.readableAddress,
+			});
+		}
 	};
 
 	const handleGoogleSearch = (location: FLGSResult) => {
@@ -186,6 +206,12 @@ export function FlgsSearch({ onSelect, selectedLocation }: FlgsSearchProps) {
 						? 'No results found. Try expanding your search radius.'
 						: 'Enter a zip code and search radius to find nearby game stores.'}
 				</div>
+			)}
+
+			{selectedLocation && (
+				<Button onClick={handleSave} className='w-full'>
+					Save to My Locations
+				</Button>
 			)}
 		</div>
 	);

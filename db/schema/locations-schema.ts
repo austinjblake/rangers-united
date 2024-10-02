@@ -7,8 +7,9 @@ export const locationsTable = pgTable('Locations', {
 	userId: text('user_id').references(() => profilesTable.userId),
 	name: text('name').notNull(), // e.g., "My House", "Game Store 1"
 	location: geography('location').notNull(), // Custom Geography type
+	readableAddress: text('readable_address').notNull(),
 	isFLGS: boolean('is_flgs').default(false),
-	isPrivate: boolean('is_private').default(true), // Mark as private or not
+	isPrivate: boolean('is_private').default(true),
 });
 
 export type InsertLocation = typeof locationsTable.$inferInsert;

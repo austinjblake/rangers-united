@@ -15,6 +15,27 @@
       "when": 1727722079810,
       "tag": "0001_first_ronan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727882203739,
+      "tag": "0002_lumpy_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1727882295135,
+      "tag": "0003_lying_genesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1727882900507,
+      "tag": "0004_yielding_green_goblin",
+      "breakpoints": true
     }
   ]
 }
