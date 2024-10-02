@@ -13,6 +13,7 @@ import { InsertLocation } from '@/db/schema/locations-schema';
 import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
 import { geocodeAddress } from '@/lib/geocode';
 import { v4 as uuidv4 } from 'uuid';
+import { findNearbyFLGS } from '@/lib/places';
 
 // Function to format lat/lon into PostGIS-compatible POINT
 const formatGeographyPoint = (lat: number, lon: number): string => {
@@ -154,5 +155,16 @@ export const getLocationsByProximity = async (
 	} catch (error) {
 		console.error('Error fetching locations by proximity:', error);
 		throw error;
+	}
+};
+
+// 8. Get nearby Friendly Local Game Stores
+export const getNearbyFLGS = async (address: string, radius: number) => {
+	try {
+		const results = await findNearbyFLGS(address, radius);
+		return { status: 'success', data: results };
+	} catch (error) {
+		console.error('Error fetching nearby FLGS:', error);
+		return { status: 'error', message: 'Failed to fetch nearby FLGS' };
 	}
 };
