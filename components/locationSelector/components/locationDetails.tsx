@@ -27,7 +27,7 @@ export function LocationDetails({
 	saveError,
 	updateDetails,
 }: LocationDetailsProps) {
-	const [nickname, setNickname] = useState(location.name);
+	const [nickname, setNickname] = useState(location.name || '');
 	const [locationType, setLocationType] = useState<'private' | 'flgs'>(
 		location.isFLGS ? 'flgs' : 'private'
 	);

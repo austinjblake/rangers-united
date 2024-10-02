@@ -113,8 +113,15 @@ export default function LocationSelector({
 
 	const handleUseLocation = async () => {
 		if (!selectedLocation) return;
-		const geoLocation = await geoLocateLocation(selectedLocation);
-		onUseLocation(geoLocation.data);
+
+		if (activeTab === 'saved') {
+			// For saved locations, use the existing data
+			onUseLocation(selectedLocation);
+		} else {
+			// For new locations or FLGS search results, geolocate
+			const geoLocation = await geoLocateLocation(selectedLocation);
+			onUseLocation(geoLocation.data);
+		}
 	};
 
 	return (

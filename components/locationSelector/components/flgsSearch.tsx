@@ -116,7 +116,7 @@ export function FlgsSearch({
 							placeholder='Enter radius'
 							className='w-full'
 							min='1'
-							max='50'
+							max='150'
 						/>
 						<Button type='submit' disabled={isLoading || !address.trim()}>
 							{isLoading ? (
