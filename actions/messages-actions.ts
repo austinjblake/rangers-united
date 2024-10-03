@@ -95,7 +95,7 @@ export async function updateMessageAction(
 		const isSender = await isMessageSentByUser(messageId, userId);
 		const isAdmin = await isUserAdmin(userId);
 		const isHost = await isUserHost(userId, updatedData.gameId!);
-		if (!isSender || !isAdmin || !isHost) {
+		if ((!isSender && !isHost) || !isAdmin) {
 			throw new Error('User is not the sender');
 		}
 		await updateMessage(messageId, updatedData);

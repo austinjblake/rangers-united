@@ -72,7 +72,7 @@ export async function isUserAdmin(userId: string) {
 		.limit(1);
 
 	if (!user.length || !user[0].isAdmin) {
-		throw new Error('User is not an admin');
+		return false;
 	}
 	return true; // User is an admin
 }

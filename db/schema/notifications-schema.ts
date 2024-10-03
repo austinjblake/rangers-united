@@ -1,12 +1,16 @@
 import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { profilesTable } from './profiles-schema';
-import { Games } from './games-schema';
+import { gamesTable } from './games-schema';
 
 export const notificationsTable = pgTable('Notifications', {
 	id: uuid('id').primaryKey(),
-	userId: text('user_id').references(() => profilesTable.userId),
-	gameId: uuid('game_id').references(() => Games.id),
-	message: text('message'),
+	userId: text('user_id')
+		.references(() => profilesTable.userId)
+		.notNull(),
+	gameId: uuid('game_id')
+		.references(() => gamesTable.id)
+		.notNull(),
+	notification: text('message'),
 	isRead: boolean('is_read').default(false),
 	createdAt: timestamp('created_at').defaultNow(),
 });

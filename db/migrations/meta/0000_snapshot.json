@@ -1,5 +1,5 @@
 {
-  "id": "a97027ed-f2d1-4d58-9e82-15d1796d7829",
+  "id": "8e1c8f04-bf39-4b7a-b088-500199a571f9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -110,9 +110,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
-          "type": "text",
+        "location_id": {
+          "name": "location_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -137,6 +137,19 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "GameSlots_location_id_Locations_id_fk": {
+          "name": "GameSlots_location_id_Locations_id_fk",
+          "tableFrom": "GameSlots",
+          "tableTo": "Locations",
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -154,13 +167,13 @@
         },
         "host_id": {
           "name": "host_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
-          "type": "text",
+        "location_id": {
+          "name": "location_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -172,6 +185,13 @@
         },
         "flgs": {
           "name": "flgs",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "private": {
+          "name": "private",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
@@ -196,6 +216,19 @@
           ],
           "columnsTo": [
             "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Games_location_id_Locations_id_fk": {
+          "name": "Games_location_id_Locations_id_fk",
+          "tableFrom": "Games",
+          "tableTo": "Locations",
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -350,6 +383,74 @@
           "tableTo": "profiles",
           "columnsFrom": [
             "sender_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.Locations": {
+      "name": "Locations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geography",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "readable_address": {
+          "name": "readable_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_flgs": {
+          "name": "is_flgs",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_private": {
+          "name": "is_private",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Locations_user_id_profiles_user_id_fk": {
+          "name": "Locations_user_id_profiles_user_id_fk",
+          "tableFrom": "Locations",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "user_id"

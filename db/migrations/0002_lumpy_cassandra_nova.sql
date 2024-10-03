@@ -1,1 +1,0 @@
-ALTER TABLE "Locations" ADD COLUMN "readable_address" text NOT NULL;

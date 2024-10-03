@@ -1,11 +1,15 @@
 import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
-import { Games } from './games-schema';
+import { gamesTable } from './games-schema';
 import { profilesTable } from './profiles-schema';
 
 export const messagesTable = pgTable('Messages', {
 	id: uuid('id').primaryKey(),
-	gameId: uuid('game_id').references(() => Games.id),
-	senderId: text('sender_id').references(() => profilesTable.userId),
+	gameId: uuid('game_id')
+		.references(() => gamesTable.id)
+		.notNull(),
+	senderId: text('sender_id')
+		.references(() => profilesTable.userId)
+		.notNull(),
 	message: text('message'),
 	isVisibleToJoiners: boolean('is_visible_to_joiners').default(true),
 	isFromExMember: boolean('is_from_ex_member').default(false),

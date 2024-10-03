@@ -28,8 +28,8 @@ export function LocationDetails({
 	updateDetails,
 }: LocationDetailsProps) {
 	const [nickname, setNickname] = useState(location.name || '');
-	const [locationType, setLocationType] = useState<'private' | 'flgs'>(
-		location.isFLGS ? 'flgs' : 'private'
+	const [locationType, setLocationType] = useState<'private' | 'flgs' | ''>(
+		location.isFLGS ? 'flgs' : location.isPrivate ? 'private' : ''
 	);
 
 	const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

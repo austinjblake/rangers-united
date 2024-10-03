@@ -18,16 +18,49 @@ import {
 	hasUserJoinedGame,
 	isUserAdmin,
 } from '@/lib/auth-utils';
+import { v4 as uuidv4 } from 'uuid';
+import { createLocation } from './locations-actions';
+import { SelectLocation } from '@/db/schema/locations-schema';
 
 // Action to create a new game
-export async function createGameAction(data: InsertGame): Promise<ActionState> {
+export async function createGameAction(
+	data: Omit<Partial<InsertGame>, 'id' | 'hostId'>,
+	selectedLocation: SelectLocation
+): Promise<ActionState> {
 	try {
 		const hostId = await requireAuth();
-		await createGame({ ...data, hostId });
+		const id = uuidv4();
+		const gameData = { ...data, hostId, id };
+		let locId = selectedLocation.id;
+
+		// if location does not have an id save it to the db
+		if (selectedLocation.id === '') {
+			const locationObj = {
+				id: '',
+				name: selectedLocation.name,
+				location: selectedLocation.readableAddress, // this will be geolocated in createLocation
+				readableAddress: selectedLocation.readableAddress,
+				userId: hostId,
+				isFLGS: selectedLocation.isFLGS,
+				isPrivate: selectedLocation.isPrivate,
+				temporary: true,
+			};
+			const newLocation = await createLocation(locationObj);
+			locId = newLocation.data.id;
+		}
+
+		const newGameData = {
+			...gameData,
+			locationId: locId,
+		};
+		console.log('Creating game', newGameData);
+		await createGame(newGameData);
 		revalidatePath('/games');
+
 		return {
 			status: 'success',
 			message: 'Game created successfully',
+			data: newGameData,
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to create game' };

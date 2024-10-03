@@ -1,0 +1,1 @@
+ALTER TABLE "Locations" ADD COLUMN "temporary" boolean DEFAULT false;

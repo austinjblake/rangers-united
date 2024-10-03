@@ -7,8 +7,12 @@ import { gameSlotsTable, InsertGameSlot } from '../schema/slots-schema';
 // 1. Insert a new game slot (create a slot as a host or joiner)
 export const createGameSlot = async (slotData: InsertGameSlot) => {
 	try {
-		await db.insert(gameSlotsTable).values(slotData);
+		const [newSlot] = await db
+			.insert(gameSlotsTable)
+			.values(slotData)
+			.returning({ id: gameSlotsTable.id });
 		console.log('Game slot created successfully');
+		return newSlot.id;
 	} catch (error) {
 		console.error('Error creating game slot:', error);
 		throw error;

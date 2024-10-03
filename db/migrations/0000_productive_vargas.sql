@@ -22,16 +22,17 @@ CREATE TABLE IF NOT EXISTS "GameSlots" (
 	"user_id" text,
 	"is_host" boolean DEFAULT false,
 	"slot_time" timestamp,
-	"location" text,
+	"location_id" uuid,
 	"game_id" uuid
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Games" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"host_id" text,
-	"location" text,
+	"host_id" uuid,
+	"location_id" uuid,
 	"date" timestamp,
 	"flgs" boolean DEFAULT false,
+	"private" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
@@ -54,6 +55,16 @@ CREATE TABLE IF NOT EXISTS "Messages" (
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "Locations" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"user_id" text,
+	"name" text NOT NULL,
+	"location" "geography" NOT NULL,
+	"readable_address" text NOT NULL,
+	"is_flgs" boolean DEFAULT false,
+	"is_private" boolean DEFAULT true
+);
+--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "GameSlots" ADD CONSTRAINT "GameSlots_user_id_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("user_id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
@@ -61,7 +72,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "GameSlots" ADD CONSTRAINT "GameSlots_location_id_Locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."Locations"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "Games" ADD CONSTRAINT "Games_host_id_profiles_user_id_fk" FOREIGN KEY ("host_id") REFERENCES "public"."profiles"("user_id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Games" ADD CONSTRAINT "Games_location_id_Locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."Locations"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -86,6 +109,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Messages" ADD CONSTRAINT "Messages_sender_id_profiles_user_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."profiles"("user_id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Locations" ADD CONSTRAINT "Locations_user_id_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("user_id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

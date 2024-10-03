@@ -13,13 +13,15 @@ export const insertLocation = async (locationData: InsertLocation) => {
 	}
 };
 
-// Get all locations for a specific user
+// Get all non-temporary locations for a specific user
 export const fetchLocationsByUserId = async (userId: string) => {
 	try {
 		const result = await db
 			.select()
 			.from(locationsTable)
-			.where(eq(locationsTable.userId, userId));
+			.where(
+				sql`${locationsTable.userId} = ${userId} AND ${locationsTable.temporary} = false`
+			);
 		return result;
 	} catch (error) {
 		console.error('Error fetching locations by user ID:', error);

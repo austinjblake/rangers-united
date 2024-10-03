@@ -36,7 +36,11 @@ export const createLocation = async (locationData: InsertLocation) => {
 		};
 
 		await insertLocation(newLocationData);
-		return { status: 'success', message: 'Location created successfully' };
+		return {
+			status: 'success',
+			message: 'Location created successfully',
+			data: newLocationData,
+		};
 	} catch (error) {
 		console.error('Error creating location:', error);
 		throw error;
@@ -181,7 +185,7 @@ export const geoLocateLocation = async (locationData: SelectLocation) => {
 			...locationData,
 			userId,
 			location: geoPoint,
-			id: uuidv4(),
+			id: '',
 		};
 
 		return { status: 'success', data: newLocationData };

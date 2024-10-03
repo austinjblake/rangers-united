@@ -1,6 +1,6 @@
 {
-  "id": "8de57cc3-986e-489f-8e56-7ac34a1e5299",
-  "prevId": "a97027ed-f2d1-4d58-9e82-15d1796d7829",
+  "id": "26e8fbb8-55b3-4d59-a272-0b26d42370e1",
+  "prevId": "8e1c8f04-bf39-4b7a-b088-500199a571f9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -110,9 +110,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
-          "type": "text",
+        "location_id": {
+          "name": "location_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -137,6 +137,19 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "GameSlots_location_id_Locations_id_fk": {
+          "name": "GameSlots_location_id_Locations_id_fk",
+          "tableFrom": "GameSlots",
+          "tableTo": "Locations",
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -154,13 +167,13 @@
         },
         "host_id": {
           "name": "host_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
-          "type": "text",
+        "location_id": {
+          "name": "location_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -172,6 +185,13 @@
         },
         "flgs": {
           "name": "flgs",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "private": {
+          "name": "private",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
@@ -196,6 +216,19 @@
           ],
           "columnsTo": [
             "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Games_location_id_Locations_id_fk": {
+          "name": "Games_location_id_Locations_id_fk",
+          "tableFrom": "Games",
+          "tableTo": "Locations",
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -389,6 +422,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "readable_address": {
+          "name": "readable_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "is_flgs": {
           "name": "is_flgs",
           "type": "boolean",
@@ -402,6 +441,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": true
+        },
+        "temporary": {
+          "name": "temporary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {},
