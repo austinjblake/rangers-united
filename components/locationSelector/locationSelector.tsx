@@ -88,7 +88,13 @@ export default function LocationSelector({
 				});
 				setShowDetails(false);
 				setActiveTab('saved');
-				setSelectedLocation(location);
+				setSelectedLocation({
+					...result.data,
+					name: result.data.name || '',
+					isFLGS: result.data.isFLGS || false,
+					isPrivate: result.data.isPrivate || false,
+					temporary: result.data.temporary || null,
+				});
 				setSaveError(false);
 			} else {
 				toast({

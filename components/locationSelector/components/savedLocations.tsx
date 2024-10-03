@@ -6,7 +6,7 @@ import {
 	deleteLocation,
 } from '@/actions/locations-actions';
 import { ConfirmationModal } from '@/components/confirmationModal';
-import { Trash2Icon, HomeIcon, StoreIcon } from 'lucide-react';
+import { Trash2Icon, HomeIcon, StoreIcon, RefreshCcwIcon } from 'lucide-react';
 import { SelectLocation } from '@/db/schema';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -63,7 +63,8 @@ export function SavedLocations({
 				console.error('Error deleting location:', err);
 				toast({
 					title: 'Error',
-					description: 'Failed to delete location. Please try again.',
+					description:
+						'Failed to delete location. This location is currently being used for a game you are hosting or have joined. You must delete these from My Games before you can remove this location. If you need more help, contact help@rangersunited.com',
 					variant: 'destructive',
 				});
 			}
@@ -71,8 +72,23 @@ export function SavedLocations({
 		setIsDeleteModalOpen(false);
 	};
 
+	const handleRefresh = () => {
+		setError(null);
+		setIsLoading(true);
+		fetchLocations();
+	};
+
 	if (isLoading) return <div>Loading...</div>;
-	if (error) return <div>Error: {error}</div>;
+	if (error)
+		return (
+			<div className='flex items-center justify-between'>
+				<div>Error: {error}</div>
+				<Button variant='outline' size='sm' onClick={handleRefresh}>
+					<RefreshCcwIcon className='h-4 w-4 mr-2' />
+					Refresh
+				</Button>
+			</div>
+		);
 	if (locations.length === 0) return <div>No saved locations found.</div>;
 
 	return (

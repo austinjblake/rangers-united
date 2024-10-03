@@ -3,6 +3,8 @@
 import { eq, and, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { gameSlotsTable, InsertGameSlot } from '../schema/slots-schema';
+import { gamesTable } from '../schema/games-schema';
+import { locationsTable } from '../schema/locations-schema';
 
 // 1. Insert a new game slot (create a slot as a host or joiner)
 export const createGameSlot = async (slotData: InsertGameSlot) => {
@@ -22,10 +24,23 @@ export const createGameSlot = async (slotData: InsertGameSlot) => {
 // 2. Select all game slots for a specific user
 export const getGameSlotsByUser = async (userId: string) => {
 	try {
+		// Join gameSlotsTable with gamesTable and locationsTable to select necessary fields
 		const result = await db
-			.select()
+			.select({
+				slotId: gameSlotsTable.id,
+				isHost: gameSlotsTable.isHost,
+				joinerLocationId: gameSlotsTable.joinerLocationId,
+				gameLocationId: gamesTable.locationId, // Game location from gamesTable
+				gameDate: gamesTable.date, // Other fields you may need from gamesTable
+				gameId: gamesTable.id,
+				locationIsPrivate: locationsTable.isPrivate, // Fetching private from locationsTable
+				locationIsFLGS: locationsTable.isFLGS, // Fetching FLGS from locationsTable
+			})
 			.from(gameSlotsTable)
-			.where(eq(gameSlotsTable.userId, userId));
+			.leftJoin(gamesTable, eq(gameSlotsTable.gameId, gamesTable.id)) // Join gameSlots with games
+			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id)) // Join locationsTable to get location details
+			.where(eq(gameSlotsTable.userId, userId)); // Filter by userId
+
 		return result;
 	} catch (error) {
 		console.error('Error fetching game slots for user:', error);

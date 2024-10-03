@@ -1,6 +1,6 @@
 import { pgTable, uuid, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { profilesTable } from './profiles-schema';
-import { locationsTable } from './locations-schema'; // Import the locationsTable
+import { locationsTable } from './locations-schema';
 
 export const gamesTable = pgTable('Games', {
 	id: uuid('id').primaryKey(),
@@ -11,8 +11,6 @@ export const gamesTable = pgTable('Games', {
 		.references(() => locationsTable.id)
 		.notNull(),
 	date: timestamp('date'),
-	flgs: boolean('flgs').default(false),
-	private: boolean('private').default(false),
 	createdAt: timestamp('created_at').defaultNow(),
 });
 

@@ -30,7 +30,6 @@ export async function createGameSlotAction(
 			...data,
 			id,
 			userId: user,
-			locationId: data.locationId as string,
 			gameId: data.gameId as string,
 		};
 		console.log('new game slot data', newGameSlotData);
@@ -72,13 +71,10 @@ export async function getGameSlotByIdAction(
 }
 
 // Action to retrieve all game slots for a specific user
-export async function getGameSlotsByUserIdAction(
-	userId: string
-): Promise<ActionState> {
+export async function getGameSlotsByUserIdAction(): Promise<ActionState> {
 	try {
-		const user = await requireAuth();
-		const isAdmin = await isUserAdmin(user);
-		if (!isAdmin && userId !== user) {
+		const userId = await requireAuth();
+		if (!userId) {
 			throw new Error('User does not have permission to get this game slot');
 		}
 		const gameSlots = await getGameSlotsByUser(userId);

@@ -2,7 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/db/db';
-import { Games, gameSlotsTable, profilesTable } from '@/db/schema';
+import { gamesTable, gameSlotsTable, profilesTable } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 
 // 1. Check if the user is authenticated
@@ -18,8 +18,8 @@ export async function requireAuth() {
 export async function isUserHost(userId: string, gameId: string) {
 	const game = await db
 		.select()
-		.from(Games)
-		.where(eq(Games.id, gameId))
+		.from(gamesTable)
+		.where(eq(gamesTable.id, gameId))
 		.limit(1);
 
 	if (!game || game[0].hostId !== userId) {

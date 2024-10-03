@@ -11,7 +11,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 
 type FlgsSearchProps = {
 	onSelect: (location: SelectLocation) => void;
@@ -67,9 +67,10 @@ export function FlgsSearch({
 			name: location.name,
 			location: location.formatted_address,
 			isPrivate: false,
-			userId: null,
+			userId: '',
 			isFLGS: true,
 			readableAddress: location.formatted_address,
+			temporary: null,
 		});
 	};
 
@@ -80,9 +81,10 @@ export function FlgsSearch({
 				name: selectedLocation.name,
 				location: selectedLocation.location,
 				isPrivate: false,
-				userId: null,
+				userId: '',
 				isFLGS: true,
 				readableAddress: selectedLocation.readableAddress,
+				temporary: null,
 			});
 		}
 	};
@@ -105,31 +107,28 @@ export function FlgsSearch({
 				</div>
 				<div className='space-y-2'>
 					<label htmlFor='radius' className='block text-sm font-medium'>
-						Search Radius (miles)
+						Search Radius: {radius} miles
 					</label>
-					<div className='flex items-center space-x-2'>
-						<Input
-							id='radius'
-							type='number'
-							value={radius}
-							onChange={(e) => setRadius(parseInt(e.target.value))}
-							placeholder='Enter radius'
-							className='w-full'
-							min='1'
-							max='150'
-						/>
-						<Button type='submit' disabled={isLoading || !address.trim()}>
-							{isLoading ? (
-								<>
-									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-									Searching...
-								</>
-							) : (
-								'Search'
-							)}
-						</Button>
-					</div>
+					<Slider
+						id='radius'
+						min={1}
+						max={150}
+						step={1}
+						value={[radius]}
+						onValueChange={(value) => setRadius(value[0])}
+						className='w-full'
+					/>
 				</div>
+				<Button type='submit' disabled={isLoading || !address.trim()}>
+					{isLoading ? (
+						<>
+							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							Searching...
+						</>
+					) : (
+						'Search'
+					)}
+				</Button>
 			</form>
 
 			<TooltipProvider>
