@@ -167,19 +167,20 @@ export async function deleteGameAction(gameId: string): Promise<ActionState> {
 		const userId = await requireAuth();
 		const isHost = await isUserHost(userId, gameId);
 		const isAdmin = await isUserAdmin(userId);
-		if (!isHost || !isAdmin) {
+		if (!isHost && !isAdmin) {
 			return {
 				status: 'error',
 				message: 'You are not authorized to delete this game',
 			};
 		}
 		await deleteGame(gameId);
-		revalidatePath('/games');
+		console.log('Deleting game', gameId);
 		return {
 			status: 'success',
 			message: 'Game deleted successfully',
 		};
 	} catch (error) {
+		console.error('Error deleting game:', error);
 		return { status: 'error', message: 'Failed to delete game' };
 	}
 }

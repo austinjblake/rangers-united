@@ -21,9 +21,8 @@ export async function isUserHost(userId: string, gameId: string) {
 		.from(gamesTable)
 		.where(eq(gamesTable.id, gameId))
 		.limit(1);
-
-	if (!game || game[0].hostId !== userId) {
-		throw new Error('User is not the host of this game');
+	if (!game || !game[0] || game[0].hostId !== userId) {
+		throw new Error('Game not found or User is not the host of this game');
 	}
 	return true; // User is the host
 }

@@ -1,4 +1,4 @@
-import { eq, sql, and, ne } from 'drizzle-orm';
+import { eq, sql, and, ne, inArray } from 'drizzle-orm';
 import { db } from '../db'; // Assuming you have a database connection instance
 import { gamesTable, InsertGame } from '../schema/games-schema';
 import { locationsTable } from '../schema/locations-schema';
@@ -63,17 +63,93 @@ export const updateGame = async (
 	}
 };
 
+// const { gameLocationId, joinerLocationIds } = gameInfo[0] as {
+// 	gameLocationId: string;
+// 	joinerLocationIds: string[];
+// };
+
+// 5. Delete a game and associated data
 // 5. Delete a game (host deletes the game)
+// 5. Delete a game (host deletes the game) wrapped in a transaction
 export const deleteGame = async (gameId: string) => {
 	try {
-		await db.delete(gamesTable).where(eq(gamesTable.id, gameId));
-		console.log('Game deleted successfully');
+		// Begin a transaction
+		await db.transaction(async (tx) => {
+			// Step 1: Retrieve the game location and joiner location IDs for this game
+			const gameInfo = await tx
+				.select({
+					gameLocationId: gamesTable.locationId,
+					joinerLocationIds:
+						sql`array_agg(${gameSlotsTable.joinerLocationId})`.as(
+							'joinerLocationIds'
+						),
+				})
+				.from(gamesTable)
+				.leftJoin(gameSlotsTable, eq(gamesTable.id, gameSlotsTable.gameId))
+				.where(eq(gamesTable.id, gameId))
+				.groupBy(gamesTable.locationId);
+
+			const { gameLocationId, joinerLocationIds } = gameInfo[0] as {
+				gameLocationId: string;
+				joinerLocationIds: string[];
+			};
+
+			// Step 2: Filter out null or invalid joiner location IDs (to avoid errors)
+			const validJoinerLocationIds = joinerLocationIds.filter(
+				(id: string | null) => id !== null && id !== 'NULL'
+			);
+
+			console.log('gameinfo', gameInfo[0]);
+			console.log('validJoinerLocationIds', validJoinerLocationIds);
+			// Step 3: Delete game slots associated with the game
+			await tx.delete(gameSlotsTable).where(eq(gameSlotsTable.gameId, gameId));
+
+			// Step 4: Delete the game
+			console.log('step 4');
+			await tx.delete(gamesTable).where(eq(gamesTable.id, gameId));
+
+			// Step 5: Delete the temporary joiner locations (if any)
+			console.log('step 5');
+			if (validJoinerLocationIds.length > 0) {
+				await tx
+					.delete(locationsTable)
+					.where(
+						and(
+							inArray(locationsTable.id, validJoinerLocationIds),
+							eq(locationsTable.temporary, true)
+						)
+					);
+			}
+
+			// Step 6: Check if the game's location is temporary
+			console.log('step 6');
+			const isGameLocationTemporary = await tx
+				.select({
+					temporary: locationsTable.temporary,
+				})
+				.from(locationsTable)
+				.where(eq(locationsTable.id, gameLocationId));
+
+			// Step 7: Delete the game location if it is temporary
+			console.log('step 7');
+			if (isGameLocationTemporary[0]?.temporary) {
+				await tx
+					.delete(locationsTable)
+					.where(eq(locationsTable.id, gameLocationId));
+			}
+
+			console.log('Game and associated data deleted successfully');
+		});
 	} catch (error) {
 		console.error('Error deleting game:', error);
 		throw error;
 	}
 };
 
+// const { gameLocationId, joinerLocationIds } = gameInfo[0] as {
+// 	gameLocationId: string;
+// 	joinerLocationIds: string[];
+// };
 // 6. Get games by location (for joiners searching within a location radius)
 export const getGamesByLocationRadius = async (
 	location: string, // Could be either 'POINT(lat, lon)' or WKB format

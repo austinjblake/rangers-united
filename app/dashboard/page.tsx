@@ -27,6 +27,7 @@ import {
 	getGameSlotsByUserIdAction,
 	deleteGameSlotAction,
 } from '@/actions/slots-actions';
+import { deleteGameAction } from '@/actions/games-actions';
 
 interface GameSlot {
 	slotId: string;
@@ -77,7 +78,8 @@ export default function Dashboard() {
 			'Delete Game',
 			'Are you sure you want to delete this game? This action cannot be undone.',
 			async () => {
-				const result = await deleteGameSlotAction(gameId);
+				console.log('deleting game', gameId);
+				const result = await deleteGameAction(gameId);
 				if (result.status === 'success') {
 					fetchGameSlots();
 				}
@@ -90,8 +92,11 @@ export default function Dashboard() {
 		openModal(
 			'Leave Game',
 			'Are you sure you want to leave this game? You may not be able to rejoin if the game becomes full.',
-			() => {
-				console.log(`Leaving game ${gameId}`);
+			async () => {
+				const result = await deleteGameSlotAction(gameId);
+				if (result.status === 'success') {
+					fetchGameSlots();
+				}
 				closeModal();
 			}
 		);
@@ -110,7 +115,7 @@ export default function Dashboard() {
 					>
 						<GameSlot
 							game={slot}
-							onDelete={() => handleDeleteGame(slot.slotId)}
+							onDelete={() => handleDeleteGame(slot.gameId)}
 							onLeave={() => handleLeaveGame(slot.slotId)}
 						/>
 					</Card>
@@ -141,10 +146,14 @@ function EmptySlot() {
 	return (
 		<CardContent className='flex flex-col items-center justify-center space-y-4 p-6'>
 			<p className='text-center text-sm text-gray-500'>No game scheduled</p>
-			<Button className='w-full' variant='outline'>
-				Host a Game
-			</Button>
-			<Button className='w-full'>Search for a Game</Button>
+			<Link href='/host-game'>
+				<Button className='w-full' variant='outline'>
+					Host a Game
+				</Button>
+			</Link>
+			<Link href='/join-game'>
+				<Button className='w-full'>Search for a Game</Button>
+			</Link>
 		</CardContent>
 	);
 }
