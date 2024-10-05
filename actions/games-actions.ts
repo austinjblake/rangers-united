@@ -97,18 +97,19 @@ export async function getGameByIdAction(gameId: string): Promise<ActionState> {
 		const userId = await requireAuth();
 		const joinedGame = await hasUserJoinedGame(userId, gameId);
 		const isAdmin = await isUserAdmin(userId);
-		if (!joinedGame || !isAdmin) {
+		if (!joinedGame && !isAdmin) {
 			return {
 				status: 'error',
 				message: 'You are not authorized to view this game',
 			};
 		}
-		const game = await getGameById(gameId);
-
+		const result = await getGameById(gameId);
+		const game = result[0];
+		const editAuth = userId === game.hostId || isAdmin;
 		return {
 			status: 'success',
 			message: 'Game retrieved successfully',
-			data: game,
+			data: { ...game, editAuth },
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to retrieve game' };
@@ -118,20 +119,39 @@ export async function getGameByIdAction(gameId: string): Promise<ActionState> {
 // Action to update a game's details
 export async function updateGameAction(
 	gameId: string,
-	data: Partial<InsertGame>
+	data: { location?: SelectLocation; date?: Date }
 ): Promise<ActionState> {
 	try {
 		const userId = await requireAuth();
 		const isHost = await isUserHost(userId, gameId);
 		const isAdmin = await isUserAdmin(userId);
-		if (!isHost || !isAdmin) {
+		if (!isHost && !isAdmin) {
 			return {
 				status: 'error',
 				message: 'You are not authorized to update this game',
 			};
 		}
-		await updateGame(gameId, data);
+
+		let updateData = { locationId: data.location?.id, date: data.date };
+
+		if (data.location && data.location.id === '') {
+			const locationObj = {
+				id: '',
+				name: data.location.name,
+				location: data.location.readableAddress,
+				readableAddress: data.location.readableAddress,
+				userId,
+				isFLGS: data.location.isFLGS,
+				isPrivate: data.location.isPrivate,
+				temporary: true,
+			};
+			const newLocation = await createLocation(locationObj);
+			updateData.locationId = newLocation.data.id;
+		}
+
+		await updateGame(gameId, updateData);
 		revalidatePath(`/games/${gameId}`);
+		// TODO: remove old game location if temporary
 		return {
 			status: 'success',
 			message: 'Game updated successfully',

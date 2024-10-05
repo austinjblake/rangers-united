@@ -75,7 +75,7 @@ export const getLocationById = async (locationId: string) => {
 			};
 		}
 
-		return location;
+		return { status: 'success', data: location };
 	} catch (error) {
 		console.error('Error fetching location by ID:', error);
 		throw error;

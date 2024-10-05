@@ -271,9 +271,11 @@ function GameSlot({
 					<div className='flex space-x-2'>
 						{game.isHost ? (
 							<>
-								<Button variant='outline' size='sm' title='Edit Game'>
-									<PencilIcon className='h-4 w-4 mr-1' />
-								</Button>
+								<Link href={`/games/edit/${game.gameId}`}>
+									<Button variant='outline' size='sm' title='Edit Game'>
+										<PencilIcon className='h-4 w-4 mr-1' />
+									</Button>
+								</Link>
 								<Button
 									variant='outline'
 									size='sm'
