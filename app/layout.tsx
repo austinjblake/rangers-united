@@ -2,14 +2,9 @@ import Header from '@/components/header';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/utilities/providers';
 import { ClerkProvider } from '@clerk/nextjs';
-import { auth } from '@clerk/nextjs/server';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import {
-	createProfileAction,
-	getProfileByUserIdAction,
-} from '@/actions/profiles-actions';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,8 +28,7 @@ export default async function RootLayout({
 						defaultTheme='dark'
 						disableTransitionOnChange
 					>
-						<Header />
-						{children}
+						<Header>{children}</Header>
 						<Toaster />
 					</Providers>
 				</body>

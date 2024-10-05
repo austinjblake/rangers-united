@@ -47,14 +47,16 @@ export const getGameById = async (gameId: string) => {
 // 4. Update a game (host updates game details such as location or date)
 export const updateGame = async (
 	gameId: string,
-	updatedData: Partial<InsertGame>
+	updateData: { locationId?: string; date?: Date }
 ) => {
 	try {
-		await db
+		const query = db
 			.update(gamesTable)
-			.set(updatedData)
+			.set(updateData)
 			.where(eq(gamesTable.id, gameId));
-		console.log('Game updated successfully');
+
+		const result = await query;
+		return result;
 	} catch (error) {
 		console.error('Error updating game:', error);
 		throw error;

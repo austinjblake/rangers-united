@@ -14,6 +14,7 @@ import { ActionState } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
+import { metersToMiles } from '@/lib/places';
 // Action to create a new game slot
 export async function createGameSlotAction(
 	data: Omit<Partial<InsertGameSlot>, 'id' | 'userId'>
@@ -78,10 +79,17 @@ export async function getGameSlotsByUserIdAction(): Promise<ActionState> {
 			throw new Error('User does not have permission to get this game slot');
 		}
 		const gameSlots = await getGameSlotsByUser(userId);
+		// convert distance to miles
+		const gameSlotsWithDistanceInMiles = gameSlots.map((slot) => {
+			return {
+				...slot,
+				distance: metersToMiles(slot.distance as number),
+			};
+		});
 		return {
 			status: 'success',
 			message: 'Game slots retrieved successfully',
-			data: gameSlots,
+			data: gameSlotsWithDistanceInMiles,
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to get game slots' };

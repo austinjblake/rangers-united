@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
 	CalendarIcon,
-	Clock,
 	Info,
 	HomeIcon,
 	StoreIcon,
@@ -98,7 +97,7 @@ export default function CreateGameForm() {
 
 				// Delay the redirection to allow the user to see the toast
 				setTimeout(() => {
-					//router.push(`/games/${gameResult.data.id}`);
+					router.push(`/games/${gameResult.data.id}`);
 				}, 1000);
 			} else {
 				toast({
@@ -188,7 +187,7 @@ export default function CreateGameForm() {
 										<MapPinIcon className='h-5 w-5' />
 									</span>
 								)}
-								<p>{selectedLocation.name || 'Custom Location'}</p>
+								<p>{selectedLocation.name || 'Other Location'}</p>
 								<div className='text-sm text-gray-500'>
 									{selectedLocation.readableAddress}
 								</div>

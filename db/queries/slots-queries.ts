@@ -31,14 +31,40 @@ export const getGameSlotsByUser = async (userId: string) => {
 				isHost: gameSlotsTable.isHost,
 				joinerLocationId: gameSlotsTable.joinerLocationId,
 				gameLocationId: gamesTable.locationId, // Game location from gamesTable
-				gameDate: gamesTable.date, // Other fields you may need from gamesTable
+				gameDate: gamesTable.date,
 				gameId: gamesTable.id,
 				locationIsPrivate: locationsTable.isPrivate, // Fetching private from locationsTable
 				locationIsFLGS: locationsTable.isFLGS, // Fetching FLGS from locationsTable
+				locationName: locationsTable.name,
+				// Subquery to count the number of joiners for each game
+				joinerCount: sql`(
+					SELECT COUNT(${gameSlotsTable.userId})
+					FROM ${gameSlotsTable}
+					WHERE ${gameSlotsTable.gameId} = ${gamesTable.id}
+				)`.as('joinerCount'),
+				// Calculate the distance between the game location (gameId in gameSlot) and the joiner location (joinerLocationId)
+				distance: sql`CASE 
+					WHEN ${gameSlotsTable.joinerLocationId} IS NOT NULL THEN 
+						ST_Distance(
+							(SELECT ${locationsTable.location} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gameSlotsTable.joinerLocationId})::geography,
+							(SELECT ${locationsTable.location} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gamesTable.locationId})::geography
+						)
+					ELSE NULL
+				END`.as('distance'),
+				// Return the readable address:
+				// 1. If the user is the host, return the game location address
+				// 2. If the user is a joiner, return the joiner's location address
+				readableAddress: sql`CASE 
+					WHEN ${gameSlotsTable.isHost} THEN 
+						(SELECT ${locationsTable.readableAddress} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gamesTable.locationId})
+					WHEN ${gameSlotsTable.joinerLocationId} IS NOT NULL THEN 
+						(SELECT ${locationsTable.readableAddress} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gameSlotsTable.joinerLocationId})
+					ELSE NULL
+				END`.as('readableAddress'),
 			})
 			.from(gameSlotsTable)
 			.leftJoin(gamesTable, eq(gameSlotsTable.gameId, gamesTable.id)) // Join gameSlots with games
-			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id)) // Join locationsTable to get location details
+			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id)) // Join locationsTable to get game location details
 			.where(eq(gameSlotsTable.userId, userId)); // Filter by userId
 
 		return result;
