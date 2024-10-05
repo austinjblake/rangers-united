@@ -28,12 +28,14 @@ import { Button } from '@/components/ui/button';
 
 interface LocationSelectorProps {
 	type: 'searchGame' | 'hostGame';
-	onUseLocation: (location: SelectLocation | SelectLocation[]) => void;
+	onUseLocation: (location: SelectLocation) => void;
+	children?: React.ReactNode;
 }
 
 export default function LocationSelector({
 	type,
 	onUseLocation,
+	children,
 }: LocationSelectorProps) {
 	const [selectedLocation, setSelectedLocation] =
 		useState<SelectLocation | null>(null);
@@ -200,6 +202,7 @@ export default function LocationSelector({
 							</Tooltip>
 						</TooltipProvider>
 					</div>
+					{children}
 					<Button
 						onClick={handleUseLocation}
 						className='w-full'

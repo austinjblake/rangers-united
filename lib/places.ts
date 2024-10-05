@@ -5,9 +5,14 @@ config({ path: '.env.local' });
 
 const googleApiKey = process.env.GOOGLE_MAPS_GEOCODING_API_KEY;
 
-const milesToMeters = (miles: number): number => {
+export const milesToMeters = (miles: number): number => {
 	const metersPerMile = 1609.34;
 	return miles * metersPerMile;
+};
+
+export const metersToMiles = (meters: number): number => {
+	const milesPerMeter = 0.000621371;
+	return meters * milesPerMeter;
 };
 
 export async function findNearbyFLGS(address: string, radius: number) {

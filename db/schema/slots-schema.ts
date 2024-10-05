@@ -3,7 +3,7 @@ import { profilesTable } from './profiles-schema';
 import { locationsTable } from './locations-schema';
 import { gamesTable } from './games-schema';
 
-export const gameSlotsTable = pgTable('GameSlots', {
+export const gameSlotsTable = pgTable('game_slots', {
 	id: uuid('id').primaryKey(),
 	userId: text('user_id')
 		.references(() => profilesTable.userId)

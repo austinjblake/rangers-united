@@ -2,7 +2,7 @@ import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { gamesTable } from './games-schema';
 import { profilesTable } from './profiles-schema';
 
-export const messagesTable = pgTable('Messages', {
+export const messagesTable = pgTable('messages', {
 	id: uuid('id').primaryKey(),
 	gameId: uuid('game_id')
 		.references(() => gamesTable.id)

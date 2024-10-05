@@ -6,7 +6,7 @@ import {
 	getGameById,
 	updateGame,
 	deleteGame,
-	getGamesByLocation,
+	getGamesByLocationRadius,
 	getAllGames,
 } from '@/db/queries/games-queries';
 import { InsertGame } from '@/db/schema/games-schema';
@@ -21,6 +21,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { createLocation } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
+import { metersToMiles, milesToMeters } from '@/lib/places';
 
 // Action to create a new game
 export async function createGameAction(
@@ -165,17 +166,24 @@ export async function deleteGameAction(gameId: string): Promise<ActionState> {
 
 // Action to get games by location (for joiners searching within a location radius)
 export async function getGamesByLocationAction(
-	location: string
+	location: string,
+	radius: number
 ): Promise<ActionState> {
 	try {
-		await requireAuth();
-		const games = await getGamesByLocation(location);
+		const meters = milesToMeters(radius);
+		const userId = await requireAuth();
+		const result = await getGamesByLocationRadius(location, userId, meters);
+		const gamesWithDistanceInMiles = result.map((game) => ({
+			...game,
+			distance: metersToMiles(Number(game.distance)),
+		}));
 		return {
 			status: 'success',
 			message: 'Games retrieved successfully',
-			data: games,
+			data: gamesWithDistanceInMiles,
 		};
 	} catch (error) {
+		console.error('Error fetching games by location:', error);
 		return { status: 'error', message: 'Failed to retrieve games by location' };
 	}
 }
