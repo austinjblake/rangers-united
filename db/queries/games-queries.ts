@@ -63,14 +63,7 @@ export const updateGame = async (
 	}
 };
 
-// const { gameLocationId, joinerLocationIds } = gameInfo[0] as {
-// 	gameLocationId: string;
-// 	joinerLocationIds: string[];
-// };
-
 // 5. Delete a game and associated data
-// 5. Delete a game (host deletes the game)
-// 5. Delete a game (host deletes the game) wrapped in a transaction
 export const deleteGame = async (gameId: string) => {
 	try {
 		// Begin a transaction
@@ -146,10 +139,6 @@ export const deleteGame = async (gameId: string) => {
 	}
 };
 
-// const { gameLocationId, joinerLocationIds } = gameInfo[0] as {
-// 	gameLocationId: string;
-// 	joinerLocationIds: string[];
-// };
 // 6. Get games by location (for joiners searching within a location radius)
 export const getGamesByLocationRadius = async (
 	location: string, // Could be either 'POINT(lat, lon)' or WKB format
@@ -236,6 +225,63 @@ export const getAllGames = async () => {
 		return result;
 	} catch (error) {
 		console.error('Error fetching all games:', error);
+		throw error;
+	}
+};
+
+export const getGameInfoForSlot = async (userId: string, gameId: string) => {
+	try {
+		// Select the game slot and related game and location information
+		const result = await db
+			.select({
+				slotId: gameSlotsTable.id,
+				isHost: gameSlotsTable.isHost,
+				joinerLocationId: gameSlotsTable.joinerLocationId,
+				gameLocationId: gamesTable.locationId, // Game location from gamesTable
+				gameDate: gamesTable.date,
+				locationName: locationsTable.name,
+				locationIsPrivate: locationsTable.isPrivate, // Fetching private from locationsTable
+				locationIsFLGS: locationsTable.isFLGS, // Fetching FLGS from locationsTable
+				// Get the host's username
+				hostUsername: profilesTable.username,
+				// Subquery to count the number of joiners for the game
+				joinerCount: sql`(
+          SELECT COUNT(${gameSlotsTable.userId})
+          FROM ${gameSlotsTable}
+          WHERE ${gameSlotsTable.gameId} = ${gamesTable.id}
+        )`.as('joinerCount'),
+				// Calculate the distance between the game location and the joiner location
+				distance: sql`CASE 
+          WHEN ${gameSlotsTable.joinerLocationId} IS NOT NULL THEN 
+            ST_Distance(
+              (SELECT ${locationsTable.location} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gameSlotsTable.joinerLocationId})::geography,
+              (SELECT ${locationsTable.location} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gamesTable.locationId})::geography
+            )
+          ELSE NULL
+        END`.as('distance'),
+				// Return the readable address based on host or joiner location
+				readableAddress: sql`CASE 
+          WHEN ${gameSlotsTable.isHost} THEN 
+            (SELECT ${locationsTable.readableAddress} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gamesTable.locationId})
+          WHEN ${gameSlotsTable.joinerLocationId} IS NOT NULL THEN 
+            (SELECT ${locationsTable.readableAddress} FROM ${locationsTable} WHERE ${locationsTable.id} = ${gameSlotsTable.joinerLocationId})
+          ELSE NULL
+        END`.as('readableAddress'),
+			})
+			.from(gameSlotsTable)
+			.leftJoin(gamesTable, eq(gameSlotsTable.gameId, gamesTable.id)) // Join gameSlots with games
+			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id)) // Join locationsTable to get game location details
+			.leftJoin(profilesTable, eq(gamesTable.hostId, profilesTable.userId)) // Join profilesTable to get the host's username
+			.where(
+				and(
+					eq(gameSlotsTable.userId, userId), // Filter by userId (the current user)
+					eq(gameSlotsTable.gameId, gameId) // Filter by gameId (the selected game)
+				)
+			);
+
+		return result;
+	} catch (error) {
+		console.error('Error fetching game information for slot:', error);
 		throw error;
 	}
 };

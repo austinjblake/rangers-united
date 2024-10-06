@@ -8,6 +8,7 @@ import {
 	deleteGame,
 	getGamesByLocationRadius,
 	getAllGames,
+	getGameInfoForSlot,
 } from '@/db/queries/games-queries';
 import { InsertGame } from '@/db/schema/games-schema';
 import { ActionState } from '@/types';
@@ -222,5 +223,33 @@ export async function getAllGamesAction(): Promise<ActionState> {
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to retrieve all games' };
+	}
+}
+
+// Action to get a specific game by ID
+export async function getAllGameInfo(gameId: string): Promise<ActionState> {
+	try {
+		const userId = await requireAuth();
+		const joinedGame = await hasUserJoinedGame(userId, gameId);
+		const isAdmin = await isUserAdmin(userId);
+		if (!joinedGame && !isAdmin) {
+			return {
+				status: 'error',
+				message: 'You are not authorized to view this game',
+			};
+		}
+		const result = await getGameInfoForSlot(userId, gameId);
+		const game = result[0];
+		const gameWithDistanceInMiles = {
+			...game,
+			distance: metersToMiles(Number(game.distance)),
+		};
+		return {
+			status: 'success',
+			message: 'Game retrieved successfully',
+			data: gameWithDistanceInMiles,
+		};
+	} catch (error) {
+		return { status: 'error', message: 'Failed to retrieve game' };
 	}
 }
