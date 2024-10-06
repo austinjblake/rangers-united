@@ -53,7 +53,7 @@ export default function LocationSelector({
 	};
 
 	// set chosen location
-	const handleLocationSelect = (location: SelectLocation) => {
+	const handleLocationSelect = (location: SelectLocation | null) => {
 		setSelectedLocation(location);
 	};
 

@@ -105,13 +105,66 @@ export const updateGameSlot = async (
 	}
 };
 
-// 5. Delete a game slot (e.g., if a user cancels their slot)
-export const deleteGameSlot = async (slotId: string) => {
+// 5.Delete a game slot when a user leaves a game they joined
+export const deleteGameSlot = async (userId: string, gameId: string) => {
 	try {
-		await db.delete(gameSlotsTable).where(eq(gameSlotsTable.id, slotId));
-		console.log('Game slot deleted successfully');
+		// Begin a transaction
+		await db.transaction(async (tx) => {
+			// Step 1: Retrieve the game slot details for the user and the game
+			const gameSlotInfo = await tx
+				.select({
+					joinerLocationId: gameSlotsTable.joinerLocationId,
+				})
+				.from(gameSlotsTable)
+				.where(
+					and(
+						eq(gameSlotsTable.userId, userId),
+						eq(gameSlotsTable.gameId, gameId),
+						eq(gameSlotsTable.isHost, false) // Ensure the user is not the host
+					)
+				)
+				.limit(1);
+
+			// If no game slot is found, return an error
+			if (gameSlotInfo.length === 0) {
+				throw new Error('Game slot not found or user is the host.');
+			}
+
+			const { joinerLocationId } = gameSlotInfo[0];
+
+			// Step 2: Delete the game slot for the user
+			await tx
+				.delete(gameSlotsTable)
+				.where(
+					and(
+						eq(gameSlotsTable.userId, userId),
+						eq(gameSlotsTable.gameId, gameId)
+					)
+				);
+
+			// Step 3: If there's a joinerLocationId and it is temporary, delete the associated location
+			if (joinerLocationId) {
+				const isLocationTemporary = await tx
+					.select({
+						temporary: locationsTable.temporary,
+					})
+					.from(locationsTable)
+					.where(eq(locationsTable.id, joinerLocationId));
+
+				// If the location is marked as temporary, delete it
+				if (isLocationTemporary[0]?.temporary) {
+					await tx
+						.delete(locationsTable)
+						.where(eq(locationsTable.id, joinerLocationId));
+				}
+			}
+
+			console.log(
+				'Game slot and associated location (if temporary) deleted successfully'
+			);
+		});
 	} catch (error) {
-		console.error('Error deleting game slot:', error);
+		console.error('Error leaving game slot:', error);
 		throw error;
 	}
 };
@@ -133,20 +186,6 @@ export const isUserHostForGame = async (userId: string, gameId: string) => {
 		return result.length > 0;
 	} catch (error) {
 		console.error('Error checking if user is host for game:', error);
-		throw error;
-	}
-};
-
-// 7. Get all game slots with a specific location (for location-based search)
-export const getGameSlotsByLocation = async (location: string) => {
-	try {
-		const result = await db
-			.select()
-			.from(gameSlotsTable)
-			.where(eq(gameSlotsTable.location, location));
-		return result;
-	} catch (error) {
-		console.error('Error fetching game slots by location:', error);
 		throw error;
 	}
 };

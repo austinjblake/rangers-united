@@ -11,7 +11,7 @@ import { SelectLocation } from '@/db/schema';
 import { useToast } from '@/components/ui/use-toast';
 
 interface SavedLocationsProps {
-	onSelect: (location: SelectLocation) => void;
+	onSelect: (location: SelectLocation | null) => void;
 	selectedLocation: SelectLocation | null;
 }
 
@@ -51,15 +51,19 @@ export function SavedLocations({
 	const handleDeleteConfirm = async () => {
 		if (locationToDelete) {
 			try {
-				await deleteLocation(locationToDelete.id);
-				setLocations(locations.filter((loc) => loc.id !== locationToDelete.id));
-				toast({
-					title: 'Location deleted',
-					description: `${locationToDelete.name} has been successfully removed.`,
-					variant: 'default',
-				});
+				const deleteResult = await deleteLocation(locationToDelete.id);
+				if (deleteResult.status === 'success') {
+					setLocations(
+						locations.filter((loc) => loc.id !== locationToDelete.id)
+					);
+					onSelect(null);
+					toast({
+						title: 'Location deleted',
+						description: `${locationToDelete.name} has been successfully removed.`,
+						variant: 'default',
+					});
+				} else throw new Error('Failed to delete location');
 			} catch (err) {
-				setError('Failed to delete location');
 				console.error('Error deleting location:', err);
 				toast({
 					title: 'Error',

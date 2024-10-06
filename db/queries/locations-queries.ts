@@ -1,6 +1,8 @@
 import { db } from '@/db/db';
-import { eq, sql } from 'drizzle-orm';
+import { eq, or, sql } from 'drizzle-orm';
 import { InsertLocation, locationsTable } from '@/db/schema/locations-schema';
+import { gamesTable } from '../schema/games-schema';
+import { gameSlotsTable } from '../schema/slots-schema';
 
 // Insert a new location
 export const insertLocation = async (locationData: InsertLocation) => {
@@ -109,6 +111,43 @@ export const fetchLocationsByProximity = async (
 		return result;
 	} catch (error) {
 		console.error('Error fetching locations by proximity:', error);
+		throw error;
+	}
+};
+
+// Check if a location is in use before deleting
+export const isLocationInUse = async (locationId: string) => {
+	try {
+		// Check if the location is being used in either gamesTable or gameSlotsTable
+		const result = await db
+			.select({
+				gameCount: sql`COUNT(*)`.as('gameCount'),
+				slotCount: sql`COUNT(*)`.as('slotCount'),
+			})
+			.from(gamesTable)
+			.leftJoin(
+				gameSlotsTable,
+				or(
+					eq(gameSlotsTable.joinerLocationId, locationId), // Check if the location is used as joinerLocationId
+					eq(gamesTable.locationId, locationId) // Check if the location is used as game location
+				)
+			)
+			.where(
+				or(
+					eq(gamesTable.locationId, locationId), // Check if the location is tied to a hosted game
+					eq(gameSlotsTable.joinerLocationId, locationId) // Check if the location is tied to a game slot
+				)
+			);
+
+		// If either gameCount or slotCount is greater than 0, the location is in use
+		const { gameCount, slotCount } = result[0] as {
+			gameCount: number;
+			slotCount: number;
+		};
+
+		return gameCount > 0 || slotCount > 0;
+	} catch (error) {
+		console.error('Error checking if location is in use:', error);
 		throw error;
 	}
 };

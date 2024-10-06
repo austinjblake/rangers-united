@@ -88,12 +88,12 @@ export default function Dashboard() {
 		);
 	};
 
-	const handleLeaveGame = (gameId: string) => {
+	const handleLeaveGame = (gameSlotId: string, gameId: string) => {
 		openModal(
 			'Leave Game',
 			'Are you sure you want to leave this game? You may not be able to rejoin if the game becomes full.',
 			async () => {
-				const result = await deleteGameSlotAction(gameId);
+				const result = await deleteGameSlotAction(gameSlotId, gameId);
 				if (result.status === 'success') {
 					fetchGameSlots();
 				}
@@ -116,7 +116,7 @@ export default function Dashboard() {
 						<GameSlot
 							game={slot}
 							onDelete={() => handleDeleteGame(slot.gameId)}
-							onLeave={() => handleLeaveGame(slot.slotId)}
+							onLeave={() => handleLeaveGame(slot.slotId, slot.gameId)}
 						/>
 					</Card>
 				))}

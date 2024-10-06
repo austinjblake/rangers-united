@@ -8,6 +8,7 @@ import {
 	removeLocation,
 	fetchAllFLGSLocations,
 	fetchLocationsByProximity,
+	isLocationInUse,
 } from '@/db/queries/locations-queries';
 import { InsertLocation, SelectLocation } from '@/db/schema/locations-schema';
 import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
@@ -122,6 +123,13 @@ export const deleteLocation = async (locationId: string) => {
 			return {
 				status: 'error',
 				message: 'You are not authorized to delete this location',
+			};
+		}
+		const locationUsed = await isLocationInUse(locationId);
+		if (locationUsed) {
+			return {
+				status: 'error',
+				message: 'Location is currently in use',
 			};
 		}
 		await removeLocation(locationId);

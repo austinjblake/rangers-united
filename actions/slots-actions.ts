@@ -122,7 +122,8 @@ export async function updateGameSlotAction(
 
 // Action to delete a game slot by ID
 export async function deleteGameSlotAction(
-	gameSlotId: string
+	gameSlotId: string,
+	gameId: string
 ): Promise<ActionState> {
 	try {
 		const user = await requireAuth();
@@ -131,7 +132,7 @@ export async function deleteGameSlotAction(
 		if (!isAdmin && !belongsToUser) {
 			throw new Error('User does not have permission to delete this game slot');
 		}
-		await deleteGameSlot(gameSlotId);
+		await deleteGameSlot(user, gameId);
 		revalidatePath('/game-slots');
 		return { status: 'success', message: 'Game slot deleted successfully' };
 	} catch (error) {
