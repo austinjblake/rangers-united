@@ -60,7 +60,6 @@ export default function Dashboard() {
 	const fetchGameSlots = async () => {
 		const result = await getGameSlotsByUserIdAction();
 		if (result.status === 'success' && result.data) {
-			console.log('game slots for user', result.data);
 			setGameSlots(result.data);
 		}
 	};

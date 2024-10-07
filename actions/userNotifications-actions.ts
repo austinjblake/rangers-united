@@ -4,6 +4,7 @@ import {
 	checkNotificationBelongsToUser,
 	createNotification,
 	getNotificationsByUser,
+	markNotificationAsRead,
 } from '@/db/queries/userNotifications-queries';
 import { InsertUserNotification } from '@/db/schema/userNotifications-schema';
 import { ActionState } from '@/types';
@@ -48,7 +49,7 @@ export async function getUserNotifications(): Promise<ActionState> {
 }
 
 // Action to mark a notification as read
-export async function markNotificationAsRead(
+export async function markNotificationAsReadAction(
 	notificationId: string
 ): Promise<ActionState> {
 	try {
@@ -126,5 +127,24 @@ export async function deleteNotificationsForGame(
 			status: 'error',
 			message: 'Failed to delete notifications for game',
 		};
+	}
+}
+
+// Action to mark multiple notifications as read
+export async function markNotificationsAsReadAction(
+	notificationIds: string[]
+): Promise<ActionState> {
+	try {
+		for (const notificationId of notificationIds) {
+			await markNotificationAsReadAction(notificationId);
+		}
+		revalidatePath('/notifications');
+		return {
+			status: 'success',
+			message: 'Notifications marked as read',
+		};
+	} catch (error) {
+		console.error('Error marking notifications as read:', error);
+		return { status: 'error', message: 'Failed to mark notifications as read' };
 	}
 }

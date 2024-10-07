@@ -5,18 +5,25 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Bell, Menu, Moon, Sun } from 'lucide-react';
-import { getUserNotifications } from '@/actions/userNotifications-actions';
+import { Bell, BellRing, Menu, Moon, Sun } from 'lucide-react';
+import {
+	getUserNotifications,
+	markNotificationsAsReadAction,
+} from '@/actions/userNotifications-actions';
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function Component({ children }: { children: React.ReactNode }) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [notifications, setNotifications] = useState<any[]>([]);
+	const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
 
 	useEffect(() => {
 		if (isDarkMode) {
@@ -26,16 +33,27 @@ export default function Component({ children }: { children: React.ReactNode }) {
 		}
 	}, [isDarkMode]);
 
-	useEffect(() => {
-		fetchNotifications();
-	}, []);
-
 	const fetchNotifications = async () => {
 		const result = await getUserNotifications();
 		if (result.status === 'success' && result.data) {
+			console.log('notifications', result.data);
 			setNotifications(result.data);
+			setHasUnreadNotifications(
+				result.data.some((notification: any) => !notification.isRead)
+			);
 		}
 	};
+	useEffect(() => {
+		fetchNotifications(); // Refetch on URL change
+	}, [pathname, searchParams]);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			fetchNotifications(); // Periodically fetch notifications
+		}, 5 * 60 * 1000); // Every 5 minutes
+
+		return () => clearInterval(interval); // Cleanup on unmount
+	}, []);
 
 	const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 	const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
@@ -53,6 +71,19 @@ export default function Component({ children }: { children: React.ReactNode }) {
 		}
 
 		return notification;
+	};
+
+	const handleNotificationClick = async () => {
+		const unreadNotifications = notifications
+			.filter((notification: any) => !notification.isRead)
+			.slice(0, 3);
+		if (unreadNotifications.length > 0) {
+			const ids = unreadNotifications.map(
+				(notification: any) => notification.id
+			);
+			await markNotificationsAsReadAction(ids);
+			fetchNotifications(); // Refetch to update the UI
+		}
 	};
 
 	const NavLinks = () => (
@@ -215,8 +246,16 @@ export default function Component({ children }: { children: React.ReactNode }) {
 				<div className='flex items-center space-x-4'>
 					<Popover>
 						<PopoverTrigger asChild>
-							<Button variant='ghost' size='icon'>
-								<Bell className='h-5 w-5' />
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={handleNotificationClick}
+							>
+								{hasUnreadNotifications ? (
+									<BellRing className='h-5 w-5' color='red' />
+								) : (
+									<Bell className='h-5 w-5' />
+								)}
 								<span className='sr-only'>Notifications</span>
 							</Button>
 						</PopoverTrigger>
