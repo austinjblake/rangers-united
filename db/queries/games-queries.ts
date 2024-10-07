@@ -65,6 +65,8 @@ export const updateGame = async (
 
 // 5. Delete a game and associated data
 export const deleteGame = async (gameId: string) => {
+	// TODO: Delete messages associated with the game
+	// TODO: Delete notifications associated with the game
 	try {
 		// Begin a transaction
 		await db.transaction(async (tx) => {
@@ -92,17 +94,13 @@ export const deleteGame = async (gameId: string) => {
 				(id: string | null) => id !== null && id !== 'NULL'
 			);
 
-			console.log('gameinfo', gameInfo[0]);
-			console.log('validJoinerLocationIds', validJoinerLocationIds);
 			// Step 3: Delete game slots associated with the game
 			await tx.delete(gameSlotsTable).where(eq(gameSlotsTable.gameId, gameId));
 
 			// Step 4: Delete the game
-			console.log('step 4');
 			await tx.delete(gamesTable).where(eq(gamesTable.id, gameId));
 
 			// Step 5: Delete the temporary joiner locations (if any)
-			console.log('step 5');
 			if (validJoinerLocationIds.length > 0) {
 				await tx
 					.delete(locationsTable)
@@ -115,7 +113,6 @@ export const deleteGame = async (gameId: string) => {
 			}
 
 			// Step 6: Check if the game's location is temporary
-			console.log('step 6');
 			const isGameLocationTemporary = await tx
 				.select({
 					temporary: locationsTable.temporary,
@@ -124,7 +121,6 @@ export const deleteGame = async (gameId: string) => {
 				.where(eq(locationsTable.id, gameLocationId));
 
 			// Step 7: Delete the game location if it is temporary
-			console.log('step 7');
 			if (isGameLocationTemporary[0]?.temporary) {
 				await tx
 					.delete(locationsTable)
@@ -236,6 +232,7 @@ export const getGameInfoForSlot = async (userId: string, gameId: string) => {
 			.select({
 				slotId: gameSlotsTable.id,
 				isHost: gameSlotsTable.isHost,
+				hostId: gamesTable.hostId,
 				joinerLocationId: gameSlotsTable.joinerLocationId,
 				gameLocationId: gamesTable.locationId, // Game location from gamesTable
 				gameDate: gamesTable.date,

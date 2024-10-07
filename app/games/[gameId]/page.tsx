@@ -35,6 +35,7 @@ export default function GameDetailsPage() {
 		const fetchData = async () => {
 			const gameResult = await getAllGameInfo(gameId as string);
 			if (gameResult.status === 'success') setGame(gameResult.data);
+			console.log(gameResult.data);
 
 			const notificationsResult = await getNotificationByGameIdAction(
 				gameId as string
@@ -185,7 +186,11 @@ export default function GameDetailsPage() {
 				</div>
 
 				{/* Game Chat */}
-				<GameChat gameId={gameId as string} isHost={game.isHost} />
+				<GameChat
+					gameId={gameId as string}
+					isHost={game.isHost}
+					hostId={game.hostId}
+				/>
 
 				<Separator />
 

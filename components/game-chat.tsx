@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, TrashIcon, PencilIcon, ChevronDown } from 'lucide-react';
+import { Send, TrashIcon, PencilIcon, ChevronDown, Crown } from 'lucide-react';
 import {
 	createMessageAction,
 	deleteMessageAction,
@@ -19,9 +19,10 @@ import { toast } from '@/components/ui/use-toast';
 interface GameChatProps {
 	gameId: string;
 	isHost: boolean;
+	hostId: string;
 }
 
-export function GameChat({ gameId, isHost }: GameChatProps) {
+export function GameChat({ gameId, isHost, hostId }: GameChatProps) {
 	const [messages, setMessages] = useState<any[]>([]);
 	const [newMessage, setNewMessage] = useState('');
 	const [showFullTime, setShowFullTime] = useState<{ [key: string]: boolean }>(
@@ -317,8 +318,19 @@ export function GameChat({ gameId, isHost }: GameChatProps) {
 						ref={index === messages.length - 1 ? lastMessageRef : null}
 					>
 						<div className='flex justify-between items-start mb-0.5'>
-							<p className='font-semibold text-primary text-sm italic'>
+							<p
+								className={`font-semibold text-sm italic flex items-center ${
+									message.sender_id === hostId
+										? 'text-yellow-500'
+										: 'text-primary'
+								}`}
+							>
 								{message.profiles.username}
+								{message.sender_id === hostId && (
+									<span className='ml-1' title='Game Host'>
+										<Crown className='h-4 w-4 text-yellow-500' />
+									</span>
+								)}
 							</p>
 							{(isHost || message.sender_id === userId) && (
 								<div className='opacity-0 group-hover:opacity-100 transition-opacity flex'>
