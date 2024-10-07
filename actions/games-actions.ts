@@ -23,6 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createLocation } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
+import { createNotificationAction } from './gameNotifications-actions';
 
 // Action to create a new game
 export async function createGameAction(
@@ -58,6 +59,12 @@ export async function createGameAction(
 		console.log('Creating game', newGameData);
 		await createGame(newGameData);
 		revalidatePath('/games');
+		await createNotificationAction({
+			id: uuidv4(),
+			gameId: newGameData.id,
+			notification: 'Host created a new game',
+			createdAt: new Date(),
+		});
 
 		return {
 			status: 'success',
@@ -152,7 +159,12 @@ export async function updateGameAction(
 
 		await updateGame(gameId, updateData);
 		revalidatePath(`/games/${gameId}`);
-		// TODO: remove old game location if temporary
+		await createNotificationAction({
+			id: uuidv4(),
+			gameId,
+			notification: 'Host updated game location/time details',
+			createdAt: new Date(),
+		});
 		return {
 			status: 'success',
 			message: 'Game updated successfully',

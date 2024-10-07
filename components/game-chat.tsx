@@ -20,10 +20,10 @@ interface GameChatProps {
 	gameId: string;
 	isHost: boolean;
 	hostId: string;
+	messages: any[];
 }
 
-export function GameChat({ gameId, isHost, hostId }: GameChatProps) {
-	const [messages, setMessages] = useState<any[]>([]);
+export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 	const [newMessage, setNewMessage] = useState('');
 	const [showFullTime, setShowFullTime] = useState<{ [key: string]: boolean }>(
 		{}
@@ -35,115 +35,6 @@ export function GameChat({ gameId, isHost, hostId }: GameChatProps) {
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const lastMessageRef = useRef<HTMLDivElement>(null);
 	const [showScrollButton, setShowScrollButton] = useState(false);
-
-	useEffect(() => {
-		const fetchMessages = async () => {
-			const { data, error } = await supabase
-				.from('messages')
-				.select(
-					`
-          id,
-          message,
-          created_at,
-          sender_id,
-          is_deleted,
-          profiles (
-            username
-          )
-        `
-				)
-				.eq('game_id', gameId)
-				.eq('is_deleted', false)
-				.order('created_at', { ascending: true });
-
-			if (error) {
-				console.error('Error fetching messages:', error);
-			} else {
-				setMessages(data);
-			}
-		};
-
-		fetchMessages();
-
-		const channel = supabase
-			.channel(`public:messages`)
-			.on(
-				'postgres_changes',
-				{
-					event: 'INSERT',
-					schema: 'public',
-					table: 'messages',
-					filter: `game_id=eq.${gameId}`,
-				},
-				async (payload) => {
-					if (payload.new.is_deleted) return; // Ignore if the message is marked as deleted
-
-					const { data: profileData, error: profileError } = await supabase
-						.from('profiles')
-						.select('username')
-						.eq('user_id', payload.new.sender_id)
-						.single();
-
-					if (profileError) {
-						console.error('Error fetching sender username:', profileError);
-					} else {
-						const messageWithUsername = {
-							...payload.new,
-							profiles: { username: profileData.username },
-						};
-						setMessages((currentMessages) => [
-							...currentMessages,
-							messageWithUsername,
-						]);
-					}
-				}
-			)
-			.on(
-				'postgres_changes',
-				{
-					event: 'UPDATE',
-					schema: 'public',
-					table: 'messages',
-					filter: `game_id=eq.${gameId}`,
-				},
-				async (payload) => {
-					if (payload.new.is_deleted) {
-						// Remove the message if it is marked as deleted
-						setMessages((currentMessages) =>
-							currentMessages.filter((message) => message.id !== payload.new.id)
-						);
-						return;
-					}
-
-					const { data: profileData, error: profileError } = await supabase
-						.from('profiles')
-						.select('username')
-						.eq('user_id', payload.new.sender_id)
-						.single();
-
-					if (profileError) {
-						console.error('Error fetching sender username:', profileError);
-					} else {
-						const updatedMessageWithUsername = {
-							...payload.new,
-							profiles: { username: profileData.username },
-						};
-						setMessages((currentMessages) =>
-							currentMessages.map((message) =>
-								message.id === payload.new.id
-									? updatedMessageWithUsername
-									: message
-							)
-						);
-					}
-				}
-			)
-			.subscribe();
-
-		return () => {
-			supabase.removeChannel(channel);
-		};
-	}, [gameId]);
 
 	const smoothScrollToBottom = () => {
 		// Easing function

@@ -64,6 +64,20 @@
       "when": 1728301495135,
       "tag": "0008_smooth_sharon_ventura",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1728319043718,
+      "tag": "0009_flaky_mariko_yashida",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1728319473622,
+      "tag": "0010_public_switch",
+      "breakpoints": true
     }
   ]
 }

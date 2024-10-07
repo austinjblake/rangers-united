@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import {
 	Calendar,
@@ -18,33 +17,179 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ConfirmationModal } from '@/components/confirmationModal';
 import { GameChat } from '@/components/game-chat';
-
+import { GameNotifications } from '@/components/game-notifications';
 import { getAllGameInfo, deleteGameAction } from '@/actions/games-actions';
-import { getNotificationByGameIdAction } from '@/actions/notifications-actions';
 import { deleteGameSlotAction } from '@/actions/slots-actions';
+import { supabase } from '@/supabaseClient';
 
 export default function GameDetailsPage() {
 	const [game, setGame] = useState<any>(null);
-	const [notifications, setNotifications] = useState<any[]>([]);
 	const { gameId } = useParams();
 	const router = useRouter();
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+	const [messages, setMessages] = useState<any[]>([]);
+	const [notifications, setNotifications] = useState<any[]>([]);
 
+	// fetch game details
 	useEffect(() => {
 		const fetchData = async () => {
 			const gameResult = await getAllGameInfo(gameId as string);
 			if (gameResult.status === 'success') setGame(gameResult.data);
-			console.log(gameResult.data);
-
-			const notificationsResult = await getNotificationByGameIdAction(
-				gameId as string
-			);
-			if (notificationsResult.status === 'success')
-				setNotifications(notificationsResult.data);
 		};
 
 		fetchData();
+	}, [gameId]);
+
+	// setup supabase realtime listener for game notifications and messages
+	useEffect(() => {
+		const fetchData = async () => {
+			// Fetch messages
+			const { data: messagesData, error: messagesError } = await supabase
+				.from('messages')
+				.select(
+					`
+					id,
+					message,
+					created_at,
+					sender_id,
+					is_deleted,
+					profiles (
+						username
+					)
+				`
+				)
+				.eq('game_id', gameId)
+				.eq('is_deleted', false)
+				.order('created_at', { ascending: true });
+
+			if (messagesError) {
+				console.error('Error fetching messages:', messagesError);
+			} else {
+				setMessages(messagesData);
+			}
+
+			// Fetch notifications
+			const { data: notificationsData, error: notificationsError } =
+				await supabase
+					.from('game_notifications')
+					.select(
+						`
+					id,
+					message,
+					created_at
+				`
+					)
+					.eq('game_id', gameId)
+					.order('created_at', { ascending: false });
+
+			if (notificationsError) {
+				console.error('Error fetching notifications:', notificationsError);
+			} else {
+				setNotifications(notificationsData);
+			}
+		};
+
+		fetchData();
+
+		const channel = supabase.channel(`public:game_${gameId}`);
+
+		// Handle real-time messages
+		channel.on(
+			'postgres_changes',
+			{
+				event: 'INSERT',
+				schema: 'public',
+				table: 'messages',
+				filter: `game_id=eq.${gameId}`,
+			},
+			async (payload) => {
+				if (payload.new.is_deleted) return; // Ignore if the message is marked as deleted
+
+				const { data: profileData, error: profileError } = await supabase
+					.from('profiles')
+					.select('username')
+					.eq('user_id', payload.new.sender_id)
+					.single();
+
+				if (profileError) {
+					console.error('Error fetching sender username:', profileError);
+				} else {
+					const messageWithUsername = {
+						...payload.new,
+						profiles: { username: profileData.username },
+					};
+					setMessages((currentMessages) => [
+						...currentMessages,
+						messageWithUsername,
+					]);
+				}
+			}
+		);
+
+		channel.on(
+			'postgres_changes',
+			{
+				event: 'UPDATE',
+				schema: 'public',
+				table: 'messages',
+				filter: `game_id=eq.${gameId}`,
+			},
+			async (payload) => {
+				if (payload.new.is_deleted) {
+					// Remove the message if it is marked as deleted
+					setMessages((currentMessages) =>
+						currentMessages.filter((message) => message.id !== payload.new.id)
+					);
+					return;
+				}
+
+				const { data: profileData, error: profileError } = await supabase
+					.from('profiles')
+					.select('username')
+					.eq('user_id', payload.new.sender_id)
+					.single();
+
+				if (profileError) {
+					console.error('Error fetching sender username:', profileError);
+				} else {
+					const updatedMessageWithUsername = {
+						...payload.new,
+						profiles: { username: profileData.username },
+					};
+					setMessages((currentMessages) =>
+						currentMessages.map((message) =>
+							message.id === payload.new.id
+								? updatedMessageWithUsername
+								: message
+						)
+					);
+				}
+			}
+		);
+
+		// Handle real-time notifications
+		channel.on(
+			'postgres_changes',
+			{
+				event: 'INSERT',
+				schema: 'public',
+				table: 'game_notifications',
+				filter: `game_id=eq.${gameId}`,
+			},
+			(payload) => {
+				setNotifications((currentNotifications) => [
+					payload.new,
+					...currentNotifications,
+				]);
+			}
+		);
+
+		channel.subscribe();
+
+		return () => {
+			supabase.removeChannel(channel);
+		};
 	}, [gameId]);
 
 	const handleDeleteGame = async () => {
@@ -184,33 +329,17 @@ export default function GameDetailsPage() {
 						</Button>
 					</div>
 				</div>
-
-				{/* Game Chat */}
 				<GameChat
 					gameId={gameId as string}
 					isHost={game.isHost}
 					hostId={game.hostId}
+					messages={messages}
 				/>
-
 				<Separator />
-
-				{/* Notifications */}
-				<div className='p-6'>
-					<h2 className='text-xl font-semibold mb-4'>Notifications</h2>
-					<ScrollArea className='h-[200px] w-full rounded-md border p-4'>
-						{notifications.map((notification) => (
-							<div
-								key={notification.id}
-								className='mb-4 bg-muted p-3 rounded-md'
-							>
-								<p>{notification.content}</p>
-								<small className='text-muted-foreground'>
-									{new Date(notification.createdAt).toLocaleString()}
-								</small>
-							</div>
-						))}
-					</ScrollArea>
-				</div>
+				<GameNotifications
+					gameId={gameId as string}
+					notifications={notifications}
+				/>
 			</div>
 
 			<ConfirmationModal

@@ -15,6 +15,8 @@ import { revalidatePath } from 'next/cache';
 import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { metersToMiles } from '@/lib/places';
+import { createNotificationAction } from './gameNotifications-actions';
+import { getProfileByUserId } from '@/db/queries/profiles-queries';
 // Action to create a new game slot
 export async function createGameSlotAction(
 	data: Omit<Partial<InsertGameSlot>, 'id' | 'userId'>
@@ -33,11 +35,16 @@ export async function createGameSlotAction(
 			userId: user,
 			gameId: data.gameId as string,
 		};
-		console.log('new game slot data', newGameSlotData);
 		const newGameSlot = await createGameSlot(newGameSlotData);
-		console.log('new game slot', newGameSlot);
 		revalidatePath('/game-slots');
-
+		const userProfile = await getProfileByUserId(user);
+		const username = userProfile?.username;
+		await createNotificationAction({
+			id: uuidv4(),
+			gameId: data.gameId as string,
+			notification: `${username} joined the game`,
+			createdAt: new Date(),
+		});
 		return {
 			status: 'success',
 			message: 'Game slot created successfully',
@@ -134,6 +141,14 @@ export async function deleteGameSlotAction(
 		}
 		await deleteGameSlot(user, gameId);
 		revalidatePath('/game-slots');
+		const userProfile = await getProfileByUserId(user);
+		const username = userProfile?.username;
+		await createNotificationAction({
+			id: uuidv4(),
+			gameId,
+			notification: `${username} left the game`,
+			createdAt: new Date(),
+		});
 		return { status: 'success', message: 'Game slot deleted successfully' };
 	} catch (error) {
 		return { status: 'error', message: 'Failed to delete game slot' };

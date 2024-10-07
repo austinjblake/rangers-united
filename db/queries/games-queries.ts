@@ -3,7 +3,11 @@ import { db } from '../db'; // Assuming you have a database connection instance
 import { gamesTable, InsertGame } from '../schema/games-schema';
 import { locationsTable } from '../schema/locations-schema';
 import { profilesTable } from '../schema/profiles-schema';
-import { gameSlotsTable } from '../schema';
+import {
+	gameNotificationsTable,
+	gameSlotsTable,
+	messagesTable,
+} from '../schema';
 
 // 1. Create a new game (host creates a game with location and date)
 export const createGame = async (gameData: InsertGame) => {
@@ -50,12 +54,40 @@ export const updateGame = async (
 	updateData: { locationId?: string; date?: Date }
 ) => {
 	try {
-		const query = db
+		// Fetch the current game details to get the current locationId
+		const currentGame = await db
+			.select({ locationId: gamesTable.locationId })
+			.from(gamesTable)
+			.where(eq(gamesTable.id, gameId))
+			.limit(1);
+
+		// Proceed to update the game with the new data
+		const result = await db
 			.update(gamesTable)
 			.set(updateData)
 			.where(eq(gamesTable.id, gameId));
 
-		const result = await query;
+		// Check if the locationId is being updated
+		if (
+			updateData.locationId &&
+			updateData.locationId !== currentGame[0].locationId
+		) {
+			// Fetch the old location to check if it is temporary
+			const oldLocation = await db
+				.select({ isTemporary: locationsTable.temporary })
+				.from(locationsTable)
+				.where(eq(locationsTable.id, currentGame[0].locationId))
+				.limit(1);
+
+			// If the old location is marked as temporary, delete it
+			if (oldLocation[0].isTemporary) {
+				await db
+					.delete(locationsTable)
+					.where(eq(locationsTable.id, currentGame[0].locationId));
+				console.log('Temporary old location deleted successfully');
+			}
+		}
+
 		return result;
 	} catch (error) {
 		console.error('Error updating game:', error);
@@ -65,8 +97,6 @@ export const updateGame = async (
 
 // 5. Delete a game and associated data
 export const deleteGame = async (gameId: string) => {
-	// TODO: Delete messages associated with the game
-	// TODO: Delete notifications associated with the game
 	try {
 		// Begin a transaction
 		await db.transaction(async (tx) => {
@@ -94,13 +124,21 @@ export const deleteGame = async (gameId: string) => {
 				(id: string | null) => id !== null && id !== 'NULL'
 			);
 
-			// Step 3: Delete game slots associated with the game
+			// Step 3: Delete messages associated with the game
+			await tx.delete(messagesTable).where(eq(messagesTable.gameId, gameId));
+
+			// Step 4: Delete game notifications associated with the game
+			await tx
+				.delete(gameNotificationsTable)
+				.where(eq(gameNotificationsTable.gameId, gameId));
+
+			// Step 5: Delete game slots associated with the game
 			await tx.delete(gameSlotsTable).where(eq(gameSlotsTable.gameId, gameId));
 
-			// Step 4: Delete the game
+			// Step 6: Delete the game itself
 			await tx.delete(gamesTable).where(eq(gamesTable.id, gameId));
 
-			// Step 5: Delete the temporary joiner locations (if any)
+			// Step 7: Delete the temporary joiner locations (if any)
 			if (validJoinerLocationIds.length > 0) {
 				await tx
 					.delete(locationsTable)
@@ -112,7 +150,7 @@ export const deleteGame = async (gameId: string) => {
 					);
 			}
 
-			// Step 6: Check if the game's location is temporary
+			// Step 8: Check if the game's location is temporary
 			const isGameLocationTemporary = await tx
 				.select({
 					temporary: locationsTable.temporary,
@@ -120,14 +158,14 @@ export const deleteGame = async (gameId: string) => {
 				.from(locationsTable)
 				.where(eq(locationsTable.id, gameLocationId));
 
-			// Step 7: Delete the game location if it is temporary
+			// Step 9: Delete the game location if it is temporary
 			if (isGameLocationTemporary[0]?.temporary) {
 				await tx
 					.delete(locationsTable)
 					.where(eq(locationsTable.id, gameLocationId));
 			}
 
-			console.log('Game and associated data deleted successfully');
+			console.log('Game and all associated data deleted successfully');
 		});
 	} catch (error) {
 		console.error('Error deleting game:', error);
