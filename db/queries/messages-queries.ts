@@ -46,15 +46,16 @@ export const getAllMessagesByGameIdForHost = async (gameId: string) => {
 	}
 };
 
-// 4. Update a message (edit by sender or mark as from ex-member)
+// 4. Update a message (edit message content)
 export const updateMessage = async (
 	messageId: string,
-	updatedData: Partial<InsertMessage>
+	newMessage: string,
+	editedAt: Date
 ) => {
 	try {
 		await db
 			.update(messagesTable)
-			.set(updatedData)
+			.set({ message: newMessage, editedAt: editedAt })
 			.where(eq(messagesTable.id, messageId));
 		console.log('Message updated successfully');
 	} catch (error) {
@@ -62,13 +63,13 @@ export const updateMessage = async (
 		throw error;
 	}
 };
-export const deleteMessage = async (messageId: string, gameId: string) => {
+
+export const deleteMessage = async (messageId: string) => {
 	try {
 		await db
-			.delete(messagesTable)
-			.where(
-				and(eq(messagesTable.id, messageId), eq(messagesTable.gameId, gameId))
-			);
+			.update(messagesTable)
+			.set({ isDeleted: true })
+			.where(eq(messagesTable.id, messageId));
 		console.log('Message deleted successfully');
 	} catch (error) {
 		console.error('Error deleting message:', error);

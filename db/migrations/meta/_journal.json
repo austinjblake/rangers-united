@@ -50,6 +50,20 @@
       "when": 1728148977966,
       "tag": "0006_fat_carmella_unuscione",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1728251361490,
+      "tag": "0007_colorful_nighthawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1728301495135,
+      "tag": "0008_smooth_sharon_ventura",
+      "breakpoints": true
     }
   ]
 }

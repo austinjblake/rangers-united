@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -12,29 +11,21 @@ import {
 	Users,
 	Store,
 	Home,
-	Send,
 	PencilIcon,
 	TrashIcon,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ConfirmationModal } from '@/components/confirmationModal';
+import { GameChat } from '@/components/game-chat';
 
-// Importing actions (these would be your actual API calls)
 import { getAllGameInfo, deleteGameAction } from '@/actions/games-actions';
-import {
-	getMessagesByGameIdAction,
-	createMessageAction,
-	deleteMessageAction,
-} from '@/actions/messages-actions';
 import { getNotificationByGameIdAction } from '@/actions/notifications-actions';
 import { deleteGameSlotAction } from '@/actions/slots-actions';
 
 export default function GameDetailsPage() {
 	const [game, setGame] = useState<any>(null);
-	const [messages, setMessages] = useState<any[]>([]);
 	const [notifications, setNotifications] = useState<any[]>([]);
-	const [newMessage, setNewMessage] = useState('');
 	const { gameId } = useParams();
 	const router = useRouter();
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -43,39 +34,17 @@ export default function GameDetailsPage() {
 	useEffect(() => {
 		const fetchData = async () => {
 			const gameResult = await getAllGameInfo(gameId as string);
-			const messagesResult = await getMessagesByGameIdAction(gameId as string);
+			if (gameResult.status === 'success') setGame(gameResult.data);
+
 			const notificationsResult = await getNotificationByGameIdAction(
 				gameId as string
 			);
-
-			if (gameResult.status === 'success') setGame(gameResult.data);
-			if (messagesResult.status === 'success') setMessages(messagesResult.data);
 			if (notificationsResult.status === 'success')
 				setNotifications(notificationsResult.data);
 		};
 
 		fetchData();
 	}, [gameId]);
-
-	const handleSendMessage = async () => {
-		if (newMessage.trim()) {
-			const result = await createMessageAction({
-				gameId: gameId as string,
-				message: newMessage,
-			});
-			if (result.status === 'success') {
-				setMessages([...messages, result.data]);
-				setNewMessage('');
-			}
-		}
-	};
-
-	const handleDeleteMessage = async (id: string) => {
-		const result = await deleteMessageAction(id, gameId as string);
-		if (result.status === 'success') {
-			setMessages(messages.filter((message) => message.id !== id));
-		}
-	};
 
 	const handleDeleteGame = async () => {
 		const result = await deleteGameAction(gameId as string);
@@ -215,41 +184,8 @@ export default function GameDetailsPage() {
 					</div>
 				</div>
 
-				{/* Chat Window */}
-				<div className='p-6'>
-					<h2 className='text-xl font-semibold mb-4'>Chat</h2>
-					<ScrollArea className='h-[300px] w-full rounded-md border p-4'>
-						{messages.map((message) => (
-							<div key={message.id} className='mb-4 relative group'>
-								<p className='font-semibold'>{message.userId}</p>
-								<p>{message.content}</p>
-								<small className='text-muted-foreground'>
-									{new Date(message.createdAt).toLocaleString()}
-								</small>
-								{(game.isHost || message.userId === 'currentUserId') && (
-									<button
-										onClick={() => handleDeleteMessage(message.id)}
-										className='absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity'
-									>
-										<TrashIcon className='h-4 w-4 text-destructive' />
-									</button>
-								)}
-							</div>
-						))}
-					</ScrollArea>
-					<div className='mt-4 flex'>
-						<Input
-							type='text'
-							placeholder='Type a message...'
-							value={newMessage}
-							onChange={(e) => setNewMessage(e.target.value)}
-							className='flex-grow'
-						/>
-						<Button onClick={handleSendMessage} className='ml-2'>
-							<Send className='h-4 w-4' />
-						</Button>
-					</div>
-				</div>
+				{/* Game Chat */}
+				<GameChat gameId={gameId as string} isHost={game.isHost} />
 
 				<Separator />
 

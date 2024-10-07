@@ -18,23 +18,35 @@ import {
 	hasUserJoinedGame,
 	isUserAdmin,
 } from '@/lib/auth-utils';
+import { v4 as uuidv4 } from 'uuid';
 
 // Action to create a new message
 export async function createMessageAction(
-	data: InsertMessage
+	message: string,
+	gameId: string
 ): Promise<ActionState> {
 	try {
 		const userId = await requireAuth();
-		const joinedGame = await hasUserJoinedGame(userId, data.gameId!);
+		const joinedGame = await hasUserJoinedGame(userId, gameId);
 		const isAdmin = await isUserAdmin(userId);
-		if (!joinedGame || !isAdmin) {
+		if (!joinedGame && !isAdmin) {
 			throw new Error('User has not joined the game');
 		}
-		await createMessage(data);
-		revalidatePath(`/games/${data.gameId}/messages`);
+		const messageData = {
+			id: uuidv4(),
+			gameId: gameId,
+			senderId: userId,
+			createdAt: new Date(),
+			message: message,
+			isVisibleToJoiners: true,
+			isFromExMember: false,
+		};
+		await createMessage(messageData);
+		//revalidatePath(`/games/${gameId}/messages`);
 		return {
 			status: 'success',
 			message: 'Message created successfully',
+			data: { newMessageId: messageData.id, senderId: userId },
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to create message' };
@@ -88,23 +100,24 @@ export async function getAllMessagesByGameIdForHostAction(
 // Action to update a message (edit by sender or mark as from ex-member)
 export async function updateMessageAction(
 	messageId: string,
-	updatedData: Partial<InsertMessage>
+	newMessage: string
 ): Promise<ActionState> {
 	try {
 		const userId = await requireAuth();
 		const isSender = await isMessageSentByUser(messageId, userId);
 		const isAdmin = await isUserAdmin(userId);
-		const isHost = await isUserHost(userId, updatedData.gameId!);
-		if ((!isSender && !isHost) || !isAdmin) {
-			throw new Error('User is not the sender');
+		if (!isSender && !isAdmin) {
+			throw new Error('User is not authorized to update this message');
 		}
-		await updateMessage(messageId, updatedData);
+		const editedAt = new Date();
+		await updateMessage(messageId, newMessage, editedAt);
 		revalidatePath(`/games/messages`);
 		return {
 			status: 'success',
 			message: 'Message updated successfully',
 		};
 	} catch (error) {
+		console.error('Error updating message:', error);
 		return { status: 'error', message: 'Failed to update message' };
 	}
 }
@@ -119,16 +132,17 @@ export async function deleteMessageAction(
 		const isSender = await isMessageSentByUser(messageId, userId);
 		const isAdmin = await isUserAdmin(userId);
 		const isHost = await isUserHost(userId, gameId!);
-		if (!isSender || !isAdmin || !isHost) {
-			throw new Error('User is not the sender');
+		if (!isSender && !isAdmin && !isHost) {
+			throw new Error('User is not authorized to delete this message');
 		}
-		await deleteMessage(messageId, gameId);
+		await deleteMessage(messageId);
 		revalidatePath(`/games/messages`);
 		return {
 			status: 'success',
 			message: 'Message deleted successfully',
 		};
 	} catch (error) {
+		console.error('Error deleting message:', error);
 		return { status: 'error', message: 'Failed to delete message' };
 	}
 }
