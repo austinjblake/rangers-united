@@ -6,10 +6,17 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Bell, Menu, Moon, Sun } from 'lucide-react';
+import { getUserNotifications } from '@/actions/userNotifications-actions';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover';
 
 export default function Component({ children }: { children: React.ReactNode }) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(false);
+	const [notifications, setNotifications] = useState<any[]>([]);
 
 	useEffect(() => {
 		if (isDarkMode) {
@@ -19,8 +26,34 @@ export default function Component({ children }: { children: React.ReactNode }) {
 		}
 	}, [isDarkMode]);
 
+	useEffect(() => {
+		fetchNotifications();
+	}, []);
+
+	const fetchNotifications = async () => {
+		const result = await getUserNotifications();
+		if (result.status === 'success' && result.data) {
+			setNotifications(result.data);
+		}
+	};
+
 	const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 	const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+
+	const formatNotification = (notification: string) => {
+		const dateTimeRegex =
+			/(\w{3} \w{3} \d{2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4})/;
+		const match = notification.match(dateTimeRegex);
+
+		if (match) {
+			const dateTimeString = match[1];
+			const date = new Date(dateTimeString);
+			const formattedDate = date.toLocaleString();
+			return notification.replace(dateTimeString, formattedDate);
+		}
+
+		return notification;
+	};
 
 	const NavLinks = () => (
 		<>
@@ -180,10 +213,44 @@ export default function Component({ children }: { children: React.ReactNode }) {
 					</Link>
 				</div>
 				<div className='flex items-center space-x-4'>
-					<Button variant='ghost' size='icon'>
-						<Bell className='h-5 w-5' />
-						<span className='sr-only'>Notifications</span>
-					</Button>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button variant='ghost' size='icon'>
+								<Bell className='h-5 w-5' />
+								<span className='sr-only'>Notifications</span>
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className='w-80 p-0'>
+							<div className='p-4 space-y-4'>
+								<h3 className='font-medium'>Notifications</h3>
+								{notifications.length > 0 ? (
+									<>
+										<div className='space-y-2'>
+											{notifications.slice(0, 3).map((notification, index) => (
+												<div
+													key={index}
+													className='text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700'
+												>
+													{formatNotification(notification.notification)}
+												</div>
+											))}
+										</div>
+										{notifications.length > 3 && (
+											<Button asChild className='w-full mt-2'>
+												<Link href='/notifications'>
+													View all notifications
+												</Link>
+											</Button>
+										)}
+									</>
+								) : (
+									<p className='text-sm text-gray-500'>
+										No notifications at this time.
+									</p>
+								)}
+							</div>
+						</PopoverContent>
+					</Popover>
 					<Button variant='ghost' size='icon' onClick={toggleDarkMode}>
 						{isDarkMode ? (
 							<Sun className='h-5 w-5' />

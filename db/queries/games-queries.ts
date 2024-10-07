@@ -20,20 +20,6 @@ export const createGame = async (gameData: InsertGame) => {
 	}
 };
 
-// 2. Get all games hosted by a specific user (host)
-export const getGamesByHost = async (hostId: string) => {
-	try {
-		const result = await db
-			.select()
-			.from(gamesTable)
-			.where(eq(gamesTable.hostId, hostId));
-		return result;
-	} catch (error) {
-		console.error('Error fetching games for host:', error);
-		throw error;
-	}
-};
-
 // 3. Get a game by ID (e.g., for viewing game details or joining)
 export const getGameById = async (gameId: string) => {
 	try {
@@ -317,6 +303,24 @@ export const getGameInfoForSlot = async (userId: string, gameId: string) => {
 		return result;
 	} catch (error) {
 		console.error('Error fetching game information for slot:', error);
+		throw error;
+	}
+};
+
+export const getJoinerIdsForGame = async (gameId: string) => {
+	try {
+		const result = await db
+			.select({
+				userId: gameSlotsTable.userId,
+			})
+			.from(gameSlotsTable)
+			.where(
+				and(eq(gameSlotsTable.gameId, gameId), eq(gameSlotsTable.isHost, false))
+			);
+
+		return result.map((row) => row.userId);
+	} catch (error) {
+		console.error('Error fetching joiner IDs for game:', error);
 		throw error;
 	}
 };

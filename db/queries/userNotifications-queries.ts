@@ -1,9 +1,8 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
 import {
 	userNotificationsTable,
 	InsertUserNotification,
-	SelectUserNotification,
 } from '../schema/userNotifications-schema';
 
 // 1. Insert a new notification (e.g., notify a user about a game update)
@@ -25,7 +24,8 @@ export const getNotificationsByUser = async (userId: string) => {
 		const result = await db
 			.select()
 			.from(userNotificationsTable)
-			.where(eq(userNotificationsTable.userId, userId));
+			.where(eq(userNotificationsTable.userId, userId))
+			.orderBy(desc(userNotificationsTable.createdAt));
 		return result;
 	} catch (error) {
 		console.error('Error fetching notifications for user:', error);
@@ -60,33 +60,24 @@ export const deleteNotification = async (notificationId: string) => {
 	}
 };
 
-// 5. Get unread notifications for a specific user
-export const getUnreadNotificationsByUser = async (userId: string) => {
+// check if notification belongs to user
+export const checkNotificationBelongsToUser = async (
+	notificationId: string,
+	userId: string
+) => {
 	try {
 		const result = await db
 			.select()
 			.from(userNotificationsTable)
 			.where(
 				and(
-					eq(userNotificationsTable.userId, userId),
-					eq(userNotificationsTable.isRead, false)
+					eq(userNotificationsTable.id, notificationId),
+					eq(userNotificationsTable.userId, userId)
 				)
 			);
-		return result;
+		return result.length > 0;
 	} catch (error) {
-		console.error('Error fetching unread notifications for user:', error);
+		console.error('Error checking notification belongs to user:', error);
 		throw error;
 	}
 };
-
-export async function getNotificationById(
-	notificationId: string
-): Promise<SelectUserNotification | null> {
-	const [notification] = await db
-		.select()
-		.from(userNotificationsTable)
-		.where(eq(userNotificationsTable.id, notificationId))
-		.limit(1);
-
-	return notification || null;
-}

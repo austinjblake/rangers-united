@@ -2,7 +2,6 @@
 
 import {
 	createGame,
-	getGamesByHost,
 	getGameById,
 	updateGame,
 	deleteGame,
@@ -24,6 +23,7 @@ import { createLocation } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
 import { createNotificationAction } from './gameNotifications-actions';
+import { deleteNotificationsForGame } from './userNotifications-actions';
 
 // Action to create a new game
 export async function createGameAction(
@@ -73,29 +73,6 @@ export async function createGameAction(
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to create game' };
-	}
-}
-
-// Action to get all games hosted by a specific user
-export async function getGamesByHostAction(
-	hostId: string
-): Promise<ActionState> {
-	try {
-		const userId = await requireAuth();
-		if (userId !== hostId) {
-			return {
-				status: 'error',
-				message: 'You are not authorized to view this game',
-			};
-		}
-		const games = await getGamesByHost(hostId);
-		return {
-			status: 'success',
-			message: 'Games retrieved successfully',
-			data: games,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to retrieve games' };
 	}
 }
 
@@ -186,6 +163,7 @@ export async function deleteGameAction(gameId: string): Promise<ActionState> {
 				message: 'You are not authorized to delete this game',
 			};
 		}
+		await deleteNotificationsForGame(gameId, userId);
 		await deleteGame(gameId);
 		console.log('Deleting game', gameId);
 		return {
