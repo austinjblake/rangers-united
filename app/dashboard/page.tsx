@@ -77,7 +77,6 @@ export default function Dashboard() {
 			'Delete Game',
 			'Are you sure you want to delete this game? This action cannot be undone.',
 			async () => {
-				console.log('deleting game', gameId);
 				const result = await deleteGameAction(gameId);
 				if (result.status === 'success') {
 					fetchGameSlots();

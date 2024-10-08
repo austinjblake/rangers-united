@@ -1,6 +1,9 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
-import { createProfileAction } from '@/actions/profiles-actions';
+import {
+	createProfileAction,
+	updateProfileAction,
+} from '@/actions/profiles-actions';
 
 export async function POST(req: Request) {
 	const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -68,6 +71,24 @@ export async function POST(req: Request) {
 			console.error('Error creating profile:', error);
 			return new Response('Error creating profile', { status: 500 });
 		}
+	} else if (eventType === 'user.updated') {
+		const { id, email_addresses, username, ...attributes } = evt.data;
+
+		try {
+			const result = await updateProfileAction(id, {
+				email: email_addresses[0].email_address,
+				username: username || '',
+			});
+
+			if (result.status === 'error') {
+				throw new Error(result.message);
+			}
+
+			return new Response('Profile updated successfully', { status: 200 });
+		} catch (error) {
+			console.error('Error updating profile:', error);
+			return new Response('Error updating profile', { status: 500 });
+		}
 	}
 
 	return new Response('Webhook received', { status: 200 });
@@ -82,5 +103,5 @@ interface WebhookEvent {
 		[key: string]: any;
 	};
 	object: string;
-	type: string;
+	type: 'user.created' | 'user.updated';
 }

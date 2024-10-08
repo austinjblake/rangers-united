@@ -92,7 +92,6 @@ export default function GameForm({
 
 		let result;
 		if (isEditing && initialData) {
-			console.log('selected location', selectedLocation);
 			result = await updateGameAction(initialData.id, {
 				location: selectedLocation,
 				date: gameData.date,

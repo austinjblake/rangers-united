@@ -70,13 +70,7 @@ export async function updateProfileAction(
 	data: Partial<InsertProfile>
 ): Promise<ActionState> {
 	try {
-		const user = await requireAuth();
-		const isAdmin = await isUserAdmin(user);
-		if (!isAdmin || user !== userId) {
-			throw new Error('User does not have permission to update this profile');
-		}
 		const updatedProfile = await updateProfileDetails(userId, data);
-		revalidatePath('/profile');
 		return {
 			status: 'success',
 			message: 'Profile updated successfully',

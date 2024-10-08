@@ -210,7 +210,6 @@ export default function GameSearchPage() {
 		try {
 			const result = await getGamesByLocationAction(location.location, radius);
 			if (result.status === 'success' && result.data) {
-				console.log('search game results', result.data);
 				setGames(result.data as SearchGameResult[]);
 				setFilteredGames(result.data as SearchGameResult[]);
 			} else {
@@ -226,7 +225,6 @@ export default function GameSearchPage() {
 	const joinGame = async (gameId: string) => {
 		let locationId = searchLocation.id;
 		if (!searchLocation.id) {
-			console.log('creating new location', searchLocation);
 			const newLocation = await createLocation({
 				id: '',
 				userId: '',
@@ -239,14 +237,10 @@ export default function GameSearchPage() {
 			});
 			locationId = newLocation.data.id;
 		}
-		console.log(`Joining gameID: ${gameId}`);
-		console.log('locationId', locationId);
 		const joinResult = await createGameSlotAction({
 			gameId,
 			joinerLocationId: locationId,
 		});
-
-		console.log('join result', joinResult);
 
 		if (joinResult.status === 'success') {
 			toast({
