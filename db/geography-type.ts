@@ -11,7 +11,7 @@ export const geography = customType<{
 	toDriver(value: string): string {
 		return value;
 	},
-	fromDriver(value: string): string {
+	fromDriver(value: any): string {
 		return value;
 	},
 });
