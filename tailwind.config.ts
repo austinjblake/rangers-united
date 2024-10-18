@@ -25,8 +25,8 @@ const config = {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))',
+					DEFAULT: 'hsl(45, 100%, 50%)', // Yellow-gold
+					foreground: 'hsl(0, 0%, 10%)', // Dark text for contrast
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',

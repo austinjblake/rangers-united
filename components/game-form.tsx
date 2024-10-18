@@ -232,7 +232,10 @@ export default function GameForm({
 									{selectedLocation.readableAddress}
 								</div>
 							</div>
-							<Button onClick={handleResetLocation} className='mt-4'>
+							<Button
+								onClick={handleResetLocation}
+								className='mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900'
+							>
 								Change Location
 							</Button>
 							<div className='flex items-center space-x-2 mt-4'>
@@ -267,7 +270,7 @@ export default function GameForm({
 				<Button
 					disabled={!gameDate || !gameTime || !selectedLocation}
 					onClick={handleSubmit}
-					className='w-full'
+					className='w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900'
 				>
 					{isEditing ? 'Update Game' : 'Create Game'}
 				</Button>
