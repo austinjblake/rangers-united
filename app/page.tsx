@@ -78,8 +78,8 @@ export default function LandingPage() {
 										Host or Join Games
 									</h3>
 									<p className='text-center text-sm text-gray-600 dark:text-gray-400'>
-										Easily create or join sessions with a few clicks. Customize
-										your game times and slots to fit your schedule.
+										Easily create or join existing sessions with a few clicks.
+										Customize your game times and slots to fit your schedule.
 									</p>
 								</CardContent>
 							</Card>
@@ -90,8 +90,9 @@ export default function LandingPage() {
 										Real-Time Communication
 									</h3>
 									<p className='text-center text-sm text-gray-600 dark:text-gray-400'>
-										Coordinate with your group through our in-app chat. Stay
-										up-to-date with game changes, new joiners, and all important
+										Coordinate with your group through our in-app chat. Share
+										your ideas to make a great game night and tay up-to-date
+										with game changes, new joiners, and all the important
 										details.
 									</p>
 								</CardContent>
@@ -148,10 +149,12 @@ export default function LandingPage() {
 									2
 								</div>
 								<h3 className='text-xl font-bold text-gray-900 dark:text-white'>
-									Find a Game
+									Host or Join a Game
 								</h3>
 								<p className='text-center text-sm text-gray-600 dark:text-gray-400'>
-									Search or browse for available games nearby.
+									Set up your game or join an existing one. Use your location or
+									search for a nearby Friendly Local Game Store (FLGS) to host
+									or look for a nearby game to join.
 								</p>
 							</div>
 							<div className='flex flex-col items-center space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4'>
@@ -159,11 +162,12 @@ export default function LandingPage() {
 									3
 								</div>
 								<h3 className='text-xl font-bold text-gray-900 dark:text-white'>
-									Host or Join
+									Get the Details
 								</h3>
 								<p className='text-center text-sm text-gray-600 dark:text-gray-400'>
-									Set up your game or join an existing one. Chat with the host
-									and players directly.
+									Chat with the host and players directly. Exchange info on what
+									expansions everyone has and wants to play. View the date and
+									time for the game and check notifications for any updates.
 								</p>
 							</div>
 							<div className='flex flex-col items-center space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4'>
