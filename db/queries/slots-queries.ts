@@ -5,6 +5,7 @@ import { db } from '../db';
 import { gameSlotsTable, InsertGameSlot } from '../schema/slots-schema';
 import { gamesTable } from '../schema/games-schema';
 import { locationsTable } from '../schema/locations-schema';
+import { messagesTable } from '../schema/messages-schema';
 
 // 1. Insert a new game slot (create a slot as a host or joiner)
 export const createGameSlot = async (slotData: InsertGameSlot) => {
@@ -160,8 +161,19 @@ export const deleteGameSlot = async (userId: string, gameId: string) => {
 				}
 			}
 
+			// Step 4: Mark all messages by user for this specific game as isFromExMember
+			await tx
+				.update(messagesTable)
+				.set({ isFromExMember: true })
+				.where(
+					and(
+						eq(messagesTable.senderId, userId),
+						eq(messagesTable.gameId, gameId)
+					)
+				);
+
 			console.log(
-				'Game slot and associated location (if temporary) deleted successfully'
+				'Game slot, associated location (if temporary), and messages updated successfully'
 			);
 		});
 	} catch (error) {

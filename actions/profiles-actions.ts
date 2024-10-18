@@ -90,10 +90,12 @@ export async function deleteProfileAction(
 		if (!isAdmin && user !== userId) {
 			throw new Error('User does not have permission to delete this profile');
 		}
+		console.log('delete profile actions:', userId);
 		await deleteProfile(userId);
 		revalidatePath('/profile');
 		return { status: 'success', message: 'Profile deleted successfully' };
 	} catch (error) {
+		console.log('delete profile actions error:', error);
 		return { status: 'error', message: 'Failed to delete profile' };
 	}
 }

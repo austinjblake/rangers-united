@@ -89,11 +89,13 @@ export const updateProfileDetails = async (
 export const deleteProfile = async (userId: string) => {
 	try {
 		// delete all hosted games
+		console.log('deleting hosted games:', userId);
 		const hostedGames = await getAllHostedGames(userId);
 		for (const game of hostedGames) {
 			await deleteGame(game.id);
 		}
 		// delete all game slots
+		console.log('deleting game slots:', userId);
 		const gameSlots = await getGameSlotsByUser(userId);
 		const userProfile = await getProfileByUserId(userId);
 		const username = userProfile?.username;
@@ -107,12 +109,15 @@ export const deleteProfile = async (userId: string) => {
 			await deleteGameSlot(slot.slotId, slot.gameId as string);
 		}
 		// delete all locations
+		console.log('deleting locations:', userId);
 		const locations = await fetchLocationsByUserId(userId);
 		for (const location of locations) {
 			await deleteLocation(location.id);
 		}
 		// delete all user notifications
+		console.log('deleting user notifications:', userId);
 		await deleteAllNotificationsForUser(userId);
+		console.log('deleting profile:', userId);
 		await db.delete(profilesTable).where(eq(profilesTable.userId, userId));
 	} catch (error) {
 		console.error('Error deleting profile:', error);
