@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Bell, BellRing, Menu, Moon, Sun } from 'lucide-react';
+import { Bell, BellRing, Menu, Moon, Shield, Sun } from 'lucide-react';
 import {
 	getUserNotificationsAction,
 	markNotificationsAsReadAction,
@@ -218,6 +218,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 						</Button>
 					</SignedIn>
 					<Link href='/' className='flex items-center space-x-2'>
+						<Shield className='h-6 w-6 text-yellow-500 dark:text-yellow-400' />
 						<span className='text-xl font-bold'>Rangers United</span>
 					</Link>
 				</div>

@@ -36,7 +36,6 @@ export default function NotificationsPage() {
 	const fetchNotifications = async () => {
 		const result = await getUserNotificationsAction();
 		if (result.status === 'success' && result.data) {
-			console.log(result.data);
 			setNotifications(result.data);
 		} else {
 			toast({
