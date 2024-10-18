@@ -85,11 +85,14 @@ export default function Component({ children }: { children: React.ReactNode }) {
 		}
 	};
 
-	const NavLinks = () => (
+	const closeSidebar = () => setIsSidebarOpen(false);
+
+	const NavLinks = ({ onLinkClick }: { onLinkClick?: () => void }) => (
 		<>
 			<Link
 				href='/dashboard'
 				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
+				onClick={onLinkClick}
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -111,6 +114,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 			<Link
 				href='/join-game'
 				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
+				onClick={onLinkClick}
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -205,21 +209,6 @@ export default function Component({ children }: { children: React.ReactNode }) {
 						</Button>
 					</SignedIn>
 					<Link href='/' className='flex items-center space-x-2'>
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='currentColor'
-							strokeWidth='2'
-							strokeLinecap='round'
-							strokeLinejoin='round'
-							className='h-6 w-6 text-blue-500'
-						>
-							<rect width='18' height='18' x='3' y='3' rx='2' ry='2' />
-							<path d='M7 7h10' />
-							<path d='M7 12h10' />
-							<path d='M7 17h10' />
-						</svg>
 						<span className='text-xl font-bold'>Rangers United</span>
 					</Link>
 				</div>
@@ -254,13 +243,9 @@ export default function Component({ children }: { children: React.ReactNode }) {
 												</div>
 											))}
 										</div>
-										{notifications.length > 3 && (
-											<Button asChild className='w-full mt-2'>
-												<Link href='/notifications'>
-													View all notifications
-												</Link>
-											</Button>
-										)}
+										<Button asChild className='w-full mt-2'>
+											<Link href='/notifications'>View all notifications</Link>
+										</Button>
 									</>
 								) : (
 									<p className='text-sm text-gray-500'>
@@ -294,7 +279,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 							className='w-[300px] sm:w-[400px] lg:hidden'
 						>
 							<nav className='flex flex-col space-y-2 mt-4'>
-								<NavLinks />
+								<NavLinks onLinkClick={closeSidebar} />
 							</nav>
 						</SheetContent>
 					</Sheet>
