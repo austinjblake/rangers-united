@@ -137,6 +137,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 			<Link
 				href='/host-game'
 				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
+				onClick={onLinkClick}
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -156,6 +157,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 			<Link
 				href='/about'
 				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
+				onClick={onLinkClick}
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -176,6 +178,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 			<Link
 				href='/help'
 				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
+				onClick={onLinkClick}
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
