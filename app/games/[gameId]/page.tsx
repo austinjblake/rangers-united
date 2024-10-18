@@ -247,10 +247,10 @@ export default function GameDetailsPage() {
 	};
 
 	return (
-		<div className='container mx-auto px-4 py-8 max-w-4xl'>
+		<div className='container mx-auto px-4 py-8 max-w-4xl bg-background text-foreground'>
 			<div className='bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden'>
 				{/* Game Details */}
-				<div className='p-6 bg-primary text-primary-foreground'>
+				<div className='p-6 bg-secondary text-secondary-foreground'>
 					<h1 className='text-2xl font-bold mb-4'>Game Details</h1>
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						<div>
@@ -286,19 +286,19 @@ export default function GameDetailsPage() {
 							</>
 						)}
 					</p>
-					<p className='mt-2'>
+					<p className='mt-2 flex items-center space-x-2'>
 						<strong>Status:</strong>{' '}
 						<span
-							className={`px-2 py-1 rounded-full ${
+							className={`text-xs font-medium px-2 py-1 rounded-full ${
 								game.isHost
-									? 'bg-green-100 text-green-800'
-									: 'bg-blue-100 text-blue-800'
+									? 'bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+									: 'bg-blue-200 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
 							}`}
 						>
 							{game.isHost ? 'Hosting' : 'Joined'}
 						</span>
 						{game.isFull && (
-							<span className='ml-2 px-2 py-1 rounded-full bg-red-100 text-red-800'>
+							<span className='text-xs font-medium px-2 py-1 rounded-full bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-200'>
 								Full
 							</span>
 						)}
@@ -314,8 +314,8 @@ export default function GameDetailsPage() {
 							{game.isHost ? (
 								<>
 									<Link href={`/games/edit/${gameId}`}>
-										<Button variant='secondary' size='sm' title='Edit Game'>
-											<PencilIcon className='h-4 w-4 mr-1' />
+										<Button variant='outline' size='sm' title='Edit Game'>
+											<PencilIcon className='h-4 w-4 mr-2' />
 											Edit
 										</Button>
 									</Link>
@@ -325,19 +325,19 @@ export default function GameDetailsPage() {
 										onClick={() => setIsDeleteModalOpen(true)}
 										title='Delete Game'
 									>
-										<TrashIcon className='h-4 w-4 mr-1' />
+										<TrashIcon className='h-4 w-4 mr-2' />
 										Delete
 									</Button>
 									<Button
-										variant='secondary'
+										variant='outline'
 										size='sm'
 										onClick={handleToggleFull}
 										title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
 									>
 										{game.isFull ? (
-											<UserPlus className='h-4 w-4 mr-1' />
+											<UserPlus className='h-4 w-4 mr-2' />
 										) : (
-											<UserX className='h-4 w-4 mr-1' />
+											<UserX className='h-4 w-4 mr-2' />
 										)}
 										{game.isFull ? 'Mark as Open' : 'Mark as Full'}
 									</Button>
@@ -352,10 +352,7 @@ export default function GameDetailsPage() {
 								</Button>
 							)}
 						</div>
-						<Button
-							variant='secondary'
-							onClick={() => router.push('/dashboard')}
-						>
+						<Button variant='outline' onClick={() => router.push('/dashboard')}>
 							Back to Dashboard
 						</Button>
 					</div>

@@ -99,15 +99,15 @@ export default function Dashboard() {
 	};
 
 	return (
-		<div className='min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8'>
-			<h1 className='mb-6 text-2xl font-bold text-gray-900 sm:text-3xl'>
+		<div className='min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8'>
+			<h1 className='mb-6 text-2xl font-bold sm:text-3xl'>
 				Your Game Dashboard
 			</h1>
 			<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>
 				{gameSlots.map((slot) => (
 					<Card
 						key={slot.slotId}
-						className='overflow-hidden transition-shadow hover:shadow-lg'
+						className='overflow-hidden transition-shadow hover:shadow-lg bg-card text-card-foreground'
 					>
 						<GameSlot
 							game={slot}
@@ -121,7 +121,7 @@ export default function Dashboard() {
 					(_, index) => (
 						<Card
 							key={`empty-${index}`}
-							className='overflow-hidden transition-shadow hover:shadow-lg'
+							className='overflow-hidden transition-shadow hover:shadow-lg bg-card text-card-foreground'
 						>
 							<EmptySlot />
 						</Card>
@@ -142,14 +142,18 @@ export default function Dashboard() {
 function EmptySlot() {
 	return (
 		<CardContent className='flex flex-col items-center justify-center space-y-4 p-6'>
-			<p className='text-center text-sm text-gray-500'>No game scheduled</p>
+			<p className='text-center text-sm text-muted-foreground'>
+				No game scheduled
+			</p>
 			<Link href='/host-game'>
 				<Button className='w-full' variant='outline'>
 					Host a Game
 				</Button>
 			</Link>
 			<Link href='/join-game'>
-				<Button className='w-full'>Search for a Game</Button>
+				<Button className='w-full bg-secondary text-secondary-foreground hover:bg-secondary/90'>
+					Search for a Game
+				</Button>
 			</Link>
 		</CardContent>
 	);
@@ -233,14 +237,14 @@ function GameSlot({
 					<span
 						className={`text-xs font-medium px-2 py-1 rounded-full ${
 							game.isHost
-								? 'bg-green-100 text-green-800'
-								: 'bg-blue-100 text-blue-800'
+								? 'bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+								: 'bg-blue-200 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
 						}`}
 					>
 						{game.isHost ? 'Hosting' : 'Joined'}
 					</span>
 					{game.isFull && (
-						<span className='text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800'>
+						<span className='text-xs font-medium px-2 py-1 rounded-full bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-200'>
 							Full
 						</span>
 					)}
@@ -248,26 +252,26 @@ function GameSlot({
 			</div>
 
 			<div className='space-y-2 text-sm flex-grow'>
-				<p className='flex items-center text-gray-700'>
-					<CalendarIcon className='mr-2 h-4 w-4 text-gray-500' />
+				<p className='flex items-center'>
+					<CalendarIcon className='mr-2 h-4 w-4 text-muted-foreground' />
 					<span>{formatDate(game.gameDate)}</span>
 				</p>
-				<p className='flex items-center text-gray-700'>
-					<ClockIcon className='mr-2 h-4 w-4 text-gray-500' />
+				<p className='flex items-center'>
+					<ClockIcon className='mr-2 h-4 w-4 text-muted-foreground' />
 					<span>{formatTime(game.gameDate)}</span>
 				</p>
-				<p className='flex items-center text-gray-700'>
-					<UsersIcon className='mr-2 h-4 w-4 text-gray-500' />
+				<p className='flex items-center'>
+					<UsersIcon className='mr-2 h-4 w-4 text-muted-foreground' />
 					<span>
 						{game.joinerCount} player
 						{parseInt(game.joinerCount) !== 1 ? 's' : ''} in group
 					</span>
 				</p>
 				<div
-					className='flex items-start text-gray-700 cursor-pointer'
+					className='flex items-start cursor-pointer'
 					onClick={() => setShowFullAddress(!showFullAddress)}
 				>
-					<MapPinned className='mr-2 h-4 w-4 text-gray-500 flex-shrink-0 mt-1' />
+					<MapPinned className='mr-2 h-4 w-4 text-muted-foreground flex-shrink-0 mt-1' />
 					<span className='flex-grow'>
 						{game.isHost ? (
 							<span className={showFullAddress ? '' : 'truncate'}>
@@ -287,7 +291,7 @@ function GameSlot({
 				</div>
 			</div>
 
-			<div className='mt-4 pt-4 border-t flex flex-wrap gap-2 justify-between items-center'>
+			<div className='mt-4 pt-4 border-t border-border flex flex-wrap gap-2 justify-between items-center'>
 				<div className='flex flex-wrap gap-2'>
 					{game.isHost ? (
 						<>

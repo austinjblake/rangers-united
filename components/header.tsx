@@ -17,24 +17,22 @@ import {
 } from '@/components/ui/popover';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 export default function Component({ children }: { children: React.ReactNode }) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [notifications, setNotifications] = useState<any[]>([]);
 	const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+	const { theme, setTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		if (isDarkMode) {
-			document.documentElement.classList.add('dark');
-		} else {
-			document.documentElement.classList.remove('dark');
-		}
-	}, [isDarkMode]);
+		setMounted(true);
+	}, []);
 
 	const fetchNotifications = async () => {
 		const result = await getUserNotificationsAction();
@@ -45,6 +43,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 			);
 		}
 	};
+
 	useEffect(() => {
 		fetchNotifications(); // Refetch on URL change
 	}, [pathname, searchParams]);
@@ -58,7 +57,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-	const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+	const toggleDarkMode = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
 	const formatNotification = (notification: string) => {
 		const dateTimeRegex =
@@ -205,6 +204,10 @@ export default function Component({ children }: { children: React.ReactNode }) {
 		router.push('/notifications');
 	};
 
+	if (!mounted) {
+		return null;
+	}
+
 	return (
 		<div className='flex flex-col min-h-screen'>
 			<header className='flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b'>
@@ -275,7 +278,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 						</PopoverContent>
 					</Popover>
 					<Button variant='ghost' size='icon' onClick={toggleDarkMode}>
-						{isDarkMode ? (
+						{theme === 'dark' ? (
 							<Sun className='h-5 w-5' />
 						) : (
 							<Moon className='h-5 w-5' />

@@ -106,7 +106,7 @@ const GameCard = ({
 	};
 
 	return (
-		<Card className='mb-3'>
+		<Card className='mb-3 bg-card text-card-foreground'>
 			<CardHeader>
 				<CardTitle className='text-lg flex items-center'>
 					<LocationIcon />
@@ -324,7 +324,7 @@ export default function GameSearchPage() {
 	}
 
 	return (
-		<div className='container mx-auto px-4 py-8'>
+		<div className='container mx-auto px-4 py-8 bg-background text-foreground'>
 			<h1 className='text-3xl font-bold mb-6'>Find and Join Games</h1>
 			<LocationSelector
 				type='searchGame'
