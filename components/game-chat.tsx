@@ -10,7 +10,6 @@ import {
 	deleteMessageAction,
 	updateMessageAction,
 } from '@/actions/messages-actions';
-import { supabase } from '@/supabaseClient';
 import { formatDistanceToNow, format, isAfter } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useAuth } from '@clerk/nextjs';
