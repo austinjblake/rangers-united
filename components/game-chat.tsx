@@ -15,6 +15,7 @@ import { formatDistanceToNow, format, isAfter } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useAuth } from '@clerk/nextjs';
 import { toast } from '@/components/ui/use-toast';
+import { generateColor } from '@/lib/username-color';
 
 interface GameChatProps {
 	gameId: string;
@@ -210,11 +211,13 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 					>
 						<div className='flex justify-between items-start mb-0.5'>
 							<p
-								className={`font-semibold text-sm italic flex items-center ${
-									message.sender_id === hostId
-										? 'text-yellow-500'
-										: 'text-primary'
-								}`}
+								className={`font-semibold text-sm italic flex items-center`}
+								style={{
+									color:
+										message.sender_id === hostId
+											? '#EAB308'
+											: generateColor(message.profiles.username),
+								}}
 							>
 								{message.profiles.username}
 								{message.sender_id === hostId && (
