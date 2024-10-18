@@ -12,13 +12,19 @@ import {
 	Home,
 	PencilIcon,
 	TrashIcon,
+	UserX,
+	UserPlus,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ConfirmationModal } from '@/components/confirmationModal';
 import { GameChat } from '@/components/game-chat';
 import { GameNotifications } from '@/components/game-notifications';
-import { getAllGameInfo, deleteGameAction } from '@/actions/games-actions';
+import {
+	getAllGameInfo,
+	deleteGameAction,
+	markGameAsFull,
+} from '@/actions/games-actions';
 import { deleteGameSlotAction } from '@/actions/slots-actions';
 import { supabase } from '@/supabaseClient';
 
@@ -206,6 +212,13 @@ export default function GameDetailsPage() {
 		}
 	};
 
+	const handleToggleFull = async () => {
+		const result = await markGameAsFull(gameId as string, !game.isFull);
+		if (result.status === 'success') {
+			setGame({ ...game, isFull: !game.isFull });
+		}
+	};
+
 	if (!game) return <div>Loading...</div>;
 
 	const LocationIcon = game.locationIsFLGS
@@ -284,6 +297,11 @@ export default function GameDetailsPage() {
 						>
 							{game.isHost ? 'Hosting' : 'Joined'}
 						</span>
+						{game.isFull && (
+							<span className='ml-2 px-2 py-1 rounded-full bg-red-100 text-red-800'>
+								Full
+							</span>
+						)}
 					</p>
 					{!game.isHost && (
 						<p className='mt-2'>
@@ -309,6 +327,19 @@ export default function GameDetailsPage() {
 									>
 										<TrashIcon className='h-4 w-4 mr-1' />
 										Delete
+									</Button>
+									<Button
+										variant='secondary'
+										size='sm'
+										onClick={handleToggleFull}
+										title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
+									>
+										{game.isFull ? (
+											<UserPlus className='h-4 w-4 mr-1' />
+										) : (
+											<UserX className='h-4 w-4 mr-1' />
+										)}
+										{game.isFull ? 'Mark as Open' : 'Mark as Full'}
 									</Button>
 								</>
 							) : (

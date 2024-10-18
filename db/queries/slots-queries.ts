@@ -36,6 +36,7 @@ export const getGameSlotsByUser = async (userId: string) => {
 				locationIsPrivate: locationsTable.isPrivate, // Fetching private from locationsTable
 				locationIsFLGS: locationsTable.isFLGS, // Fetching FLGS from locationsTable
 				locationName: locationsTable.name,
+				isFull: gamesTable.isFull,
 				// Subquery to count the number of joiners for each game
 				joinerCount: sql`(
 					SELECT COUNT(${gameSlotsTable.userId})

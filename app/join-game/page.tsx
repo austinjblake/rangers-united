@@ -25,6 +25,7 @@ import {
 	Home,
 	UsersIcon,
 	MapPinned,
+	UserX,
 } from 'lucide-react';
 import { getGamesByLocationAction } from '@/actions/games-actions';
 import LocationSelector from '@/components/locationSelector/locationSelector';
@@ -49,6 +50,7 @@ interface SearchGameResult {
 	hostUsername: string | null;
 	joinerCount: number;
 	hasJoined: boolean;
+	isFull: boolean;
 }
 
 const GameCard = ({
@@ -127,7 +129,7 @@ const GameCard = ({
 					{game.joinerCount} player{game.joinerCount > 1 ? 's' : ''} in group
 				</span>
 			</CardContent>
-			<CardFooter className='flex gap-2'>
+			<CardFooter className='flex gap-2 items-center'>
 				{game.hasJoined ? (
 					<>
 						<Button disabled className='bg-green-500 text-white'>
@@ -136,6 +138,18 @@ const GameCard = ({
 						</Button>
 						<Button asChild>
 							<Link href={`/games/${game.gameId}`}>View Game</Link>
+						</Button>
+					</>
+				) : game.isFull ? (
+					<>
+						<Button disabled>Join Game</Button>
+						<Button
+							variant='destructive'
+							disabled
+							className='flex items-center'
+						>
+							<UserX className='w-4 h-4 mr-2' />
+							Game is full
 						</Button>
 					</>
 				) : (

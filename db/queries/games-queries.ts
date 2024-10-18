@@ -37,7 +37,7 @@ export const getGameById = async (gameId: string) => {
 // 4. Update a game (host updates game details such as location or date)
 export const updateGame = async (
 	gameId: string,
-	updateData: { locationId?: string; date?: Date }
+	updateData: { locationId?: string; date?: Date; isFull?: boolean }
 ) => {
 	try {
 		// Fetch the current game details to get the current locationId
@@ -191,6 +191,7 @@ export const getGamesByLocationRadius = async (
 				createdAt: gamesTable.createdAt,
 				isPrivate: locationsTable.isPrivate,
 				isFLGS: locationsTable.isFLGS,
+				isFull: gamesTable.isFull,
 				locationName: locationsTable.name,
 				hostUsername: profilesTable.username,
 				// Calculate and return the distance in meters
@@ -263,6 +264,7 @@ export const getGameInfoForSlot = async (userId: string, gameId: string) => {
 				locationName: locationsTable.name,
 				locationIsPrivate: locationsTable.isPrivate, // Fetching private from locationsTable
 				locationIsFLGS: locationsTable.isFLGS, // Fetching FLGS from locationsTable
+				isFull: gamesTable.isFull, // Fetching isFull from gamesTable
 				// Get the host's username
 				hostUsername: profilesTable.username,
 				// Subquery to count the number of joiners for the game
@@ -321,6 +323,21 @@ export const getJoinerIdsForGame = async (gameId: string) => {
 		return result.map((row) => row.userId);
 	} catch (error) {
 		console.error('Error fetching joiner IDs for game:', error);
+		throw error;
+	}
+};
+
+export const checkIfGameIsFull = async (gameId: string) => {
+	try {
+		const result = await db
+			.select({
+				isFull: gamesTable.isFull,
+			})
+			.from(gamesTable)
+			.where(eq(gamesTable.id, gameId));
+		return result[0].isFull;
+	} catch (error) {
+		console.error('Error checking if game is full:', error);
 		throw error;
 	}
 };

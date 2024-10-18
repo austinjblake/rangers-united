@@ -12,6 +12,7 @@ export const gamesTable = pgTable('games', {
 		.notNull(),
 	date: timestamp('date'),
 	createdAt: timestamp('created_at').defaultNow(),
+	isFull: boolean('is_full').default(false),
 });
 
 export type InsertGame = typeof gamesTable.$inferInsert;

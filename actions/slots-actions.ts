@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { metersToMiles } from '@/lib/places';
 import { createNotificationAction } from './gameNotifications-actions';
 import { getProfileByUserId } from '@/db/queries/profiles-queries';
+import { checkIfGameIsFull } from '@/db/queries/games-queries';
 // Action to create a new game slot
 export async function createGameSlotAction(
 	data: Omit<Partial<InsertGameSlot>, 'id' | 'userId'>
@@ -27,6 +28,10 @@ export async function createGameSlotAction(
 		const hasReachedMaxSlots = await hasUserReachedMaxSlots(user);
 		if (!isAdmin && hasReachedMaxSlots) {
 			throw new Error('User does not have permission to create game slots');
+		}
+		const isGameFull = await checkIfGameIsFull(data.gameId as string);
+		if (isGameFull) {
+			throw new Error('Game is already full');
 		}
 		const id = uuidv4();
 		const newGameSlotData = {

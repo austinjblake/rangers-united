@@ -21,12 +21,15 @@ import {
 	Home,
 	MapPinned,
 	ClockIcon,
+	UserX,
+	UserPlus,
 } from 'lucide-react';
 import { ConfirmationModal } from '@/components/confirmationModal';
 import {
 	getGameSlotsByUserIdAction,
 	deleteGameSlotAction,
 } from '@/actions/slots-actions';
+import { markGameAsFull } from '@/actions/games-actions';
 import { deleteGameAction } from '@/actions/games-actions';
 
 interface GameSlot {
@@ -42,6 +45,7 @@ interface GameSlot {
 	distance: number;
 	readableAddress: string;
 	locationName: string;
+	isFull: boolean;
 }
 
 export default function Dashboard() {
@@ -115,6 +119,7 @@ export default function Dashboard() {
 							game={slot}
 							onDelete={() => handleDeleteGame(slot.gameId)}
 							onLeave={() => handleLeaveGame(slot.slotId, slot.gameId)}
+							refetchGameSlots={fetchGameSlots}
 						/>
 					</Card>
 				))}
@@ -160,10 +165,12 @@ function GameSlot({
 	game,
 	onDelete,
 	onLeave,
+	refetchGameSlots,
 }: {
 	game: GameSlot;
 	onDelete: () => void;
 	onLeave: () => void;
+	refetchGameSlots: () => Promise<void>;
 }) {
 	const [showFullAddress, setShowFullAddress] = useState(false);
 
@@ -213,6 +220,14 @@ function GameSlot({
 		return `${address?.substring(0, maxLength)}...`;
 	};
 
+	const handleToggleFull = async () => {
+		const result = await markGameAsFull(game.gameId, !game.isFull);
+		if (result.status === 'success') {
+			// Refresh the game slots
+			refetchGameSlots();
+		}
+	};
+
 	return (
 		<div className='flex h-full flex-col'>
 			<CardHeader className='pb-2'>
@@ -221,15 +236,22 @@ function GameSlot({
 						<LocationIcon />
 						{game.locationName}
 					</span>
-					<span
-						className={`text-sm font-medium px-2 py-1 rounded-full ${
-							game.isHost
-								? 'bg-green-100 text-green-800'
-								: 'bg-blue-100 text-blue-800'
-						}`}
-					>
-						{game.isHost ? 'Hosting' : 'Joined'}
-					</span>
+					<div className='flex items-center space-x-2'>
+						<span
+							className={`text-sm font-medium px-2 py-1 rounded-full ${
+								game.isHost
+									? 'bg-green-100 text-green-800'
+									: 'bg-blue-100 text-blue-800'
+							}`}
+						>
+							{game.isHost ? 'Hosting' : 'Joined'}
+						</span>
+						{game.isFull && (
+							<span className='text-sm font-medium px-2 py-1 rounded-full bg-red-100 text-red-800'>
+								Full
+							</span>
+						)}
+					</div>
 				</CardTitle>
 			</CardHeader>
 			<CardContent className='flex-grow pt-2'>
@@ -293,6 +315,17 @@ function GameSlot({
 									title='Delete Game'
 								>
 									<TrashIcon className='h-4 w-4 mr-1' />
+								</Button>
+								<Button
+									variant='outline'
+									size='sm'
+									onClick={(e) => {
+										e.preventDefault();
+										handleToggleFull();
+									}}
+									title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
+								>
+									{game.isFull ? <UserPlus /> : <UserX />}
 								</Button>
 							</>
 						) : (

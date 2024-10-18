@@ -135,13 +135,13 @@ export async function updateGameAction(
 		}
 
 		await updateGame(gameId, updateData);
-		revalidatePath(`/games/${gameId}`);
 		await createNotificationAction({
 			id: uuidv4(),
 			gameId,
 			notification: 'Host updated game location/time details',
 			createdAt: new Date(),
 		});
+		revalidatePath(`/games/${gameId}`);
 		return {
 			status: 'success',
 			message: 'Game updated successfully',
@@ -241,5 +241,37 @@ export async function getAllGameInfo(gameId: string): Promise<ActionState> {
 		};
 	} catch (error) {
 		return { status: 'error', message: 'Failed to retrieve game' };
+	}
+}
+
+export async function markGameAsFull(
+	gameId: string,
+	isFull: boolean
+): Promise<ActionState> {
+	try {
+		const userId = await requireAuth();
+		const isHost = await isUserHost(userId, gameId);
+		const isAdmin = await isUserAdmin(userId);
+		if (!isHost && !isAdmin) {
+			return {
+				status: 'error',
+				message: 'You are not authorized to update this game',
+			};
+		}
+		await updateGame(gameId, { isFull });
+		await createNotificationAction({
+			id: uuidv4(),
+			gameId,
+			notification: `Host has marked the game as ${isFull ? 'full' : 'open'}`,
+			createdAt: new Date(),
+		});
+		revalidatePath(`/games/${gameId}`);
+		return {
+			status: 'success',
+			message: 'Game marked as full',
+		};
+	} catch (error) {
+		console.error('Error marking game as full:', error);
+		return { status: 'error', message: 'Failed to mark game as full' };
 	}
 }
