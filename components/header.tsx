@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Bell, BellRing, Menu, Moon, Sun } from 'lucide-react';
 import {
-	getUserNotifications,
+	getUserNotificationsAction,
 	markNotificationsAsReadAction,
 } from '@/actions/userNotifications-actions';
 import {
@@ -16,6 +16,7 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function Component({ children }: { children: React.ReactNode }) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -24,6 +25,8 @@ export default function Component({ children }: { children: React.ReactNode }) {
 	const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const router = useRouter();
+	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
 	useEffect(() => {
 		if (isDarkMode) {
@@ -34,7 +37,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 	}, [isDarkMode]);
 
 	const fetchNotifications = async () => {
-		const result = await getUserNotifications();
+		const result = await getUserNotificationsAction();
 		if (result.status === 'success' && result.data) {
 			setNotifications(result.data);
 			setHasUnreadNotifications(
@@ -193,6 +196,12 @@ export default function Component({ children }: { children: React.ReactNode }) {
 		</>
 	);
 
+	const handleViewAllNotifications = () => {
+		setIsSidebarOpen(false); // Close the sidebar if it's open
+		setIsPopoverOpen(false); // Close the popover
+		router.push('/notifications');
+	};
+
 	return (
 		<div className='flex flex-col min-h-screen'>
 			<header className='flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b'>
@@ -213,12 +222,15 @@ export default function Component({ children }: { children: React.ReactNode }) {
 					</Link>
 				</div>
 				<div className='flex items-center space-x-4'>
-					<Popover>
+					<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
 						<PopoverTrigger asChild>
 							<Button
 								variant='ghost'
 								size='icon'
-								onClick={handleNotificationClick}
+								onClick={() => {
+									setIsPopoverOpen(true);
+									handleNotificationClick();
+								}}
 							>
 								{hasUnreadNotifications ? (
 									<BellRing className='h-5 w-5' color='red' />
@@ -243,8 +255,11 @@ export default function Component({ children }: { children: React.ReactNode }) {
 												</div>
 											))}
 										</div>
-										<Button asChild className='w-full mt-2'>
-											<Link href='/notifications'>View all notifications</Link>
+										<Button
+											className='w-full mt-2'
+											onClick={handleViewAllNotifications}
+										>
+											View all notifications
 										</Button>
 									</>
 								) : (

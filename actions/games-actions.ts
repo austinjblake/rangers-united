@@ -23,7 +23,7 @@ import { createLocation } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
 import { createNotificationAction } from './gameNotifications-actions';
-import { deleteNotificationsForGame } from './userNotifications-actions';
+import { deleteNotificationsForGameAction } from './userNotifications-actions';
 import { hasUserReachedMaxSlots } from '@/db/queries/slots-queries';
 
 // Action to create a new game
@@ -169,7 +169,7 @@ export async function deleteGameAction(gameId: string): Promise<ActionState> {
 				message: 'You are not authorized to delete this game',
 			};
 		}
-		await deleteNotificationsForGame(gameId, userId);
+		await deleteNotificationsForGameAction(gameId, userId);
 		await deleteGame(gameId);
 		console.log('Deleting game', gameId);
 		return {

@@ -81,3 +81,16 @@ export const checkNotificationBelongsToUser = async (
 		throw error;
 	}
 };
+
+// mark all notifications as read for user
+export const markAllNotificationsAsRead = async (userId: string) => {
+	try {
+		await db
+			.update(userNotificationsTable)
+			.set({ isRead: true })
+			.where(eq(userNotificationsTable.userId, userId));
+	} catch (error) {
+		console.error('Error marking all notifications as read:', error);
+		throw error;
+	}
+};

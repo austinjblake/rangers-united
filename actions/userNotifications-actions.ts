@@ -3,7 +3,9 @@
 import {
 	checkNotificationBelongsToUser,
 	createNotification,
+	deleteNotification,
 	getNotificationsByUser,
+	markAllNotificationsAsRead,
 	markNotificationAsRead,
 } from '@/db/queries/userNotifications-queries';
 import { InsertUserNotification } from '@/db/schema/userNotifications-schema';
@@ -34,7 +36,7 @@ export async function createUserNotificationAction(
 }
 
 // Action to retrieve a notification by ID
-export async function getUserNotifications(): Promise<ActionState> {
+export async function getUserNotificationsAction(): Promise<ActionState> {
 	try {
 		const user = await requireAuth();
 		const notification = await getNotificationsByUser(user);
@@ -75,7 +77,7 @@ export async function markNotificationAsReadAction(
 }
 
 // Action to delete a notification
-export async function deleteNotification(
+export async function deleteNotificationAction(
 	notificationId: string
 ): Promise<ActionState> {
 	try {
@@ -96,12 +98,13 @@ export async function deleteNotification(
 			message: 'Notification deleted successfully',
 		};
 	} catch (error) {
+		console.error('Error deleting notification:', error);
 		return { status: 'error', message: 'Failed to delete notification' };
 	}
 }
 
 // create delete notifications for all users that have joined a game
-export async function deleteNotificationsForGame(
+export async function deleteNotificationsForGameAction(
 	gameId: string,
 	userId: string
 ): Promise<ActionState> {
@@ -146,5 +149,23 @@ export async function markNotificationsAsReadAction(
 	} catch (error) {
 		console.error('Error marking notifications as read:', error);
 		return { status: 'error', message: 'Failed to mark notifications as read' };
+	}
+}
+
+// Action to mark all notifications as read
+export async function markAllNotificationsAsReadAction(): Promise<ActionState> {
+	try {
+		const user = await requireAuth();
+		await markAllNotificationsAsRead(user);
+		return {
+			status: 'success',
+			message: 'All notifications marked as read',
+		};
+	} catch (error) {
+		console.error('Error marking all notifications as read:', error);
+		return {
+			status: 'error',
+			message: 'Failed to mark all notifications as read',
+		};
 	}
 }
