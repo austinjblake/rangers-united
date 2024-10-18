@@ -87,7 +87,7 @@ export async function deleteProfileAction(
 	try {
 		const user = await requireAuth();
 		const isAdmin = await isUserAdmin(user);
-		if (!isAdmin || user !== userId) {
+		if (!isAdmin && user !== userId) {
 			throw new Error('User does not have permission to delete this profile');
 		}
 		await deleteProfile(userId);

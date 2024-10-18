@@ -2,6 +2,7 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import {
 	createProfileAction,
+	deleteProfileAction,
 	updateProfileAction,
 } from '@/actions/profiles-actions';
 
@@ -89,6 +90,21 @@ export async function POST(req: Request) {
 			console.error('Error updating profile:', error);
 			return new Response('Error updating profile', { status: 500 });
 		}
+	} else if (eventType === 'user.deleted') {
+		const { id } = evt.data;
+
+		try {
+			const result = await deleteProfileAction(id);
+
+			if (result.status === 'error') {
+				throw new Error(result.message);
+			}
+
+			return new Response('Profile deleted successfully', { status: 200 });
+		} catch (error) {
+			console.error('Error deleting profile:', error);
+			return new Response('Error deleting profile', { status: 500 });
+		}
 	}
 
 	return new Response('Webhook received', { status: 200 });
@@ -103,5 +119,5 @@ interface WebhookEvent {
 		[key: string]: any;
 	};
 	object: string;
-	type: 'user.created' | 'user.updated';
+	type: 'user.created' | 'user.updated' | 'user.deleted';
 }

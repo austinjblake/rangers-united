@@ -7,7 +7,14 @@ import {
 	profilesTable,
 	SelectProfile,
 } from '../schema/profiles-schema';
-
+import { deleteGame, getAllHostedGames } from './games-queries';
+import { deleteGameSlot } from './slots-queries';
+import { getGameSlotsByUser } from './slots-queries';
+import { fetchLocationsByUserId } from './locations-queries';
+import { deleteLocation } from '@/actions/locations-actions';
+import { deleteAllNotificationsForUser } from './userNotifications-queries';
+import { createNotificationAction } from '@/actions/gameNotifications-actions';
+import { v4 as uuidv4 } from 'uuid';
 export const createProfile = async (profileData: InsertProfile) => {
 	try {
 		const [newProfile] = await db
@@ -81,6 +88,31 @@ export const updateProfileDetails = async (
 
 export const deleteProfile = async (userId: string) => {
 	try {
+		// delete all hosted games
+		const hostedGames = await getAllHostedGames(userId);
+		for (const game of hostedGames) {
+			await deleteGame(game.id);
+		}
+		// delete all game slots
+		const gameSlots = await getGameSlotsByUser(userId);
+		const userProfile = await getProfileByUserId(userId);
+		const username = userProfile?.username;
+		for (const slot of gameSlots) {
+			await createNotificationAction({
+				id: uuidv4(),
+				gameId: slot.gameId as string,
+				notification: `${username} left the game`,
+				createdAt: new Date(),
+			});
+			await deleteGameSlot(slot.slotId, slot.gameId as string);
+		}
+		// delete all locations
+		const locations = await fetchLocationsByUserId(userId);
+		for (const location of locations) {
+			await deleteLocation(location.id);
+		}
+		// delete all user notifications
+		await deleteAllNotificationsForUser(userId);
 		await db.delete(profilesTable).where(eq(profilesTable.userId, userId));
 	} catch (error) {
 		console.error('Error deleting profile:', error);

@@ -240,9 +240,12 @@ export const getGamesByLocationRadius = async (
 };
 
 // 7. Get all games (for general browsing or admin purposes)
-export const getAllGames = async () => {
+export const getAllHostedGames = async (hostId: string) => {
 	try {
-		const result = await db.select().from(gamesTable);
+		const result = await db
+			.select()
+			.from(gamesTable)
+			.where(eq(gamesTable.hostId, hostId));
 		return result;
 	} catch (error) {
 		console.error('Error fetching all games:', error);

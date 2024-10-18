@@ -94,3 +94,15 @@ export const markAllNotificationsAsRead = async (userId: string) => {
 		throw error;
 	}
 };
+
+// delete all notifications for user
+export const deleteAllNotificationsForUser = async (userId: string) => {
+	try {
+		await db
+			.delete(userNotificationsTable)
+			.where(eq(userNotificationsTable.userId, userId));
+	} catch (error) {
+		console.error('Error deleting all notifications for user:', error);
+		throw error;
+	}
+};

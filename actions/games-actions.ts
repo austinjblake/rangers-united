@@ -6,7 +6,6 @@ import {
 	updateGame,
 	deleteGame,
 	getGamesByLocationRadius,
-	getAllGames,
 	getGameInfoForSlot,
 } from '@/db/queries/games-queries';
 import { InsertGame } from '@/db/schema/games-schema';
@@ -203,22 +202,6 @@ export async function getGamesByLocationAction(
 	} catch (error) {
 		console.error('Error fetching games by location:', error);
 		return { status: 'error', message: 'Failed to retrieve games by location' };
-	}
-}
-
-// Action to get all games (for general browsing or admin purposes)
-export async function getAllGamesAction(): Promise<ActionState> {
-	try {
-		const userId = await requireAuth();
-		await isUserAdmin(userId);
-		const games = await getAllGames();
-		return {
-			status: 'success',
-			message: 'All games retrieved successfully',
-			data: games,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to retrieve all games' };
 	}
 }
 
