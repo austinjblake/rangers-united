@@ -159,3 +159,21 @@ export async function deleteGameSlotAction(
 		return { status: 'error', message: 'Failed to delete game slot' };
 	}
 }
+
+// Action to check if a user has reached the maximum number of slots
+export async function checkUserSlotsRemaining(): Promise<ActionState> {
+	try {
+		const userId = await requireAuth();
+		if (!userId) {
+			throw new Error('User does not have permission to check max slots');
+		}
+		const hasReachedMaxSlots = await hasUserReachedMaxSlots(userId);
+		return {
+			status: 'success',
+			message: `User has${hasReachedMaxSlots ? '' : ' not'} reached max slots`,
+			data: !hasReachedMaxSlots,
+		};
+	} catch (error) {
+		return { status: 'error', message: 'Failed to check max slots' };
+	}
+}

@@ -24,6 +24,7 @@ import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
 import { createNotificationAction } from './gameNotifications-actions';
 import { deleteNotificationsForGame } from './userNotifications-actions';
+import { hasUserReachedMaxSlots } from '@/db/queries/slots-queries';
 
 // Action to create a new game
 export async function createGameAction(
@@ -32,6 +33,11 @@ export async function createGameAction(
 ): Promise<ActionState> {
 	try {
 		const hostId = await requireAuth();
+		const isAdmin = await isUserAdmin(hostId);
+		const hasReachedMaxSlots = await hasUserReachedMaxSlots(hostId);
+		if (!isAdmin && hasReachedMaxSlots) {
+			throw new Error('User does not have permission to create game slots');
+		}
 		const id = uuidv4();
 		const gameData = { ...data, hostId, id };
 		let locId = selectedLocation.id;

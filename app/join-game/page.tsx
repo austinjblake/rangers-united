@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Select,
@@ -26,17 +26,21 @@ import {
 	UsersIcon,
 	MapPinned,
 	UserX,
+	Check,
 } from 'lucide-react';
 import { getGamesByLocationAction } from '@/actions/games-actions';
 import LocationSelector from '@/components/locationSelector/locationSelector';
 import { SelectLocation } from '@/db/schema';
 import { Slider } from '@/components/ui/slider';
-import { createGameSlotAction } from '@/actions/slots-actions';
+import {
+	checkUserSlotsRemaining,
+	createGameSlotAction,
+} from '@/actions/slots-actions';
 import { createLocation } from '@/actions/locations-actions';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/use-toast';
-import { Check } from 'lucide-react';
 import Link from 'next/link';
+import MaxSlotsReachedCard from '@/components/max-slots-reached-card';
 
 interface SearchGameResult {
 	distance: number;
@@ -215,6 +219,16 @@ export default function GameSearchPage() {
 		date: 'default',
 		locationType: 'all',
 	});
+	const [hasSlotsRemaining, setHasSlotsRemaining] = useState(true);
+
+	useEffect(() => {
+		checkSlotsRemaining();
+	}, []);
+
+	const checkSlotsRemaining = async () => {
+		const result = await checkUserSlotsRemaining();
+		setHasSlotsRemaining(result.data);
+	};
 
 	const searchGames = async (location: SelectLocation, radius: number) => {
 		setLoading(true);
@@ -304,6 +318,10 @@ export default function GameSearchPage() {
 
 		setFilteredGames(result);
 	};
+
+	if (!hasSlotsRemaining) {
+		return <MaxSlotsReachedCard />;
+	}
 
 	return (
 		<div className='container mx-auto px-4 py-8'>
