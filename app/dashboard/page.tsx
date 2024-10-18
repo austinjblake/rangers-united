@@ -3,13 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
 	CalendarIcon,
 	MapPinIcon,
@@ -229,130 +223,119 @@ function GameSlot({
 	};
 
 	return (
-		<div className='flex h-full flex-col'>
-			<CardHeader className='pb-2'>
-				<CardTitle className='flex items-center justify-between text-lg'>
-					<span className='flex items-center'>
-						<LocationIcon />
-						{game.locationName}
+		<div className='flex h-full flex-col p-4'>
+			<div className='flex items-center justify-between mb-3'>
+				<div className='flex items-center'>
+					<LocationIcon />
+					<span className='font-semibold text-lg'>{game.locationName}</span>
+				</div>
+				<div className='flex items-center space-x-2'>
+					<span
+						className={`text-xs font-medium px-2 py-1 rounded-full ${
+							game.isHost
+								? 'bg-green-100 text-green-800'
+								: 'bg-blue-100 text-blue-800'
+						}`}
+					>
+						{game.isHost ? 'Hosting' : 'Joined'}
 					</span>
-					<div className='flex items-center space-x-2'>
-						<span
-							className={`text-sm font-medium px-2 py-1 rounded-full ${
-								game.isHost
-									? 'bg-green-100 text-green-800'
-									: 'bg-blue-100 text-blue-800'
-							}`}
-						>
-							{game.isHost ? 'Hosting' : 'Joined'}
+					{game.isFull && (
+						<span className='text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-800'>
+							Full
 						</span>
-						{game.isFull && (
-							<span className='text-sm font-medium px-2 py-1 rounded-full bg-red-100 text-red-800'>
-								Full
+					)}
+				</div>
+			</div>
+
+			<div className='space-y-2 text-sm flex-grow'>
+				<p className='flex items-center text-gray-700'>
+					<CalendarIcon className='mr-2 h-4 w-4 text-gray-500' />
+					<span>{formatDate(game.gameDate)}</span>
+				</p>
+				<p className='flex items-center text-gray-700'>
+					<ClockIcon className='mr-2 h-4 w-4 text-gray-500' />
+					<span>{formatTime(game.gameDate)}</span>
+				</p>
+				<p className='flex items-center text-gray-700'>
+					<UsersIcon className='mr-2 h-4 w-4 text-gray-500' />
+					<span>
+						{game.joinerCount} player
+						{parseInt(game.joinerCount) !== 1 ? 's' : ''} in group
+					</span>
+				</p>
+				<div
+					className='flex items-start text-gray-700 cursor-pointer'
+					onClick={() => setShowFullAddress(!showFullAddress)}
+				>
+					<MapPinned className='mr-2 h-4 w-4 text-gray-500 flex-shrink-0 mt-1' />
+					<span className='flex-grow'>
+						{game.isHost ? (
+							<span className={showFullAddress ? '' : 'truncate'}>
+								{showFullAddress
+									? game.readableAddress
+									: truncateAddress(game.readableAddress, 30)}
+							</span>
+						) : (
+							<span className={showFullAddress ? '' : 'truncate'}>
+								{game.distance.toFixed(1)} miles away from{' '}
+								{showFullAddress
+									? game.readableAddress
+									: truncateAddress(game.readableAddress, 15)}
 							</span>
 						)}
-					</div>
-				</CardTitle>
-			</CardHeader>
-			<CardContent className='flex-grow pt-2'>
-				<div className='space-y-3 text-sm'>
-					<p className='flex items-center text-gray-700'>
-						<CalendarIcon className='mr-2 h-5 w-5 text-gray-500' />
-						<span className='font-medium'>{formatDate(game.gameDate)}</span>
-					</p>
-					<p className='flex items-center text-gray-700'>
-						<ClockIcon className='mr-2 h-5 w-5 text-gray-500' />
-						<span>{formatTime(game.gameDate)}</span>
-					</p>
-					<p className='flex items-center text-gray-700'>
-						<UsersIcon className='mr-2 h-5 w-5 text-gray-500' />
-						<span>
-							{game.joinerCount} player
-							{parseInt(game.joinerCount) !== 1 ? 's' : ''} in group
-						</span>
-					</p>
-					<p
-						className='flex items-center text-gray-700 cursor-pointer'
-						onClick={() => setShowFullAddress(!showFullAddress)}
-					>
-						<MapPinned className='mr-2 h-5 w-5 text-gray-500 flex-shrink-0 ' />
-						<span>
-							{game.isHost ? (
-								showFullAddress ? (
-									game.readableAddress
-								) : (
-									truncateAddress(game.readableAddress, 30)
-								)
-							) : (
-								<>
-									{game.distance.toFixed(1)} miles away from{' '}
-									{showFullAddress
-										? game.readableAddress
-										: truncateAddress(game.readableAddress, 9)}
-								</>
-							)}
-						</span>
-					</p>
+					</span>
 				</div>
-			</CardContent>
-			<CardFooter className='mt-auto pt-4 border-t'>
-				<div className='flex items-center justify-between w-full'>
-					<div className='flex space-x-2'>
-						{game.isHost ? (
-							<>
-								<Link href={`/games/edit/${game.gameId}`}>
-									<Button variant='outline' size='sm' title='Edit Game'>
-										<PencilIcon className='h-4 w-4 mr-1' />
-									</Button>
-								</Link>
-								<Button
-									variant='outline'
-									size='sm'
-									onClick={(e) => {
-										e.preventDefault();
-										onDelete();
-									}}
-									title='Delete Game'
-								>
-									<TrashIcon className='h-4 w-4 mr-1' />
-								</Button>
-								<Button
-									variant='outline'
-									size='sm'
-									onClick={(e) => {
-										e.preventDefault();
-										handleToggleFull();
-									}}
-									title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
-								>
-									{game.isFull ? <UserPlus /> : <UserX />}
-								</Button>
-							</>
-						) : (
+			</div>
+
+			<div className='mt-4 pt-4 border-t flex flex-wrap gap-2 justify-between items-center'>
+				<div className='flex flex-wrap gap-2'>
+					{game.isHost ? (
+						<>
 							<Button
 								variant='outline'
 								size='sm'
-								onClick={(e) => {
-									e.preventDefault();
-									onLeave();
-								}}
+								onClick={() => {}}
+								title='Edit Game'
 							>
-								Leave
+								<PencilIcon className='h-4 w-4' />
 							</Button>
-						)}
-					</div>
-					<Link href={`/games/${game.gameId}`}>
-						<Button
-							variant='outline'
-							size='sm'
-							className='flex items-center group'
-						>
-							View Game
-							<ChevronRightIcon className='h-5 w-5 text-gray-400 ml-2 transition-transform duration-200 group-hover:translate-x-1' />
+							<Button
+								variant='outline'
+								size='sm'
+								onClick={onDelete}
+								title='Delete Game'
+							>
+								<TrashIcon className='h-4 w-4' />
+							</Button>
+							<Button
+								variant='outline'
+								size='sm'
+								onClick={handleToggleFull}
+								title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
+							>
+								{game.isFull ? (
+									<UserPlus className='h-4 w-4' />
+								) : (
+									<UserX className='h-4 w-4' />
+								)}
+							</Button>
+						</>
+					) : (
+						<Button variant='outline' size='sm' onClick={onLeave}>
+							Leave
 						</Button>
-					</Link>
+					)}
 				</div>
-			</CardFooter>
+				<Link
+					href={`/games/${game.gameId}`}
+					className='flex-grow sm:flex-grow-0'
+				>
+					<Button variant='outline' size='sm' className='w-full'>
+						View Game
+						<ChevronRightIcon className='h-5 w-5 ml-2' />
+					</Button>
+				</Link>
+			</div>
 		</div>
 	);
 }
