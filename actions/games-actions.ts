@@ -18,7 +18,7 @@ import {
 	isUserAdmin,
 } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
-import { createLocation } from './locations-actions';
+import { createLocationAction } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
 import { createNotificationAction } from './gameNotifications-actions';
@@ -46,14 +46,14 @@ export async function createGameAction(
 			const locationObj = {
 				id: '',
 				name: selectedLocation.name,
-				location: selectedLocation.readableAddress, // this will be geolocated in createLocation
+				location: selectedLocation.readableAddress, // this will be geolocated in createLocationAction
 				readableAddress: selectedLocation.readableAddress,
 				userId: hostId,
 				isFLGS: selectedLocation.isFLGS,
 				isPrivate: selectedLocation.isPrivate,
 				temporary: true,
 			};
-			const newLocation = await createLocation(locationObj);
+			const newLocation = await createLocationAction(locationObj);
 			locId = newLocation.data.id;
 		}
 
@@ -135,7 +135,7 @@ export async function updateGameAction(
 				isPrivate: data.location.isPrivate,
 				temporary: true,
 			};
-			const newLocation = await createLocation(locationObj);
+			const newLocation = await createLocationAction(locationObj);
 			updateData.locationId = newLocation.data.id;
 		}
 
@@ -206,7 +206,9 @@ export async function getGamesByLocationAction(
 }
 
 // Action to get a specific game by ID
-export async function getAllGameInfo(gameId: string): Promise<ActionState> {
+export async function getAllGameInfoAction(
+	gameId: string
+): Promise<ActionState> {
 	try {
 		const userId = await requireAuth();
 		const joinedGame = await hasUserJoinedGame(userId, gameId);
@@ -233,7 +235,7 @@ export async function getAllGameInfo(gameId: string): Promise<ActionState> {
 	}
 }
 
-export async function markGameAsFull(
+export async function markGameAsFullAction(
 	gameId: string,
 	isFull: boolean
 ): Promise<ActionState> {

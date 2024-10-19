@@ -9,7 +9,6 @@ import {
 	markMessagesAsFromExMember,
 	isMessageSentByUser,
 } from '@/db/queries/messages-queries';
-import { InsertMessage } from '@/db/schema/messages-schema';
 import { ActionState } from '@/types';
 import { revalidatePath } from 'next/cache';
 import {
@@ -53,51 +52,7 @@ export async function createMessageAction(
 	}
 }
 
-// Action to get all messages for a specific game (visible to joiners)
-export async function getMessagesByGameIdAction(
-	gameId: string
-): Promise<ActionState> {
-	try {
-		const userId = await requireAuth();
-		const joinedGame = await hasUserJoinedGame(userId, gameId);
-		const isAdmin = await isUserAdmin(userId);
-		if (!joinedGame || !isAdmin) {
-			throw new Error('User has not joined the game');
-		}
-		const messages = await getMessagesByGameId(gameId);
-		return {
-			status: 'success',
-			message: 'Messages retrieved successfully',
-			data: messages,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to retrieve messages' };
-	}
-}
-
-// Action to get all messages for a specific game (including hidden ones, for the host)
-export async function getAllMessagesByGameIdForHostAction(
-	gameId: string
-): Promise<ActionState> {
-	try {
-		const userId = await requireAuth();
-		const isHost = await isUserHost(userId, gameId);
-		const isAdmin = await isUserAdmin(userId);
-		if (!isHost || !isAdmin) {
-			throw new Error('User is not the host');
-		}
-		const messages = await getAllMessagesByGameIdForHost(gameId);
-		return {
-			status: 'success',
-			message: 'All messages retrieved successfully (host view)',
-			data: messages,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to retrieve all messages' };
-	}
-}
-
-// Action to update a message (edit by sender or mark as from ex-member)
+// Action to update a message (edit by sender)
 export async function updateMessageAction(
 	messageId: string,
 	newMessage: string

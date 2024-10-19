@@ -21,9 +21,9 @@ import { ConfirmationModal } from '@/components/confirmationModal';
 import { GameChat } from '@/components/game-chat';
 import { GameNotifications } from '@/components/game-notifications';
 import {
-	getAllGameInfo,
+	getAllGameInfoAction,
 	deleteGameAction,
-	markGameAsFull,
+	markGameAsFullAction,
 } from '@/actions/games-actions';
 import { deleteGameSlotAction } from '@/actions/slots-actions';
 import { supabase } from '@/supabaseClient';
@@ -40,7 +40,7 @@ export default function GameDetailsPage() {
 	// fetch game details
 	useEffect(() => {
 		const fetchData = async () => {
-			const gameResult = await getAllGameInfo(gameId as string);
+			const gameResult = await getAllGameInfoAction(gameId as string);
 			if (gameResult.status === 'success') setGame(gameResult.data);
 		};
 
@@ -213,7 +213,7 @@ export default function GameDetailsPage() {
 	};
 
 	const handleToggleFull = async () => {
-		const result = await markGameAsFull(gameId as string, !game.isFull);
+		const result = await markGameAsFullAction(gameId as string, !game.isFull);
 		if (result.status === 'success') {
 			setGame({ ...game, isFull: !game.isFull });
 		}

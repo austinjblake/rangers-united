@@ -28,43 +28,6 @@ export async function createProfileAction(
 	}
 }
 
-export async function getProfileByUserIdAction(
-	userId: string
-): Promise<ActionState> {
-	try {
-		const user = await requireAuth();
-		if (user !== userId) {
-			throw new Error('User does not have permission to view this profile');
-		}
-		const profile = await getProfileByUserId(userId);
-		return {
-			status: 'success',
-			message: 'Profile retrieved successfully',
-			data: profile,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to get profile' };
-	}
-}
-
-export async function getAllProfilesAction(): Promise<ActionState> {
-	try {
-		const user = await requireAuth();
-		const isAdmin = await isUserAdmin(user);
-		if (!isAdmin) {
-			throw new Error('User does not have permission to view all profiles');
-		}
-		const profiles = await getAllProfiles();
-		return {
-			status: 'success',
-			message: 'Profiles retrieved successfully',
-			data: profiles,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to get profiles' };
-	}
-}
-
 export async function updateProfileAction(
 	userId: string,
 	data: Partial<InsertProfile>
@@ -95,7 +58,7 @@ export async function deleteProfileAction(
 		revalidatePath('/profile');
 		return { status: 'success', message: 'Profile deleted successfully' };
 	} catch (error) {
-		console.log('delete profile actions error:', error);
+		console.error('delete profile actions error:', error);
 		return { status: 'error', message: 'Failed to delete profile' };
 	}
 }

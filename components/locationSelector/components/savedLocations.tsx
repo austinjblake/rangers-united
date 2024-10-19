@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-	getLocationsByUserId,
-	deleteLocation,
+	getLocationsByUserIdAction,
+	deleteLocationAction,
 } from '@/actions/locations-actions';
 import { ConfirmationModal } from '@/components/confirmationModal';
 import { Trash2Icon, HomeIcon, StoreIcon, RefreshCcwIcon } from 'lucide-react';
@@ -33,7 +33,7 @@ export function SavedLocations({
 
 	async function fetchLocations() {
 		try {
-			const fetchedLocations = await getLocationsByUserId();
+			const fetchedLocations = await getLocationsByUserIdAction();
 			setLocations(fetchedLocations);
 		} catch (err) {
 			setError('Failed to fetch locations');
@@ -51,7 +51,7 @@ export function SavedLocations({
 	const handleDeleteConfirm = async () => {
 		if (locationToDelete) {
 			try {
-				const deleteResult = await deleteLocation(locationToDelete.id);
+				const deleteResult = await deleteLocationAction(locationToDelete.id);
 				if (deleteResult.status === 'success') {
 					setLocations(
 						locations.filter((loc) => loc.id !== locationToDelete.id)

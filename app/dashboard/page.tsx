@@ -23,7 +23,7 @@ import {
 	getGameSlotsByUserIdAction,
 	deleteGameSlotAction,
 } from '@/actions/slots-actions';
-import { markGameAsFull } from '@/actions/games-actions';
+import { markGameAsFullAction } from '@/actions/games-actions';
 import { deleteGameAction } from '@/actions/games-actions';
 
 interface GameSlot {
@@ -219,7 +219,7 @@ function GameSlot({
 	};
 
 	const handleToggleFull = async () => {
-		const result = await markGameAsFull(game.gameId, !game.isFull);
+		const result = await markGameAsFullAction(game.gameId, !game.isFull);
 		if (result.status === 'success') {
 			// Refresh the game slots
 			refetchGameSlots();

@@ -61,28 +61,6 @@ export async function createGameSlotAction(
 	}
 }
 
-// Action to retrieve a game slot by ID
-export async function getGameSlotByIdAction(
-	gameSlotId: string
-): Promise<ActionState> {
-	try {
-		const user = await requireAuth();
-		const isAdmin = await isUserAdmin(user);
-		const belongsToUser = await isGameSlotOwnedByUser(gameSlotId, user);
-		if (!isAdmin && !belongsToUser) {
-			throw new Error('User does not have permission to get this game slot');
-		}
-		const gameSlot = await getGameSlotsByGameId(gameSlotId);
-		return {
-			status: 'success',
-			message: 'Game slot retrieved successfully',
-			data: gameSlot,
-		};
-	} catch (error) {
-		return { status: 'error', message: 'Failed to get game slot' };
-	}
-}
-
 // Action to retrieve all game slots for a specific user
 export async function getGameSlotsByUserIdAction(): Promise<ActionState> {
 	try {

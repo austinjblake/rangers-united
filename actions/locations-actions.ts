@@ -21,8 +21,8 @@ const formatGeographyPoint = (lat: number, lon: number): string => {
 	return `POINT(${lon} ${lat})`;
 };
 
-// 1. Create a new location
-export const createLocation = async (locationData: InsertLocation) => {
+//  Create a new location
+export const createLocationAction = async (locationData: InsertLocation) => {
 	try {
 		const userId = await requireAuth();
 		// Step 1: Geocode the address using a geocoding API to get lat/lon
@@ -48,8 +48,8 @@ export const createLocation = async (locationData: InsertLocation) => {
 	}
 };
 
-// 2. Get all locations for a specific user
-export const getLocationsByUserId = async () => {
+//  Get all locations for a specific user
+export const getLocationsByUserIdAction = async () => {
 	try {
 		const userId = await requireAuth();
 		const locations = await fetchLocationsByUserId(userId);
@@ -60,8 +60,8 @@ export const getLocationsByUserId = async () => {
 	}
 };
 
-// 3. Get a location by ID
-export const getLocationById = async (locationId: string) => {
+//  Get a location by ID
+export const getLocationByIdAction = async (locationId: string) => {
 	try {
 		const userId = await requireAuth();
 		const location = await fetchLocationById(locationId);
@@ -83,35 +83,8 @@ export const getLocationById = async (locationId: string) => {
 	}
 };
 
-// 4. Update a location
-export const updateLocation = async (
-	locationId: string,
-	updatedData: Partial<InsertLocation>
-) => {
-	try {
-		const userId = await requireAuth();
-		const location = await fetchLocationById(locationId);
-
-		if (
-			!location ||
-			(location[0].userId !== userId && !(await isUserAdmin(userId)))
-		) {
-			return {
-				status: 'error',
-				message: 'You are not authorized to update this location',
-			};
-		}
-
-		await modifyLocation(locationId, updatedData);
-		return { status: 'success', message: 'Location updated successfully' };
-	} catch (error) {
-		console.error('Error updating location:', error);
-		throw error;
-	}
-};
-
-// 5. Delete a location
-export const deleteLocation = async (locationId: string) => {
+//  Delete a location
+export const deleteLocationAction = async (locationId: string) => {
 	try {
 		const userId = await requireAuth();
 		const location = await fetchLocationById(locationId);
@@ -140,38 +113,8 @@ export const deleteLocation = async (locationId: string) => {
 	}
 };
 
-// 6. Get all public FLGS locations
-export const getAllFLGSLocations = async () => {
-	try {
-		const locations = await fetchAllFLGSLocations();
-		return locations;
-	} catch (error) {
-		console.error('Error fetching FLGS locations:', error);
-		throw error;
-	}
-};
-
-// 7. Get locations by proximity
-export const getLocationsByProximity = async (
-	userLatitude: number,
-	userLongitude: number,
-	radius: number
-) => {
-	try {
-		const locations = await fetchLocationsByProximity(
-			userLatitude,
-			userLongitude,
-			radius
-		);
-		return locations;
-	} catch (error) {
-		console.error('Error fetching locations by proximity:', error);
-		throw error;
-	}
-};
-
-// 8. Get nearby Friendly Local Game Stores
-export const getNearbyFLGS = async (address: string, radius: number) => {
+//  Get nearby Friendly Local Game Stores
+export const getNearbyFLGSAction = async (address: string, radius: number) => {
 	try {
 		const results = await findNearbyFLGS(address, radius);
 		return { status: 'success', data: results };
@@ -181,8 +124,8 @@ export const getNearbyFLGS = async (address: string, radius: number) => {
 	}
 };
 
-// 9. Geolocate a location that won't be saved to the database
-export const geoLocateLocation = async (locationData: SelectLocation) => {
+// Geolocate a location that won't be saved to the database
+export const geoLocateLocationAction = async (locationData: SelectLocation) => {
 	try {
 		const userId = await requireAuth();
 		// Step 1: Geocode the address using a geocoding API to get lat/lon

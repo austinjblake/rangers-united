@@ -36,7 +36,7 @@ import {
 	checkUserSlotsRemaining,
 	createGameSlotAction,
 } from '@/actions/slots-actions';
-import { createLocation } from '@/actions/locations-actions';
+import { createLocationAction } from '@/actions/locations-actions';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/use-toast';
 import Link from 'next/link';
@@ -253,7 +253,7 @@ export default function GameSearchPage() {
 	const joinGame = async (gameId: string) => {
 		let locationId = searchLocation.id;
 		if (!searchLocation.id) {
-			const newLocation = await createLocation({
+			const newLocation = await createLocationAction({
 				id: '',
 				userId: '',
 				location: searchLocation.readableAddress,

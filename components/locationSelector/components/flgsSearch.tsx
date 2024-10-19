@@ -4,7 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { SelectLocation } from '@/db/schema';
 import { AddressInput } from './addressInput';
 import { Loader2, StoreIcon, Star, HelpCircle, Globe } from 'lucide-react';
-import { getNearbyFLGS } from '@/actions/locations-actions';
+import { getNearbyFLGSAction } from '@/actions/locations-actions';
 import {
 	Tooltip,
 	TooltipContent,
@@ -47,7 +47,7 @@ export function FlgsSearch({
 		}
 
 		try {
-			const response = await getNearbyFLGS(address, radius);
+			const response = await getNearbyFLGSAction(address, radius);
 			if (response.status === 'success' && response.data.results) {
 				const operationalLocations = response.data.results.filter(
 					(location: FLGSResult) => location.business_status === 'OPERATIONAL'

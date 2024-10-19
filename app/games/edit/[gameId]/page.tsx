@@ -1,6 +1,6 @@
 import GameForm from '@/components/game-form';
 import { getGameByIdAction } from '@/actions/games-actions';
-import { getLocationById } from '@/actions/locations-actions';
+import { getLocationByIdAction } from '@/actions/locations-actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
@@ -19,7 +19,7 @@ export default async function EditGamePage({
 
 	const game = gameResult.data;
 
-	const locationResult = await getLocationById(game.locationId);
+	const locationResult = await getLocationByIdAction(game.locationId);
 
 	if (locationResult.status === 'error' || !locationResult.data) {
 		notFound();

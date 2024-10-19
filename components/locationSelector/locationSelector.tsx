@@ -15,7 +15,10 @@ import { NewLocation } from './components/newLocation';
 import { FlgsSearch } from './components/flgsSearch';
 import { LocationDetails } from './components/locationDetails';
 import { Info } from 'lucide-react';
-import { createLocation, geoLocateLocation } from '@/actions/locations-actions';
+import {
+	createLocationAction,
+	geoLocateLocationAction,
+} from '@/actions/locations-actions';
 import { toast } from '@/components/ui/use-toast';
 import {
 	Tooltip,
@@ -73,7 +76,7 @@ export default function LocationSelector({
 	// save location to database for user
 	const handleSaveLocation = async (location: SelectLocation) => {
 		try {
-			const result = await createLocation({
+			const result = await createLocationAction({
 				id: '',
 				userId: '',
 				name: location.name,
@@ -127,7 +130,7 @@ export default function LocationSelector({
 			onUseLocation(selectedLocation);
 		} else {
 			// For new locations or FLGS search results, geolocate
-			const geoLocation = await geoLocateLocation(selectedLocation);
+			const geoLocation = await geoLocateLocationAction(selectedLocation);
 			onUseLocation(geoLocation.data);
 		}
 	};

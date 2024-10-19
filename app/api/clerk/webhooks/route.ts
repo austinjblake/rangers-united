@@ -92,7 +92,6 @@ export async function POST(req: Request) {
 		}
 	} else if (eventType === 'user.deleted') {
 		const { id } = evt.data;
-		console.log('deleting user:', id);
 
 		try {
 			const result = await deleteProfileAction(id);
