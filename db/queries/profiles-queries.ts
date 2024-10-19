@@ -10,11 +10,12 @@ import {
 import { deleteGame, getAllHostedGames } from './games-queries';
 import { deleteGameSlot } from './slots-queries';
 import { getGameSlotsByUser } from './slots-queries';
-import { fetchLocationsByUserId } from './locations-queries';
-import { deleteLocation } from '@/actions/locations-actions';
+import { fetchAllLocationsForUser, removeLocation } from './locations-queries';
 import { deleteAllNotificationsForUser } from './userNotifications-queries';
 import { createNotificationAction } from '@/actions/gameNotifications-actions';
 import { v4 as uuidv4 } from 'uuid';
+import { deleteAllMessagesForUser } from './messages-queries';
+
 export const createProfile = async (profileData: InsertProfile) => {
 	try {
 		const [newProfile] = await db
@@ -89,35 +90,33 @@ export const updateProfileDetails = async (
 export const deleteProfile = async (userId: string) => {
 	try {
 		// delete all hosted games
-		console.log('deleting hosted games:', userId);
 		const hostedGames = await getAllHostedGames(userId);
 		for (const game of hostedGames) {
 			await deleteGame(game.id);
 		}
 		// delete all game slots
-		console.log('deleting game slots:', userId);
 		const gameSlots = await getGameSlotsByUser(userId);
 		const userProfile = await getProfileByUserId(userId);
 		const username = userProfile?.username;
 		for (const slot of gameSlots) {
+			await deleteGameSlot(userId, slot.gameId as string);
 			await createNotificationAction({
 				id: uuidv4(),
 				gameId: slot.gameId as string,
 				notification: `${username} left the game`,
 				createdAt: new Date(),
 			});
-			await deleteGameSlot(slot.slotId, slot.gameId as string);
 		}
 		// delete all locations
-		console.log('deleting locations:', userId);
-		const locations = await fetchLocationsByUserId(userId);
+		const locations = await fetchAllLocationsForUser(userId);
 		for (const location of locations) {
-			await deleteLocation(location.id);
+			console.log('deleting location:', location.id);
+			await removeLocation(location.id);
 		}
 		// delete all user notifications
-		console.log('deleting user notifications:', userId);
 		await deleteAllNotificationsForUser(userId);
-		console.log('deleting profile:', userId);
+		// delete all messages
+		await deleteAllMessagesForUser(userId);
 		await db.delete(profilesTable).where(eq(profilesTable.userId, userId));
 	} catch (error) {
 		console.error('Error deleting profile:', error);

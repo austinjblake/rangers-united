@@ -118,3 +118,13 @@ export const isMessageSentByUser = async (
 		throw error;
 	}
 };
+
+// delete all messages for a user
+export const deleteAllMessagesForUser = async (userId: string) => {
+	try {
+		await db.delete(messagesTable).where(eq(messagesTable.senderId, userId));
+	} catch (error) {
+		console.error('Error deleting all messages for user:', error);
+		throw error;
+	}
+};

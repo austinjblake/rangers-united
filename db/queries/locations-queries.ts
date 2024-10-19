@@ -31,6 +31,20 @@ export const fetchLocationsByUserId = async (userId: string) => {
 	}
 };
 
+// get all locations for a user
+export const fetchAllLocationsForUser = async (userId: string) => {
+	try {
+		const result = await db
+			.select()
+			.from(locationsTable)
+			.where(eq(locationsTable.userId, userId));
+		return result;
+	} catch (error) {
+		console.error('Error fetching all locations for user:', error);
+		throw error;
+	}
+};
+
 // Get a location by ID
 export const fetchLocationById = async (locationId: string) => {
 	try {
