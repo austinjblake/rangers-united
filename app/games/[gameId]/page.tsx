@@ -221,7 +221,7 @@ export default function GameDetailsPage() {
 		}
 	};
 
-	if (!game) return <div>Loading...</div>;
+	if (!game) return <div>Game Not Found</div>;
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
