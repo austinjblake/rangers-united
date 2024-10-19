@@ -104,7 +104,7 @@ export default function NotificationsPage() {
 						variant='outline'
 						size='sm'
 						onClick={markAllAsRead}
-						className='mt-2'
+						className='mt-2 text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
 						disabled={notifications.every((notif) => notif.isRead)}
 					>
 						Mark all as read
@@ -141,6 +141,7 @@ export default function NotificationsPage() {
 																onClick={() => markAsRead(notification.id)}
 																aria-label='Mark as read'
 																title='Mark as read'
+																className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
 															>
 																<Check className='h-4 w-4' />
 															</Button>
@@ -153,6 +154,7 @@ export default function NotificationsPage() {
 															}
 															aria-label='Delete notification'
 															title='Delete notification'
+															className='text-foreground hover:bg-destructive/10 hover:text-destructive transition-colors'
 														>
 															<Trash2 className='h-4 w-4' />
 														</Button>

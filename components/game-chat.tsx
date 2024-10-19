@@ -235,13 +235,14 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 											className='mr-2'
 											title='Edit Message'
 										>
-											<PencilIcon className='h-3 w-3 text-primary' />
+											<PencilIcon className='h-3 w-3 text-muted-foreground hover:text-foreground transition-colors' />
 										</button>
 									)}
 									{(isHost || message.sender_id === userId) && (
 										<button
 											onClick={() => handleDeleteMessage(message.id)}
 											title='Delete Message'
+											className='ml-2'
 										>
 											<TrashIcon className='h-3 w-3 text-destructive' />
 										</button>

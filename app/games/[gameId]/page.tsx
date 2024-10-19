@@ -28,6 +28,7 @@ import {
 import { deleteGameSlotAction } from '@/actions/slots-actions';
 import { supabase } from '@/supabaseClient';
 import { LocationIcon } from '@/components/location-icon';
+import { cn } from '@/lib/utils';
 
 export default function GameDetailsPage() {
 	const [game, setGame] = useState<any>(null);
@@ -313,7 +314,12 @@ export default function GameDetailsPage() {
 							{game.isHost ? (
 								<>
 									<Link href={`/games/edit/${gameId}`}>
-										<Button variant='outline' size='sm' title='Edit Game'>
+										<Button
+											variant='outline'
+											size='sm'
+											title='Edit Game'
+											className='hover:bg-primary/20 hover:text-primary'
+										>
 											<PencilIcon className='h-4 w-4 mr-2' />
 											Edit
 										</Button>
@@ -332,6 +338,7 @@ export default function GameDetailsPage() {
 										size='sm'
 										onClick={handleToggleFull}
 										title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
+										className='hover:bg-primary/20 hover:text-primary'
 									>
 										{game.isFull ? (
 											<UserPlus className='h-4 w-4 mr-2' />
@@ -351,7 +358,11 @@ export default function GameDetailsPage() {
 								</Button>
 							)}
 						</div>
-						<Button variant='outline' onClick={() => router.push('/dashboard')}>
+						<Button
+							variant='outline'
+							onClick={() => router.push('/dashboard')}
+							className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
+						>
 							Back to Dashboard
 						</Button>
 					</div>

@@ -143,13 +143,16 @@ function EmptySlot() {
 			<p className='text-center text-sm text-muted-foreground'>
 				No game scheduled
 			</p>
-			<Link href='/host-game'>
-				<Button className='w-full' variant='outline'>
+			<Link href='/host-game' className='w-full'>
+				<Button
+					className='w-full text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
+					variant='outline'
+				>
 					Host a Game
 				</Button>
 			</Link>
-			<Link href='/join-game'>
-				<Button className='w-full bg-secondary text-secondary-foreground hover:bg-secondary/90'>
+			<Link href='/join-game' className='w-full'>
+				<Button className='w-full bg-secondary text-secondary-foreground hover:bg-secondary-foreground/30 hover:text-primary transition-colors dark:hover:bg-secondary-foreground/20'>
 					Search for a Game
 				</Button>
 			</Link>
@@ -280,6 +283,7 @@ function GameSlot({
 								size='sm'
 								onClick={() => {}}
 								title='Edit Game'
+								className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
 							>
 								<PencilIcon className='h-4 w-4' />
 							</Button>
@@ -288,6 +292,7 @@ function GameSlot({
 								size='sm'
 								onClick={onDelete}
 								title='Delete Game'
+								className='text-foreground hover:bg-destructive/10 hover:text-destructive transition-colors'
 							>
 								<TrashIcon className='h-4 w-4' />
 							</Button>
@@ -296,6 +301,7 @@ function GameSlot({
 								size='sm'
 								onClick={handleToggleFull}
 								title={game.isFull ? 'Mark as Open' : 'Mark as Full'}
+								className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
 							>
 								{game.isFull ? (
 									<UserPlus className='h-4 w-4' />
@@ -305,7 +311,12 @@ function GameSlot({
 							</Button>
 						</>
 					) : (
-						<Button variant='outline' size='sm' onClick={onLeave}>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={onLeave}
+							className='text-foreground hover:bg-destructive/10 hover:text-destructive transition-colors'
+						>
 							Leave
 						</Button>
 					)}
@@ -314,7 +325,11 @@ function GameSlot({
 					href={`/games/${game.gameId}`}
 					className='flex-grow sm:flex-grow-0'
 				>
-					<Button variant='outline' size='sm' className='w-full'>
+					<Button
+						variant='outline'
+						size='sm'
+						className='w-full text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
+					>
 						View Game
 						<ChevronRightIcon className='h-5 w-5 ml-2' />
 					</Button>
