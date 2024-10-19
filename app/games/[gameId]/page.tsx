@@ -256,27 +256,27 @@ export default function GameDetailsPage() {
 						<div>
 							<p className='flex items-center'>
 								<Calendar className='mr-2 h-5 w-5' />
-								<strong>Date:</strong> {formatDate(game.gameDate)}
+								<strong>Date:&nbsp;</strong> {formatDate(game.gameDate)}
 							</p>
 							<p className='flex items-center'>
 								<Clock className='mr-2 h-5 w-5' />
-								<strong>Time:</strong> {formatTime(game.gameDate)}
+								<strong>Time:&nbsp;</strong> {formatTime(game.gameDate)}
 							</p>
 						</div>
 						<div>
 							<p className='flex items-center'>
 								<LocationIcon className='mr-2 h-5 w-5' />
-								<strong>Location:</strong> {game.locationName}
+								<strong>Location:&nbsp;</strong> {game.locationName}
 							</p>
 							<p className='flex items-center'>
 								<Users className='mr-2 h-5 w-5' />
-								<strong>Players:</strong> {game.joinerCount}
+								<strong>Players:&nbsp;</strong> {game.joinerCount}
 							</p>
 						</div>
 					</div>
 					<p className='mt-2 flex items-center'>
 						<MapPin className='mr-2 h-5 w-5' />
-						<strong>Address:</strong>{' '}
+						<strong>Address:&nbsp;</strong>
 						{game.isHost ? (
 							game.readableAddress
 						) : (
@@ -287,7 +287,7 @@ export default function GameDetailsPage() {
 						)}
 					</p>
 					<p className='mt-2 flex items-center space-x-2'>
-						<strong>Status:</strong>{' '}
+						<strong>Status:&nbsp;</strong>
 						<span
 							className={`text-xs font-medium px-2 py-1 rounded-full ${
 								game.isHost
@@ -305,7 +305,7 @@ export default function GameDetailsPage() {
 					</p>
 					{!game.isHost && (
 						<p className='mt-2'>
-							<strong>Host:</strong> {game.hostUsername}
+							<strong>Host:&nbsp;</strong> {game.hostUsername}
 						</p>
 					)}
 					{/* Action Buttons */}
