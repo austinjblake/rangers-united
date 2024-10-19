@@ -27,6 +27,7 @@ import {
 } from '@/actions/games-actions';
 import { deleteGameSlotAction } from '@/actions/slots-actions';
 import { supabase } from '@/supabaseClient';
+import { LocationIcon } from '@/components/location-icon';
 
 export default function GameDetailsPage() {
 	const [game, setGame] = useState<any>(null);
@@ -221,12 +222,6 @@ export default function GameDetailsPage() {
 
 	if (!game) return <div>Loading...</div>;
 
-	const LocationIcon = game.locationIsFLGS
-		? Store
-		: game.locationIsPrivate
-		? Home
-		: MapPin;
-
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('en-US', {
@@ -265,7 +260,11 @@ export default function GameDetailsPage() {
 						</div>
 						<div>
 							<p className='flex items-center'>
-								<LocationIcon className='mr-2 h-5 w-5' />
+								<LocationIcon
+									isFLGS={game.locationIsFLGS}
+									isPrivate={game.locationIsPrivate}
+									className='mr-2 h-5 w-5'
+								/>
 								<strong>Location:&nbsp;</strong> {game.locationName}
 							</p>
 							<p className='flex items-center'>

@@ -41,6 +41,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/use-toast';
 import Link from 'next/link';
 import MaxSlotsReachedCard from '@/components/max-slots-reached-card';
+import { LocationIcon } from '@/components/location-icon';
 
 interface SearchGameResult {
 	distance: number;
@@ -83,33 +84,14 @@ const GameCard = ({
 		});
 	};
 
-	const LocationIcon = () => {
-		if (game.isFLGS) {
-			return (
-				<span title='Friendly Local Game Store'>
-					<Store className='w-4 h-4 mr-2' />
-				</span>
-			);
-		} else if (game.isPrivate) {
-			return (
-				<span title='Private Location'>
-					<Home className='w-4 h-4 mr-2' />
-				</span>
-			);
-		} else {
-			return (
-				<span title='Other Location'>
-					<MapPin className='w-4 h-4 mr-2' />
-				</span>
-			);
-		}
-	};
-
 	return (
 		<Card className='mb-3 bg-card text-card-foreground'>
 			<CardHeader>
 				<CardTitle className='text-lg flex items-center'>
-					<LocationIcon />
+					<LocationIcon
+						isFLGS={game.isFLGS as boolean}
+						isPrivate={game.isPrivate as boolean}
+					/>
 					{game.locationName}
 					<span className='ml-2 flex items-center text-sm text-gray-500'>
 						<MapPinned className='w-4 h-4 mr-1' />

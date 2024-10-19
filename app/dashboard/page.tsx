@@ -6,13 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
 	CalendarIcon,
-	MapPinIcon,
 	UsersIcon,
 	PencilIcon,
 	TrashIcon,
 	ChevronRightIcon,
-	Store,
-	Home,
 	MapPinned,
 	ClockIcon,
 	UserX,
@@ -25,6 +22,7 @@ import {
 } from '@/actions/slots-actions';
 import { markGameAsFullAction } from '@/actions/games-actions';
 import { deleteGameAction } from '@/actions/games-actions';
+import { LocationIcon } from '@/components/location-icon';
 
 interface GameSlot {
 	slotId: string;
@@ -191,28 +189,6 @@ function GameSlot({
 		});
 	};
 
-	const LocationIcon = () => {
-		if (game.locationIsFLGS) {
-			return (
-				<span title='Friendly Local Game Store'>
-					<Store className='w-4 h-4 mr-2' />
-				</span>
-			);
-		} else if (game.locationIsPrivate) {
-			return (
-				<span title='Private Location'>
-					<Home className='w-4 h-4 mr-2' />
-				</span>
-			);
-		} else {
-			return (
-				<span title='Other Location'>
-					<MapPinIcon className='w-4 h-4 mr-2' />
-				</span>
-			);
-		}
-	};
-
 	const truncateAddress = (address: string, maxLength: number) => {
 		if (address?.length <= maxLength) return address;
 		return `${address?.substring(0, maxLength)}...`;
@@ -230,7 +206,11 @@ function GameSlot({
 		<div className='flex h-full flex-col p-4'>
 			<div className='flex items-center justify-between mb-3'>
 				<div className='flex items-center'>
-					<LocationIcon />
+					<LocationIcon
+						isFLGS={game.locationIsFLGS}
+						isPrivate={game.locationIsPrivate}
+						className='mr-2 h-5 w-5'
+					/>
 					<span className='font-semibold text-lg'>{game.locationName}</span>
 				</div>
 				<div className='flex items-center space-x-2'>
