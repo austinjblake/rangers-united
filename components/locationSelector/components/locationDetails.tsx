@@ -64,7 +64,7 @@ export function LocationDetails({
 				<Label htmlFor='nickname'>Nickname *</Label>
 				<Input
 					id='nickname'
-					placeholder='Enter a nickname for this location'
+					placeholder='Enter a nickname for this location to save it'
 					value={nickname}
 					onChange={handleNicknameChange}
 					required

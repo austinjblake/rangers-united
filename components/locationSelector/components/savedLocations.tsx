@@ -9,6 +9,7 @@ import { ConfirmationModal } from '@/components/confirmationModal';
 import { Trash2Icon, HomeIcon, StoreIcon, RefreshCcwIcon } from 'lucide-react';
 import { SelectLocation } from '@/db/schema';
 import { useToast } from '@/components/ui/use-toast';
+import { LocationIcon } from '@/components/location-icon';
 
 interface SavedLocationsProps {
 	onSelect: (location: SelectLocation | null) => void;
@@ -111,15 +112,11 @@ export function SavedLocations({
 							onClick={() => onSelect(location)}
 						>
 							<div className='flex items-center w-full'>
-								{location.isPrivate ? (
-									<span title='Private Location'>
-										<HomeIcon className='h-4 w-4 mr-2 flex-shrink-0' />
-									</span>
-								) : (
-									<span title='Friendly Local Game Store'>
-										<StoreIcon className='h-4 w-4 mr-2 flex-shrink-0' />
-									</span>
-								)}
+								<LocationIcon
+									isFLGS={location.isFLGS ?? false}
+									isPrivate={location.isPrivate ?? false}
+									className='h-4 w-4 mr-2 flex-shrink-0'
+								/>
 								<div className='flex flex-col overflow-hidden'>
 									<div className='font-semibold truncate'>
 										{location.name}
