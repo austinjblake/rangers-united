@@ -110,16 +110,16 @@ export default function GameDetailsPage() {
 
 		const channel = supabase.channel(`public:game_${validGameId}`);
 
-		// channel
-		// 	.on('presence', { event: 'sync' }, () => {
-		// 		console.log('Channel presence synced');
-		// 	})
-		// 	.on('presence', { event: 'join' }, ({ key }) => {
-		// 		console.log('Channel joined:', key);
-		// 	})
-		// 	.on('presence', { event: 'leave' }, ({ key }) => {
-		// 		console.log('Channel left:', key);
-		// 	});
+		channel
+			.on('presence', { event: 'sync' }, () => {
+				console.log('Channel presence synced');
+			})
+			.on('presence', { event: 'join' }, ({ key }) => {
+				console.log('Channel joined:', key);
+			})
+			.on('presence', { event: 'leave' }, ({ key }) => {
+				console.log('Channel left:', key);
+			});
 
 		// Handle real-time messages
 		channel.on(
@@ -212,15 +212,15 @@ export default function GameDetailsPage() {
 			}
 		);
 
-		// const subscription = await channel.subscribe((status) => {
-		// 	if (status === 'SUBSCRIBED') {
-		// 		console.log('Successfully subscribed to channel');
-		// 	} else if (status === 'CLOSED') {
-		// 		console.log('Channel subscription closed');
-		// 	} else if (status === 'CHANNEL_ERROR') {
-		// 		console.error('Channel subscription error');
-		// 	}
-		// });
+		const subscription = await channel.subscribe((status) => {
+			if (status === 'SUBSCRIBED') {
+				console.log('Successfully subscribed to channel');
+			} else if (status === 'CLOSED') {
+				console.log('Channel subscription closed');
+			} else if (status === 'CHANNEL_ERROR') {
+				console.error('Channel subscription error');
+			}
+		});
 
 		return () => {
 			console.log('Cleaning up Supabase channel');
