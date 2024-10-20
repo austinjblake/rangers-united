@@ -10,6 +10,7 @@ import flgsImg from './flgs.webp';
 import notificationsImg from './notifications.webp';
 import searchImg from './search.webp';
 import fulladdressImg from './fulladdress.webp';
+import Link from 'next/link';
 
 export default function Help() {
 	return (
@@ -334,6 +335,24 @@ export default function Help() {
 				</CardContent>
 			</Card>
 
+			<Card className='mb-8'>
+				<CardHeader>
+					<CardTitle>Additional Resources</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className='mb-4'>
+						For more resources and useful links related to Power Rangers Heroes
+						of the Grid:
+					</p>
+					<Link
+						href='/about#helpful-links'
+						className='text-primary hover:underline'
+					>
+						Check out our Helpful Links section
+					</Link>
+				</CardContent>
+			</Card>
+
 			<Card>
 				<CardHeader>
 					<CardTitle>Need More Help?</CardTitle>
@@ -348,6 +367,23 @@ export default function Help() {
 					</Button>
 				</CardContent>
 			</Card>
+			<footer className='py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-muted text-muted-foreground'>
+				<p className='text-xs'>© 2024 Rangers United. All rights reserved.</p>
+				<nav className='sm:ml-auto flex gap-4 sm:gap-6'>
+					<Link
+						className='text-xs hover:underline underline-offset-4'
+						href='/terms'
+					>
+						Terms of Service
+					</Link>
+					<Link
+						className='text-xs hover:underline underline-offset-4'
+						href='/privacy'
+					>
+						Privacy
+					</Link>
+				</nav>
+			</footer>
 		</div>
 	);
 }

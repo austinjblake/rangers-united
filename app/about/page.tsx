@@ -74,7 +74,7 @@ export default function About() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Helpful Links</CardTitle>
+					<CardTitle id='helpful-links'>Helpful Links</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<p className='mb-4'>
@@ -142,6 +142,23 @@ export default function About() {
 					</ul>
 				</CardContent>
 			</Card>
+			<footer className='py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-muted text-muted-foreground'>
+				<p className='text-xs'>© 2024 Rangers United. All rights reserved.</p>
+				<nav className='sm:ml-auto flex gap-4 sm:gap-6'>
+					<Link
+						className='text-xs hover:underline underline-offset-4'
+						href='/terms'
+					>
+						Terms of Service
+					</Link>
+					<Link
+						className='text-xs hover:underline underline-offset-4'
+						href='/privacy'
+					>
+						Privacy
+					</Link>
+				</nav>
+			</footer>
 		</div>
 	);
 }
