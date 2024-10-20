@@ -116,7 +116,18 @@ export async function deleteNotificationsForGameAction(
 			await createUserNotificationAction({
 				id: uuidv4(),
 				userId: user,
-				notification: `Your game hosted by ${game.hostUsername} at ${game.locationName} on ${game.gameDate} has been deleted by the host.`,
+				notification: `Your game hosted by ${game.hostUsername} at ${
+					game.locationName
+				} on ${new Date(game.gameDate as Date)
+					.toLocaleString('en-US', {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric',
+						hour: 'numeric',
+						minute: 'numeric',
+						hour12: true,
+					})
+					.replace(/ (AM|PM)/, '$1')} has been deleted by the host.`,
 				createdAt: new Date(),
 			});
 		}

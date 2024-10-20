@@ -207,16 +207,20 @@ function GameSlot({
 
 	return (
 		<div className='flex h-full flex-col p-4'>
-			<div className='flex items-center justify-between mb-3'>
-				<div className='flex items-center'>
-					<LocationIcon
-						isFLGS={game.locationIsFLGS}
-						isPrivate={game.locationIsPrivate}
-						className='mr-2 h-5 w-5'
-					/>
-					<span className='font-semibold text-lg'>{game.locationName}</span>
+			<div className='flex flex-col mb-3'>
+				<div className='flex items-center justify-between mb-2'>
+					<div className='flex items-center flex-wrap'>
+						<LocationIcon
+							isFLGS={game.locationIsFLGS}
+							isPrivate={game.locationIsPrivate}
+							className='mr-2 h-5 w-5 flex-shrink-0'
+						/>
+						<span className='font-semibold text-lg break-words'>
+							{game.locationName}
+						</span>
+					</div>
 				</div>
-				<div className='flex items-center space-x-2'>
+				<div className='flex flex-wrap gap-1'>
 					<span
 						className={`text-xs font-medium px-2 py-1 rounded-full ${
 							game.isHost
@@ -278,15 +282,16 @@ function GameSlot({
 				<div className='flex flex-wrap gap-2'>
 					{game.isHost ? (
 						<>
-							<Button
-								variant='outline'
-								size='sm'
-								onClick={() => {}}
-								title='Edit Game'
-								className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
-							>
-								<PencilIcon className='h-4 w-4' />
-							</Button>
+							<Link href={`/games/edit/${game.gameId}`}>
+								<Button
+									variant='outline'
+									size='sm'
+									title='Edit Game'
+									className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
+								>
+									<PencilIcon className='h-4 w-4' />
+								</Button>
+							</Link>
 							<Button
 								variant='outline'
 								size='sm'
