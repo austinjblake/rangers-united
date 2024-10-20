@@ -41,68 +41,85 @@ export default function GameDetailsPage() {
 
 	// fetch game details
 	useEffect(() => {
+		let cleanupFunction: (() => void) | undefined;
+
 		const fetchData = async () => {
 			setLoading(true);
 			const gameResult = await getAllGameInfoAction(gameId as string);
-			if (gameResult.status === 'success') setGame(gameResult.data);
+			if (gameResult.status === 'success') {
+				setGame(gameResult.data);
+				cleanupFunction = await setupSupabaseRealtime(gameResult.data.gameId);
+			}
 			setLoading(false);
 		};
 
 		fetchData();
-	}, [gameId]);
 
-	// setup supabase realtime listener for game notifications and messages
-	useEffect(() => {
-		const fetchData = async () => {
-			// Fetch messages
-			const { data: messagesData, error: messagesError } = await supabase
-				.from('messages')
-				.select(
-					`
-					id,
-					message,
-					created_at,
-					sender_id,
-					is_deleted,
-					profiles (
-						username
-					)
-				`
-				)
-				.eq('game_id', gameId)
-				.eq('is_deleted', false)
-				.order('created_at', { ascending: true });
-
-			if (messagesError) {
-				console.error('Error fetching messages:', messagesError);
-			} else {
-				setMessages(messagesData);
-			}
-
-			// Fetch notifications
-			const { data: notificationsData, error: notificationsError } =
-				await supabase
-					.from('game_notifications')
-					.select(
-						`
-					id,
-					message,
-					created_at
-				`
-					)
-					.eq('game_id', gameId)
-					.order('created_at', { ascending: false });
-
-			if (notificationsError) {
-				console.error('Error fetching notifications:', notificationsError);
-			} else {
-				setNotifications(notificationsData);
+		return () => {
+			if (cleanupFunction) {
+				cleanupFunction();
 			}
 		};
+	}, [gameId]);
 
-		fetchData();
+	const setupSupabaseRealtime = async (validGameId: string) => {
+		// Fetch messages
+		const { data: messagesData, error: messagesError } = await supabase
+			.from('messages')
+			.select(
+				`
+				id,
+				message,
+				created_at,
+				sender_id,
+				is_deleted,
+				profiles (
+					username
+				)
+			`
+			)
+			.eq('game_id', validGameId)
+			.eq('is_deleted', false)
+			.order('created_at', { ascending: true });
 
-		const channel = supabase.channel(`public:game_${gameId}`);
+		if (messagesError) {
+			console.error('Error fetching messages:', messagesError);
+		} else {
+			setMessages(messagesData);
+		}
+
+		// Fetch notifications
+		const { data: notificationsData, error: notificationsError } =
+			await supabase
+				.from('game_notifications')
+				.select(
+					`
+				id,
+				message,
+				created_at
+			`
+				)
+				.eq('game_id', validGameId)
+				.order('created_at', { ascending: false });
+
+		if (notificationsError) {
+			console.error('Error fetching notifications:', notificationsError);
+		} else {
+			setNotifications(notificationsData);
+		}
+
+		const channel = supabase.channel(`public:game_${validGameId}`);
+
+		// channel
+		// 	.on('presence', { event: 'sync' }, () => {
+		// 		console.log('Channel presence synced');
+		// 	})
+		// 	.on('presence', { event: 'join' }, ({ key }) => {
+		// 		console.log('Channel joined:', key);
+		// 	})
+		// 	.on('presence', { event: 'leave' }, ({ key }) => {
+		// 		console.log('Channel left:', key);
+		// 	});
 
 		// Handle real-time messages
 		channel.on(
@@ -111,7 +128,7 @@ export default function GameDetailsPage() {
 				event: 'INSERT',
 				schema: 'public',
 				table: 'messages',
-				filter: `game_id=eq.${gameId}`,
+				filter: `game_id=eq.${validGameId}`,
 			},
 			async (payload) => {
 				if (payload.new.is_deleted) return; // Ignore if the message is marked as deleted
@@ -143,7 +160,7 @@ export default function GameDetailsPage() {
 				event: 'UPDATE',
 				schema: 'public',
 				table: 'messages',
-				filter: `game_id=eq.${gameId}`,
+				filter: `game_id=eq.${validGameId}`,
 			},
 			async (payload) => {
 				if (payload.new.is_deleted) {
@@ -185,7 +202,7 @@ export default function GameDetailsPage() {
 				event: 'INSERT',
 				schema: 'public',
 				table: 'game_notifications',
-				filter: `game_id=eq.${gameId}`,
+				filter: `game_id=eq.${validGameId}`,
 			},
 			(payload) => {
 				setNotifications((currentNotifications) => [
@@ -195,12 +212,21 @@ export default function GameDetailsPage() {
 			}
 		);
 
-		channel.subscribe();
+		// const subscription = await channel.subscribe((status) => {
+		// 	if (status === 'SUBSCRIBED') {
+		// 		console.log('Successfully subscribed to channel');
+		// 	} else if (status === 'CLOSED') {
+		// 		console.log('Channel subscription closed');
+		// 	} else if (status === 'CHANNEL_ERROR') {
+		// 		console.error('Channel subscription error');
+		// 	}
+		// });
 
 		return () => {
+			console.log('Cleaning up Supabase channel');
 			supabase.removeChannel(channel);
 		};
-	}, [gameId]);
+	};
 
 	const handleDeleteGame = async () => {
 		const result = await deleteGameAction(gameId as string);

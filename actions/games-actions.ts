@@ -222,6 +222,7 @@ export async function getAllGameInfoAction(
 		const result = await getGameInfoForSlot(userId, gameId);
 		const game = result[0];
 		const gameWithDistanceInMiles = {
+			gameId,
 			...game,
 			distance: metersToMiles(Number(game.distance)),
 		};
