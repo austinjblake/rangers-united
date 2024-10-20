@@ -229,54 +229,58 @@ export default function Component({ children }: { children: React.ReactNode }) {
 					</Link>
 				</div>
 				<div className='flex items-center space-x-4'>
-					<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-						<PopoverTrigger asChild>
-							<Button
-								variant='ghost'
-								size='icon'
-								onClick={() => {
-									setIsPopoverOpen(true);
-									handleNotificationClick();
-								}}
-							>
-								{hasUnreadNotifications ? (
-									<BellRing className='h-5 w-5' color='red' />
-								) : (
-									<Bell className='h-5 w-5' />
-								)}
-								<span className='sr-only'>Notifications</span>
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className='w-80 p-0'>
-							<div className='p-4 space-y-4'>
-								<h3 className='font-medium'>Notifications</h3>
-								{notifications.length > 0 ? (
-									<>
-										<div className='space-y-2'>
-											{notifications.slice(0, 3).map((notification, index) => (
-												<div
-													key={index}
-													className='text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700'
-												>
-													{formatNotification(notification.notification)}
-												</div>
-											))}
-										</div>
-										<Button
-											className='w-full mt-2'
-											onClick={handleViewAllNotifications}
-										>
-											View all notifications
-										</Button>
-									</>
-								) : (
-									<p className='text-sm text-gray-500'>
-										No notifications at this time.
-									</p>
-								)}
-							</div>
-						</PopoverContent>
-					</Popover>
+					<SignedIn>
+						<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant='ghost'
+									size='icon'
+									onClick={() => {
+										setIsPopoverOpen(true);
+										handleNotificationClick();
+									}}
+								>
+									{hasUnreadNotifications ? (
+										<BellRing className='h-5 w-5' color='red' />
+									) : (
+										<Bell className='h-5 w-5' />
+									)}
+									<span className='sr-only'>Notifications</span>
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className='w-80 p-0'>
+								<div className='p-4 space-y-4'>
+									<h3 className='font-medium'>Notifications</h3>
+									{notifications.length > 0 ? (
+										<>
+											<div className='space-y-2'>
+												{notifications
+													.slice(0, 3)
+													.map((notification, index) => (
+														<div
+															key={index}
+															className='text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700'
+														>
+															{formatNotification(notification.notification)}
+														</div>
+													))}
+											</div>
+											<Button
+												className='w-full mt-2'
+												onClick={handleViewAllNotifications}
+											>
+												View all notifications
+											</Button>
+										</>
+									) : (
+										<p className='text-sm text-gray-500'>
+											No notifications at this time.
+										</p>
+									)}
+								</div>
+							</PopoverContent>
+						</Popover>
+					</SignedIn>
 					<Button variant='ghost' size='icon' onClick={toggleDarkMode}>
 						{theme === 'dark' ? (
 							<Sun className='h-5 w-5' />
