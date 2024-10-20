@@ -100,7 +100,7 @@ export function LocationDetails({
 						<TooltipContent className='max-w-xs'>
 							<p>
 								If using a zip code, try using your full address. If problems
-								persist, please contact help@rangersunited.com
+								persist, please contact support@rangersunited.com
 							</p>
 						</TooltipContent>
 					</Tooltip>

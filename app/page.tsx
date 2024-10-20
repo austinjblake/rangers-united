@@ -185,6 +185,31 @@ export default function LandingPage() {
 					</div>
 				</section>
 				<section
+					className='w-full py-12 md:py-24 lg:py-32 bg-background'
+					id='learn-more'
+				>
+					<div className='container px-4 md:px-6'>
+						<h2 className='text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-gray-900 dark:text-white'>
+							Learn More
+						</h2>
+						<div className='flex flex-col sm:flex-row justify-center items-center gap-6'>
+							<Link href='/about'>
+								<Button className='w-full sm:w-auto py-4 px-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
+									About Us
+								</Button>
+							</Link>
+							<Link href='/help'>
+								<Button
+									variant='outline'
+									className='w-full sm:w-auto py-4 px-6 text-lg font-semibold bg-transparent hover:bg-gray-100 text-gray-900 dark:bg-transparent dark:hover:bg-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 transition-colors duration-200 shadow-lg hover:shadow-xl'
+								>
+									Help Center
+								</Button>
+							</Link>
+						</div>
+					</div>
+				</section>
+				<section
 					className='w-full py-12 md:py-24 lg:py-32 bg-secondary'
 					id='sign-up'
 				>
@@ -226,10 +251,16 @@ export default function LandingPage() {
 			<footer className='py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-muted text-muted-foreground'>
 				<p className='text-xs'>© 2024 Rangers United. All rights reserved.</p>
 				<nav className='sm:ml-auto flex gap-4 sm:gap-6'>
-					<Link className='text-xs hover:underline underline-offset-4' href='#'>
+					<Link
+						className='text-xs hover:underline underline-offset-4'
+						href='/terms'
+					>
 						Terms of Service
 					</Link>
-					<Link className='text-xs hover:underline underline-offset-4' href='#'>
+					<Link
+						className='text-xs hover:underline underline-offset-4'
+						href='/privacy'
+					>
 						Privacy
 					</Link>
 				</nav>
