@@ -91,7 +91,7 @@ export default function LandingPage() {
 									</h3>
 									<p className='text-center text-sm text-gray-600 dark:text-gray-400'>
 										Coordinate with your group through our in-app chat. Share
-										your ideas to make a great game night and tay up-to-date
+										your ideas to make a great game night and stay up-to-date
 										with game changes, new joiners, and all the important
 										details.
 									</p>
@@ -152,9 +152,9 @@ export default function LandingPage() {
 									Host or Join a Game
 								</h3>
 								<p className='text-center text-sm text-gray-600 dark:text-gray-400'>
-									Set up your game or join an existing one. Use your location or
-									search for a nearby Friendly Local Game Store (FLGS) to host
-									or look for a nearby game to join.
+									Use your address or search for a nearby Friendly Local Game
+									Store (FLGS). Then use this location to host or look for a
+									nearby game to join.
 								</p>
 							</div>
 							<div className='flex flex-col items-center space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4'>

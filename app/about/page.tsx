@@ -49,7 +49,7 @@ export default function About() {
 						</li>
 						<li>
 							Rangers United is a fan-driven initiative, we are not officialy
-							liscensed or endorsed by Renegade Game Studios or Hasbro and make
+							licensed or endorsed by Renegade Game Studios or Hasbro and make
 							no copyright claims to the Power Rangers brand
 						</li>
 					</ul>

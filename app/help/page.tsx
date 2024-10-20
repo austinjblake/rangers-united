@@ -179,9 +179,9 @@ export default function Help() {
 							className='rounded-lg'
 						/>
 						<li>
-							Confirm the location. It will be up to the host to inform the
-							group in the chat about the specific address for the game, once
-							players are ready to go and the game is about to begin
+							Confirm the location. Once players are ready to go and the game is
+							about to begin it will be up to the host to inform the group in
+							the chat about the specific address for the game
 						</li>
 						<li>
 							Check out any other important details in the game notifications
@@ -264,12 +264,12 @@ export default function Help() {
 								Can I remove something I shared in the chat?
 							</h3>
 							<p>
-								You can edit delete your own messages in the chat at any time.
-								The host also has the ability to delete any chat messages from
-								their game. If you leave a game or delete your account, all of
-								your messages will be deleted also. Hovering your mouse over the
-								top right of a message will show the buttons to edit or delete a
-								message.
+								You can edit or delete your own messages in the chat at any
+								time. The host also has the ability to delete any chat messages
+								from their game. If you leave a game or delete your account, all
+								of your messages will be deleted also. Hovering your mouse over
+								the top right of a message will show the buttons to edit or
+								delete a message.
 							</p>
 						</div>
 						<div>
@@ -280,7 +280,7 @@ export default function Help() {
 							<p>
 								Yes, you can do this by clicking the &quot;Mark as Full&quot;
 								button on your game details page or directly from your
-								dashboard. This mark the game with a Full icon and no new
+								dashboard. This marks the game with a Full icon and no new
 								players will be allowed to join. Your game will still show up in
 								search results. To open the game back up to new players, simply
 								click the &quot;Open Game&quot; button.
@@ -303,10 +303,9 @@ export default function Help() {
 								and the game details page says not found.
 							</h3>
 							<p>
-								The host may have deleted the game. Check your notifications
-								bell in the header at the top right of the screen to check your
-								user notifications to see if any games you joined have been
-								deleted.
+								The host may have deleted the game. Click the notifications bell
+								in the header at the top right of the screen to check your user
+								notifications and see if any games you joined have been deleted.
 							</p>
 						</div>
 						<div>
