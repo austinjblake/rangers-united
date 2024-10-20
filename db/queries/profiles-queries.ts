@@ -93,8 +93,8 @@ export const deleteProfile = async (userId: string) => {
 		// delete all hosted games
 		const hostedGames = await getAllHostedGames(userId);
 		for (const game of hostedGames) {
-			await deleteGame(game.id);
 			await deleteNotificationsForGameAction(game.id, userId);
+			await deleteGame(game.id);
 		}
 		// delete all game slots
 		const gameSlots = await getGameSlotsByUser(userId);
