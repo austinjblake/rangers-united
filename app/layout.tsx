@@ -5,6 +5,8 @@ import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,6 +33,13 @@ export default async function RootLayout({
 						<Header>{children}</Header>
 						<Toaster />
 					</Providers>
+					<Script
+						defer
+						src='https://static.cloudflareinsights.com/beacon.min.js'
+						data-cf-beacon='{"token": "88474d172ebf4586bbdca638df819251"}'
+						strategy='afterInteractive'
+					/>
+					<Analytics />
 				</body>
 			</html>
 		</ClerkProvider>
