@@ -15,7 +15,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { metersToMiles } from '@/lib/places';
-import { createNotificationAction } from './gameNotifications-actions';
+import { createGameNotificationAction } from './gameNotifications-actions';
 import { getProfileByUserId } from '@/db/queries/profiles-queries';
 import { checkIfGameIsFull } from '@/db/queries/games-queries';
 // Action to create a new game slot
@@ -44,7 +44,7 @@ export async function createGameSlotAction(
 		revalidatePath('/game-slots');
 		const userProfile = await getProfileByUserId(user);
 		const username = userProfile?.username;
-		await createNotificationAction({
+		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId: data.gameId as string,
 			notification: `${username} joined the game`,
@@ -126,7 +126,7 @@ export async function deleteGameSlotAction(
 		revalidatePath('/game-slots');
 		const userProfile = await getProfileByUserId(user);
 		const username = userProfile?.username;
-		await createNotificationAction({
+		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId,
 			notification: `${username} left the game`,

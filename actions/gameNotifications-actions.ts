@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAuth, hasUserJoinedGame, isUserAdmin } from '@/lib/auth-utils';
 
 // Action to create a new notification
-export async function createNotificationAction(
+export async function createGameNotificationAction(
 	data: InsertGameNotification
 ): Promise<ActionState> {
 	try {
@@ -18,7 +18,7 @@ export async function createNotificationAction(
 		revalidatePath('/notifications');
 		return {
 			status: 'success',
-			message: 'Notification created successfully',
+			message: 'Game Notification created successfully',
 			data: newNotification,
 		};
 	} catch (error) {

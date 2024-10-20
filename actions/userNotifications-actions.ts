@@ -27,7 +27,7 @@ export async function createUserNotificationAction(
 		revalidatePath('/notifications');
 		return {
 			status: 'success',
-			message: 'Notification created successfully',
+			message: 'User Notification created successfully',
 			data: newNotification,
 		};
 	} catch (error) {

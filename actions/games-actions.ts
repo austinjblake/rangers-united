@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createLocationAction } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
-import { createNotificationAction } from './gameNotifications-actions';
+import { createGameNotificationAction } from './gameNotifications-actions';
 import { deleteNotificationsForGameAction } from './userNotifications-actions';
 import { hasUserReachedMaxSlots } from '@/db/queries/slots-queries';
 
@@ -64,7 +64,7 @@ export async function createGameAction(
 		console.log('Creating game', newGameData);
 		await createGame(newGameData);
 		revalidatePath('/games');
-		await createNotificationAction({
+		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId: newGameData.id,
 			notification: 'Host created a new game',
@@ -140,7 +140,7 @@ export async function updateGameAction(
 		}
 
 		await updateGame(gameId, updateData);
-		await createNotificationAction({
+		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId,
 			notification: 'Host updated game location/time details',
@@ -250,7 +250,7 @@ export async function markGameAsFullAction(
 			};
 		}
 		await updateGame(gameId, { isFull });
-		await createNotificationAction({
+		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId,
 			notification: `Host has marked the game as ${isFull ? 'full' : 'open'}`,

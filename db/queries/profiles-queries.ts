@@ -12,9 +12,10 @@ import { deleteGameSlot } from './slots-queries';
 import { getGameSlotsByUser } from './slots-queries';
 import { fetchAllLocationsForUser, removeLocation } from './locations-queries';
 import { deleteAllNotificationsForUser } from './userNotifications-queries';
-import { createNotificationAction } from '@/actions/gameNotifications-actions';
+import { createGameNotificationAction } from '@/actions/gameNotifications-actions';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteAllMessagesForUser } from './messages-queries';
+import { deleteNotificationsForGameAction } from '@/actions/userNotifications-actions';
 
 export const createProfile = async (profileData: InsertProfile) => {
 	try {
@@ -93,6 +94,7 @@ export const deleteProfile = async (userId: string) => {
 		const hostedGames = await getAllHostedGames(userId);
 		for (const game of hostedGames) {
 			await deleteGame(game.id);
+			await deleteNotificationsForGameAction(game.id, userId);
 		}
 		// delete all game slots
 		const gameSlots = await getGameSlotsByUser(userId);
@@ -100,7 +102,7 @@ export const deleteProfile = async (userId: string) => {
 		const username = userProfile?.username;
 		for (const slot of gameSlots) {
 			await deleteGameSlot(userId, slot.gameId as string);
-			await createNotificationAction({
+			await createGameNotificationAction({
 				id: uuidv4(),
 				gameId: slot.gameId as string,
 				notification: `${username} left the game`,
