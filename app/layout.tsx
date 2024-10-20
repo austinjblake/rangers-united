@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
 	title: 'Rangers United',
 	description:
-		'Host your own or connect with other players to play Power Rangers Heroes of the Grid.',
+		'Host your own game or connect with other local players to play Power Rangers Heroes of the Grid.',
 };
 
 export default async function RootLayout({
