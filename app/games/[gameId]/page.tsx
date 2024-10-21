@@ -25,9 +25,9 @@ import {
 	markGameAsFullAction,
 } from '@/actions/games-actions';
 import { deleteGameSlotAction } from '@/actions/slots-actions';
-import { supabase } from '@/supabaseClient';
 import { LocationIcon } from '@/components/location-icon';
 import { cn } from '@/lib/utils';
+import useChat from '@/lib/use-chat';
 
 export default function GameDetailsPage() {
 	const [game, setGame] = useState<any>(null);
@@ -36,197 +36,24 @@ export default function GameDetailsPage() {
 	const router = useRouter();
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-	const [messages, setMessages] = useState<any[]>([]);
-	const [notifications, setNotifications] = useState<any[]>([]);
 
 	// fetch game details
 	useEffect(() => {
-		let cleanupFunction: (() => void) | undefined;
-
 		const fetchData = async () => {
 			setLoading(true);
 			const gameResult = await getAllGameInfoAction(gameId as string);
 			if (gameResult.status === 'success') {
 				setGame(gameResult.data);
-				cleanupFunction = await setupSupabaseRealtime(gameResult.data.gameId);
 			}
 			setLoading(false);
 		};
 
 		fetchData();
-
-		return () => {
-			if (cleanupFunction) {
-				cleanupFunction();
-			}
-		};
 	}, [gameId]);
 
-	const setupSupabaseRealtime = async (validGameId: string) => {
-		// Fetch messages
-		const { data: messagesData, error: messagesError } = await supabase
-			.from('messages')
-			.select(
-				`
-				id,
-				message,
-				created_at,
-				sender_id,
-				is_deleted,
-				profiles (
-					username
-				)
-			`
-			)
-			.eq('game_id', validGameId)
-			.eq('is_deleted', false)
-			.order('created_at', { ascending: true });
-
-		if (messagesError) {
-			console.error('Error fetching messages:', messagesError);
-		} else {
-			setMessages(messagesData);
-		}
-
-		// Fetch notifications
-		const { data: notificationsData, error: notificationsError } =
-			await supabase
-				.from('game_notifications')
-				.select(
-					`
-				id,
-				message,
-				created_at
-			`
-				)
-				.eq('game_id', validGameId)
-				.order('created_at', { ascending: false });
-
-		if (notificationsError) {
-			console.error('Error fetching notifications:', notificationsError);
-		} else {
-			setNotifications(notificationsData);
-		}
-
-		const channel = supabase.channel(`public:game_${validGameId}`);
-
-		channel
-			.on('presence', { event: 'sync' }, () => {
-				console.log('Channel presence synced');
-			})
-			.on('presence', { event: 'join' }, ({ key }) => {
-				console.log('Channel joined:', key);
-			})
-			.on('presence', { event: 'leave' }, ({ key }) => {
-				console.log('Channel left:', key);
-			});
-
-		// Handle real-time messages
-		channel.on(
-			'postgres_changes',
-			{
-				event: 'INSERT',
-				schema: 'public',
-				table: 'messages',
-				filter: `game_id=eq.${validGameId}`,
-			},
-			async (payload) => {
-				if (payload.new.is_deleted) return; // Ignore if the message is marked as deleted
-
-				const { data: profileData, error: profileError } = await supabase
-					.from('profiles')
-					.select('username')
-					.eq('user_id', payload.new.sender_id)
-					.single();
-
-				if (profileError) {
-					console.error('Error fetching sender username:', profileError);
-				} else {
-					const messageWithUsername = {
-						...payload.new,
-						profiles: { username: profileData.username },
-					};
-					setMessages((currentMessages) => [
-						...currentMessages,
-						messageWithUsername,
-					]);
-				}
-			}
-		);
-
-		channel.on(
-			'postgres_changes',
-			{
-				event: 'UPDATE',
-				schema: 'public',
-				table: 'messages',
-				filter: `game_id=eq.${validGameId}`,
-			},
-			async (payload) => {
-				if (payload.new.is_deleted) {
-					// Remove the message if it is marked as deleted
-					setMessages((currentMessages) =>
-						currentMessages.filter((message) => message.id !== payload.new.id)
-					);
-					return;
-				}
-
-				const { data: profileData, error: profileError } = await supabase
-					.from('profiles')
-					.select('username')
-					.eq('user_id', payload.new.sender_id)
-					.single();
-
-				if (profileError) {
-					console.error('Error fetching sender username:', profileError);
-				} else {
-					const updatedMessageWithUsername = {
-						...payload.new,
-						profiles: { username: profileData.username },
-					};
-					setMessages((currentMessages) =>
-						currentMessages.map((message) =>
-							message.id === payload.new.id
-								? updatedMessageWithUsername
-								: message
-						)
-					);
-				}
-			}
-		);
-
-		// Handle real-time notifications
-		channel.on(
-			'postgres_changes',
-			{
-				event: 'INSERT',
-				schema: 'public',
-				table: 'game_notifications',
-				filter: `game_id=eq.${validGameId}`,
-			},
-			(payload) => {
-				setNotifications((currentNotifications) => [
-					payload.new,
-					...currentNotifications,
-				]);
-			}
-		);
-
-		const subscription = await channel.subscribe((status) => {
-			if (status === 'SUBSCRIBED') {
-				console.log('Successfully subscribed to channel');
-			} else if (status === 'CLOSED') {
-				console.log('Channel subscription closed');
-			} else if (status === 'CHANNEL_ERROR') {
-				console.error('Channel subscription error');
-			}
-		});
-
-		return () => {
-			console.log('Cleaning up Supabase channel');
-			supabase.removeChannel(channel);
-		};
-	};
+	const { loadingMessages, messages, notifications } = useChat(
+		game ? game.gameId : null
+	);
 
 	const handleDeleteGame = async () => {
 		const result = await deleteGameAction(gameId as string);
