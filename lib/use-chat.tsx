@@ -22,53 +22,71 @@ const useChat = (validGameId: string) => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 
-	const fetchMessages = (validGameId: string) => {
+	const fetchProfile = useCallback((userId: string) => {
+		return supabase
+			.from('profiles')
+			.select('username')
+			.eq('user_id', userId)
+			.single();
+	}, []);
+
+	const fetchMessages = useCallback((validGameId: string) => {
 		return supabase
 			.from('messages')
 			.select(
-				'id, message, created_at, sender_id, is_deleted, edited_at, profiles (username)'
+				'id, message, created_at, sender_id, is_deleted, edited_at, is_from_ex_member, profiles (username)'
 			)
 			.eq('game_id', validGameId)
 			.eq('is_deleted', false)
+			.eq('is_from_ex_member', false)
 			.order('created_at', { ascending: true });
-	};
+	}, []);
 
-	const fetchNotifications = (validGameId: string) => {
+	const fetchNotifications = useCallback((validGameId: string) => {
 		return supabase
 			.from('game_notifications')
 			.select('id, message, created_at')
 			.eq('game_id', validGameId)
 			.order('created_at', { ascending: false });
-	};
-
-	const handleNewMessage = useCallback(async (payload: any) => {
-		if (payload.new.is_deleted) return;
-		const { data: profileData } = await fetchProfile(payload.new.sender_id);
-		const messageWithUsername = {
-			...payload.new,
-			profiles: { username: profileData?.username || '' },
-		};
-		setMessages((currentMessages) => [...currentMessages, messageWithUsername]);
 	}, []);
 
-	const handleUpdatedMessage = useCallback(async (payload: any) => {
-		if (payload.new.is_deleted) {
+	const handleNewMessage = useCallback(
+		async (payload: any) => {
+			if (payload.new.is_deleted || payload.new.is_from_ex_member) return;
+			const { data: profileData } = await fetchProfile(payload.new.sender_id);
+			const messageWithUsername = {
+				...payload.new,
+				profiles: { username: profileData?.username || '' },
+			};
+			setMessages((currentMessages) => [
+				...currentMessages,
+				messageWithUsername,
+			]);
+		},
+		[fetchProfile]
+	);
+
+	const handleUpdatedMessage = useCallback(
+		async (payload: any) => {
+			if (payload.new.is_deleted || payload.new.is_from_ex_member) {
+				setMessages((currentMessages) =>
+					currentMessages.filter((message) => message.id !== payload.new.id)
+				);
+				return;
+			}
+			const { data: profileData } = await fetchProfile(payload.new.sender_id);
+			const updatedMessageWithUsername = {
+				...payload.new,
+				profiles: { username: profileData?.username || '' },
+			};
 			setMessages((currentMessages) =>
-				currentMessages.filter((message) => message.id !== payload.new.id)
+				currentMessages.map((message) =>
+					message.id === payload.new.id ? updatedMessageWithUsername : message
+				)
 			);
-			return;
-		}
-		const { data: profileData } = await fetchProfile(payload.new.sender_id);
-		const updatedMessageWithUsername = {
-			...payload.new,
-			profiles: { username: profileData?.username || '' },
-		};
-		setMessages((currentMessages) =>
-			currentMessages.map((message) =>
-				message.id === payload.new.id ? updatedMessageWithUsername : message
-			)
-		);
-	}, []);
+		},
+		[fetchProfile]
+	);
 
 	const handleNewNotification = useCallback((payload: any) => {
 		setNotifications((currentNotifications) => [
@@ -77,17 +95,10 @@ const useChat = (validGameId: string) => {
 		]);
 	}, []);
 
-	const fetchProfile = (userId: string) => {
-		return supabase
-			.from('profiles')
-			.select('username')
-			.eq('user_id', userId)
-			.single();
-	};
-
 	const setupChannel = useCallback(
 		(channel: any, gameId: string) => {
-			channel
+			console.log(`Setting up channel for game ID: ${gameId}`);
+			const subscription = channel
 				.on('presence', { event: 'sync' }, () =>
 					console.log('Channel presence synced')
 				)
@@ -99,7 +110,10 @@ const useChat = (validGameId: string) => {
 						table: 'messages',
 						filter: `game_id=eq.${gameId}`,
 					},
-					handleNewMessage
+					(payload: any) => {
+						console.log('New message received:', payload);
+						handleNewMessage(payload);
+					}
 				)
 				.on(
 					'postgres_changes',
@@ -109,7 +123,10 @@ const useChat = (validGameId: string) => {
 						table: 'messages',
 						filter: `game_id=eq.${gameId}`,
 					},
-					handleUpdatedMessage
+					(payload: any) => {
+						console.log('Message updated:', payload);
+						handleUpdatedMessage(payload);
+					}
 				)
 				.on(
 					'postgres_changes',
@@ -119,43 +136,64 @@ const useChat = (validGameId: string) => {
 						table: 'game_notifications',
 						filter: `game_id=eq.${gameId}`,
 					},
-					handleNewNotification
+					(payload: any) => {
+						console.log('New notification received:', payload);
+						handleNewNotification(payload);
+					}
 				)
+				.on('error', (error: any) => console.log('Realtime error:', error))
 				.subscribe();
+
+			return () => {
+				console.log(`Cleaning up channel for game ID: ${gameId}`);
+				subscription.unsubscribe();
+			};
 		},
 		[handleNewMessage, handleUpdatedMessage, handleNewNotification]
 	);
+
 	const setupSupabaseRealtime = useCallback(
 		async (gameId: string) => {
-			const { data: messagesData, error: messagesError } = await fetchMessages(
-				gameId
-			);
-			if (messagesError) {
-				console.error('Error fetching messages:', messagesError);
+			console.log(`Setting up Supabase realtime for game ID: ${gameId}`);
+			setLoadingMessages(true);
+			try {
+				const [messagesResult, notificationsResult] = await Promise.all([
+					fetchMessages(gameId),
+					fetchNotifications(gameId),
+				]);
+
+				if (messagesResult.error) throw messagesResult.error;
+				if (notificationsResult.error) throw notificationsResult.error;
+
+				setMessages(messagesResult.data);
+				setNotifications(notificationsResult.data);
+			} catch (error) {
+				console.error('Error fetching data:', error);
 				setMessages([]);
-			} else {
-				setMessages(messagesData);
-			}
-			const { data: notificationsData, error: notificationsError } =
-				await fetchNotifications(gameId);
-			if (notificationsError) {
-				console.error('Error fetching notifications:', notificationsError);
 				setNotifications([]);
-			} else {
-				setNotifications(notificationsData);
+			} finally {
+				setLoadingMessages(false);
 			}
 
 			const channel = supabase.channel(`public:game_${gameId}`);
-			setupChannel(channel, gameId);
+			return setupChannel(channel, gameId);
 		},
-		[setupChannel]
+		[fetchMessages, fetchNotifications, setupChannel]
 	);
 
 	useEffect(() => {
+		let cleanup: (() => void) | undefined;
+
 		if (validGameId) {
-			setupSupabaseRealtime(validGameId);
-			setLoadingMessages(false);
+			setupSupabaseRealtime(validGameId).then((cleanupFn) => {
+				cleanup = cleanupFn;
+			});
 		}
+
+		return () => {
+			console.log(`Cleaning up Supabase realtime for game ID: ${validGameId}`);
+			cleanup?.();
+		};
 	}, [validGameId, setupSupabaseRealtime]);
 
 	return { loadingMessages, messages, notifications };

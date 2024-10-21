@@ -256,6 +256,12 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 									type='text'
 									value={editedMessage}
 									onChange={(e) => setEditedMessage(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											handleSaveEdit();
+											e.preventDefault();
+										}
+									}}
 									className='flex-grow'
 								/>
 								<Button onClick={handleSaveEdit} className='ml-2'>

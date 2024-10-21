@@ -15,7 +15,7 @@ export const messagesTable = pgTable('messages', {
 	isFromExMember: boolean('is_from_ex_member').default(false),
 	createdAt: timestamp('created_at').defaultNow(),
 	editedAt: timestamp('edited_at'),
-	isDeleted: boolean('is_deleted').default(false),
+	isDeleted: boolean('is_deleted').default(false), // needed because supabase realtime doesn't work for deleting rows
 });
 
 export type InsertMessage = typeof messagesTable.$inferInsert;
