@@ -288,17 +288,6 @@ export default function Help() {
 						</div>
 						<div>
 							<h3 className='font-semibold'>
-								I created a game but it&apos;s not showing up when I search for
-								games near that location.
-							</h3>
-							<p>
-								Searching for games to join only returns games that you are not
-								hosting. Don&apos;t worry, your game is out there for others to
-								find!
-							</p>
-						</div>
-						<div>
-							<h3 className='font-semibold'>
 								I joined a game but now it&apos;s not showing up on my dashboard
 								and the game details page says not found.
 							</h3>

@@ -215,9 +215,7 @@ export const getGamesByLocationRadius = async (
 			.where(
 				and(
 					// Use ST_DWithin to find locations within the radius (in meters)
-					sql`ST_DWithin(${locationsTable.location}::geography, ${userPoint}, ${radius})`,
-					// Exclude games where the user is the host
-					ne(gamesTable.hostId, userId)
+					sql`ST_DWithin(${locationsTable.location}::geography, ${userPoint}, ${radius})`
 				)
 			)
 			.groupBy(
