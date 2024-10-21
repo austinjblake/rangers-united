@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function PrivacyPolicy() {
 	return (
-		<div className='container mx-auto px-4 py-8 max-w-3xl'>
+		<div key='privacy-page' className='container mx-auto px-4 py-8 max-w-3xl'>
 			<h1 className='text-3xl font-bold mb-6'>Privacy Policy</h1>
 			<p className='mb-8 text-muted-foreground'>
 				At Rangers United, we value your privacy. This policy outlines how we

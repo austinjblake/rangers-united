@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function TermsOfService() {
 	return (
-		<div className='container mx-auto px-4 py-8 max-w-3xl'>
+		<div key='terms-page' className='container mx-auto px-4 py-8 max-w-3xl'>
 			<h1 className='text-3xl font-bold mb-6'>Terms of Service</h1>
 			<p className='mb-8 text-muted-foreground'>
 				Please review our terms of service carefully. By using Rangers United,

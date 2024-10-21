@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function About() {
 	return (
-		<div className='container mx-auto px-4 py-8 max-w-3xl'>
+		<div key='about-page' className='container mx-auto px-4 py-8 max-w-3xl'>
 			<h1 className='text-3xl font-bold mb-6'>About Rangers United</h1>
 			<p className='mb-8 text-muted-foreground'>
 				Learn more about our mission to connect Power Rangers Heroes of the Grid

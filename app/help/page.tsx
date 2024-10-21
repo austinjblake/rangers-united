@@ -14,7 +14,7 @@ import Link from 'next/link';
 
 export default function Help() {
 	return (
-		<div className='container mx-auto px-4 py-8 max-w-3xl'>
+		<div key='help-page' className='container mx-auto px-4 py-8 max-w-3xl'>
 			<h1 className='text-3xl font-bold mb-6'>
 				Help & How To Use Rangers United
 			</h1>
