@@ -22,6 +22,18 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { useAuth } from '@clerk/nextjs';
 import { toast } from '@/components/ui/use-toast';
 import { generateColor } from '@/lib/username-color';
+import { banUserAction } from '@/actions/bannedUsers-actions';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 interface GameChatProps {
 	gameId: string;
@@ -42,6 +54,9 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const lastMessageRef = useRef<HTMLDivElement>(null);
 	const [showScrollButton, setShowScrollButton] = useState(false);
+	const [banModalOpen, setBanModalOpen] = useState(false);
+	const [banReason, setBanReason] = useState('');
+	const [userToBan, setUserToBan] = useState<string | null>(null);
 
 	const smoothScrollToBottom = () => {
 		// Easing function
@@ -97,6 +112,13 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 						messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 					}, 100);
 				}
+			} else {
+				toast({
+					variant: 'destructive',
+					title: 'Error',
+					description:
+						'Error sending message. Please refresh the page and try again. If you continue to encounter this problem, please contact support.',
+				});
 			}
 		}
 	};
@@ -201,9 +223,43 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 		}
 	}, [messages]);
 
-	const handleBanUser = (userId: string) => {
-		console.log(`Banning user: ${userId}`);
-		// TODO: Implement actual ban functionality when backend is ready
+	const handleBanUser = async (userId: string) => {
+		if (!isHost) return;
+		setUserToBan(userId);
+		setBanModalOpen(true);
+	};
+
+	const confirmBan = async () => {
+		if (!userToBan || !isHost) return;
+
+		try {
+			const banData = {
+				hostId: hostId,
+				bannedUserId: userToBan,
+				reason: banReason,
+			};
+
+			const result = await banUserAction(banData, gameId);
+
+			if (result) {
+				toast({
+					title: 'User Banned',
+					description: 'The user has been banned.',
+				});
+				setBanModalOpen(false);
+				setBanReason('');
+				setUserToBan(null);
+			} else {
+				throw new Error('Failed to ban user');
+			}
+		} catch (error) {
+			console.error('Error banning user:', error);
+			toast({
+				variant: 'destructive',
+				title: 'Error',
+				description: 'Failed to ban user. Please try again.',
+			});
+		}
 	};
 
 	return (
@@ -349,6 +405,36 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 					<Send className='h-4 w-4' />
 				</Button>
 			</div>
+			<Dialog open={banModalOpen} onOpenChange={setBanModalOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Ban User</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to ban this user? They will no longer be
+							able to join any of your games. Please provide a reason.
+						</DialogDescription>
+					</DialogHeader>
+					<div className='grid gap-4 py-4'>
+						<div className='grid grid-cols-4 items-center gap-4'>
+							<Label htmlFor='reason' className='text-right'>
+								Reason
+							</Label>
+							<Textarea
+								id='reason'
+								value={banReason}
+								onChange={(e) => setBanReason(e.target.value)}
+								className='col-span-3'
+							/>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant='outline' onClick={() => setBanModalOpen(false)}>
+							Cancel
+						</Button>
+						<Button onClick={confirmBan}>Confirm Ban</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

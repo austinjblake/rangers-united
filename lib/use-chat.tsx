@@ -17,7 +17,11 @@ interface Notification {
 	created_at: string;
 }
 
-const useChat = (validGameId: string) => {
+const useChat = (
+	validGameId: string,
+	currentUserId: string,
+	hostId: string
+) => {
 	const [loadingMessages, setLoadingMessages] = useState(true);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -141,6 +145,22 @@ const useChat = (validGameId: string) => {
 						handleNewNotification(payload);
 					}
 				)
+				.on(
+					'postgres_changes',
+					{
+						event: 'INSERT',
+						schema: 'public',
+						table: 'banned_users',
+						filter: `host_id=eq.${hostId}`,
+					},
+					(payload: any) => {
+						console.log('Banned user received:', payload.new);
+						if (payload.new.banned_user_id === currentUserId) {
+							alert('You have been banned from this game');
+							window.location.href = `/banned/${validGameId}`;
+						}
+					}
+				)
 				.on('error', (error: any) => console.log('Realtime error:', error))
 				.subscribe();
 
@@ -149,7 +169,13 @@ const useChat = (validGameId: string) => {
 				subscription.unsubscribe();
 			};
 		},
-		[handleNewMessage, handleUpdatedMessage, handleNewNotification]
+		[
+			handleNewMessage,
+			handleUpdatedMessage,
+			handleNewNotification,
+			currentUserId,
+			validGameId,
+		]
 	);
 
 	const setupSupabaseRealtime = useCallback(

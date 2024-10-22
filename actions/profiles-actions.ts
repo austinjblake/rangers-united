@@ -3,14 +3,12 @@
 import {
 	createProfile,
 	deleteProfile,
-	getAllProfiles,
-	getProfileByUserId,
 	updateProfileDetails,
 } from '@/db/queries/profiles-queries';
 import { InsertProfile } from '@/db/schema/profiles-schema';
 import { ActionState } from '@/types';
 import { revalidatePath } from 'next/cache';
-import { requireAuth, isUserAdmin } from '@/lib/auth-utils';
+import { requireAuth } from '@/lib/auth-utils';
 
 export async function createProfileAction(
 	data: InsertProfile
@@ -55,4 +53,9 @@ export async function deleteProfileAction(
 		console.error('delete profile actions error:', error);
 		return { status: 'error', message: 'Failed to delete profile' };
 	}
+}
+
+export async function getUserIdAction() {
+	const user = await requireAuth();
+	return user;
 }

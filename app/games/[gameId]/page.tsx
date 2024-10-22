@@ -28,6 +28,7 @@ import { deleteGameSlotAction } from '@/actions/slots-actions';
 import { LocationIcon } from '@/components/location-icon';
 import { cn } from '@/lib/utils';
 import useChat from '@/lib/use-chat';
+import { getUserIdAction } from '@/actions/profiles-actions';
 
 export default function GameDetailsPage() {
 	const [game, setGame] = useState<any>(null);
@@ -36,14 +37,17 @@ export default function GameDetailsPage() {
 	const router = useRouter();
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+	const [userId, setUserId] = useState<string>('');
 
 	// fetch game details
 	useEffect(() => {
 		const fetchData = async () => {
 			setLoading(true);
 			const gameResult = await getAllGameInfoAction(gameId as string);
+			const userId = await getUserIdAction();
 			if (gameResult.status === 'success') {
 				setGame(gameResult.data);
+				setUserId(userId || '');
 			}
 			setLoading(false);
 		};
@@ -52,7 +56,9 @@ export default function GameDetailsPage() {
 	}, [gameId]);
 
 	const { loadingMessages, messages, notifications } = useChat(
-		game ? game.gameId : null
+		game ? game.gameId : null,
+		userId,
+		game ? game.hostId : ''
 	);
 
 	const handleDeleteGame = async () => {
