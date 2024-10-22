@@ -4,7 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, TrashIcon, PencilIcon, ChevronDown, Crown } from 'lucide-react';
+import {
+	Send,
+	TrashIcon,
+	PencilIcon,
+	ChevronDown,
+	Crown,
+	Ban,
+} from 'lucide-react';
 import {
 	createMessageAction,
 	deleteMessageAction,
@@ -194,6 +201,11 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 		}
 	}, [messages]);
 
+	const handleBanUser = (userId: string) => {
+		console.log(`Banning user: ${userId}`);
+		// TODO: Implement actual ban functionality when backend is ready
+	};
+
 	return (
 		<div className='p-4 relative'>
 			<h2 className='text-lg font-semibold mb-2'>Chat</h2>
@@ -225,30 +237,37 @@ export function GameChat({ gameId, isHost, hostId, messages }: GameChatProps) {
 									</span>
 								)}
 							</p>
-							{(isHost || message.sender_id === userId) && (
-								<div className='opacity-0 group-hover:opacity-100 transition-opacity flex'>
-									{message.sender_id === userId && (
-										<button
-											onClick={() =>
-												handleEditMessage(message.id, message.message)
-											}
-											className='mr-2'
-											title='Edit Message'
-										>
-											<PencilIcon className='h-3 w-3 text-muted-foreground hover:text-foreground transition-colors' />
-										</button>
-									)}
-									{(isHost || message.sender_id === userId) && (
-										<button
-											onClick={() => handleDeleteMessage(message.id)}
-											title='Delete Message'
-											className='ml-2'
-										>
-											<TrashIcon className='h-3 w-3 text-destructive' />
-										</button>
-									)}
-								</div>
-							)}
+							<div className='opacity-0 group-hover:opacity-100 transition-opacity flex'>
+								{isHost && message.sender_id !== hostId && (
+									<button
+										onClick={() => handleBanUser(message.sender_id)}
+										className='mr-2'
+										title='Ban User'
+									>
+										<Ban className='h-3 w-3 text-destructive hover:text-destructive/80 transition-colors' />
+									</button>
+								)}
+								{message.sender_id === userId && (
+									<button
+										onClick={() =>
+											handleEditMessage(message.id, message.message)
+										}
+										className='mr-2'
+										title='Edit Message'
+									>
+										<PencilIcon className='h-3 w-3 text-muted-foreground hover:text-foreground transition-colors' />
+									</button>
+								)}
+								{(isHost || message.sender_id === userId) && (
+									<button
+										onClick={() => handleDeleteMessage(message.id)}
+										title='Delete Message'
+										className='ml-2'
+									>
+										<TrashIcon className='h-3 w-3 text-destructive' />
+									</button>
+								)}
+							</div>
 						</div>
 						{editingMessageId === message.id ? (
 							<div className='flex mt-1'>
