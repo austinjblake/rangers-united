@@ -11,6 +11,7 @@ import notificationsImg from './notifications.webp';
 import searchImg from './search.webp';
 import fulladdressImg from './fulladdress.webp';
 import Link from 'next/link';
+import { Ban } from 'lucide-react';
 
 export default function Help() {
 	return (
@@ -255,8 +256,9 @@ export default function Help() {
 							<p>
 								Yes, you can edit the date/time or location of a game from your
 								dashboard or the game details page. Any users who have already
-								joined will be able to see the changes and a notification will
-								be added to the game details.
+								joined will be able to see the changes. A notification will be
+								added to the game details and each player will also receive a
+								notification in their notifications section.
 							</p>
 						</div>
 						<div>
@@ -284,6 +286,21 @@ export default function Help() {
 								players will be allowed to join. Your game will still show up in
 								search results. To open the game back up to new players, simply
 								click the &quot;Open Game&quot; button.
+							</p>
+						</div>
+						<div>
+							<h3 className='font-semibold'>
+								Can I remove a player from my game?
+							</h3>
+							<p>
+								Yes, you can do this by clicking the Ban Player button{' '}
+								<Ban className='inline-block' /> on the right side of the
+								player&apos;s chat message. You may leave a comment as a reason
+								for banning them. This will remove them from the game and notify
+								them. This user will also be banned from joining any of your
+								games in the future. To view your list of banned users, go the
+								the Settings page in the sidebar. You may also use this page to
+								unban users.
 							</p>
 						</div>
 						<div>
