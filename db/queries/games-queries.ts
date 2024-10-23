@@ -207,6 +207,12 @@ export const getGamesByLocationRadius = async (
 					WHERE ${gameSlotsTable.gameId} = ${gamesTable.id}
 					AND ${gameSlotsTable.userId} = ${userId}
 				)`.as('hasJoined'),
+				// Check if the user is banned by the host of the game
+				isBanned: sql`EXISTS (
+					SELECT 1 FROM banned_users
+					WHERE banned_users.banned_user_id = ${userId}
+					AND banned_users.host_id = ${gamesTable.hostId}
+				)`.as('isBanned'),
 			})
 			.from(gamesTable)
 			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id))

@@ -56,6 +56,7 @@ interface SearchGameResult {
 	joinerCount: number;
 	hasJoined: boolean;
 	isFull: boolean;
+	isBanned: boolean;
 }
 
 const GameCard = ({
@@ -136,6 +137,18 @@ const GameCard = ({
 						>
 							<UserX className='w-4 h-4 mr-2' />
 							Game is full
+						</Button>
+					</>
+				) : game.isBanned ? (
+					<>
+						<Button disabled>Join Game</Button>
+						<Button
+							variant='destructive'
+							disabled
+							className='flex items-center'
+						>
+							<UserX className='w-4 h-4 mr-2' />
+							Banned
 						</Button>
 					</>
 				) : (

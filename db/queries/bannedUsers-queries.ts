@@ -5,6 +5,7 @@ import {
 	InsertBannedUser,
 } from '@/db/schema/bannedUsers-schema';
 import { gamesTable } from '@/db/schema/games-schema';
+import { profilesTable } from '@/db/schema/profiles-schema';
 
 export async function checkIfUserBanned(hostId: string, bannedUserId: string) {
 	try {
@@ -80,5 +81,29 @@ export async function getBanReason(gameId: string, bannedUserId: string) {
 	} catch (error) {
 		console.error('Error getting ban reason:', error);
 		throw new Error('Failed to get ban reason');
+	}
+}
+
+export async function getBannedUsersForHost(hostId: string) {
+	try {
+		const result = await db
+			.select({
+				id: bannedUsersTable.id,
+				bannedUserId: bannedUsersTable.bannedUserId,
+				createdAt: bannedUsersTable.createdAt,
+				reason: bannedUsersTable.reason,
+				username: profilesTable.username,
+			})
+			.from(bannedUsersTable)
+			.leftJoin(
+				profilesTable,
+				eq(bannedUsersTable.bannedUserId, profilesTable.userId)
+			)
+			.where(eq(bannedUsersTable.hostId, hostId));
+
+		return result;
+	} catch (error) {
+		console.error('Error getting banned users for host:', error);
+		throw new Error('Failed to get banned users for host');
 	}
 }

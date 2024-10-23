@@ -5,6 +5,7 @@ import {
 	banUser,
 	unbanUser,
 	getBanReason,
+	getBannedUsersForHost,
 } from '@/db/queries/bannedUsers-queries';
 import { getProfileByUserId } from '@/db/queries/profiles-queries';
 import { InsertBannedUser } from '@/db/schema/bannedUsers-schema';
@@ -13,6 +14,7 @@ import { deleteGameSlot } from '@/db/queries/slots-queries';
 import { v4 as uuidv4 } from 'uuid';
 import { getUserIdAction } from './profiles-actions';
 import { createUserNotificationAction } from './userNotifications-actions';
+import { requireAuth } from '@/lib/auth-utils';
 
 export async function checkIfUserBannedAction(
 	hostId: string,
@@ -41,7 +43,7 @@ export async function banUserAction(banData: InsertBannedUser, gameId: string) {
 		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId: gameId,
-			notification: `${username} left the game`,
+			notification: `${username} has been banned from the game`,
 			createdAt: new Date(),
 		});
 		// create user notification for banned user
@@ -60,9 +62,11 @@ export async function banUserAction(banData: InsertBannedUser, gameId: string) {
 	}
 }
 
-export async function unbanUserAction(hostId: string, bannedUserId: string) {
+export async function unbanUserAction(bannedUserId: string) {
+	const hostId = await requireAuth();
 	try {
-		return await unbanUser(hostId, bannedUserId);
+		await unbanUser(hostId, bannedUserId);
+		return { status: 'success', message: 'User unbanned successfully' };
 	} catch (error) {
 		console.error('Error unbanning user:', error, { hostId, bannedUserId });
 		throw new Error('Failed to unban user');
@@ -76,5 +80,15 @@ export async function getBanReasonAction(gameId: string) {
 	} catch (error) {
 		console.error('Error getting ban reason:', error, { gameId });
 		throw new Error('Failed to get ban reason');
+	}
+}
+
+export async function getBannedUsersForHostAction() {
+	const hostId = await requireAuth();
+	try {
+		return await getBannedUsersForHost(hostId);
+	} catch (error) {
+		console.error('Error getting banned users for host:', error, { hostId });
+		throw new Error('Failed to get banned users for host');
 	}
 }
