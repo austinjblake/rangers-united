@@ -113,21 +113,15 @@ export async function deleteNotificationsForGameAction(
 		const game = result[0];
 		const users = await getJoinerIdsForGame(gameId);
 		for (const user of users) {
+			// timestamp will be regexed and formatted to user timezone on frontend
 			await createUserNotificationAction({
 				id: uuidv4(),
 				userId: user,
 				notification: `Your game hosted by ${game.hostUsername} at ${
 					game.locationName
-				} on ${new Date(game.gameDate as Date)
-					.toLocaleString('en-US', {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric',
-						hour: 'numeric',
-						minute: 'numeric',
-						hour12: true,
-					})
-					.replace(/ (AM|PM)/, '$1')} has been deleted by the host.`,
+				} on <timestamp>${new Date(
+					game.gameDate || ''
+				).toISOString()}</timestamp> has been deleted by the host.`,
 				createdAt: new Date(),
 			});
 		}

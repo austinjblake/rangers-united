@@ -26,6 +26,7 @@ import {
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
+import { formatInTimeZone } from 'date-fns-tz';
 
 export default function Component({ children }: { children: React.ReactNode }) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -68,17 +69,16 @@ export default function Component({ children }: { children: React.ReactNode }) {
 	const toggleDarkMode = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
 	const formatNotification = (notification: string) => {
-		const dateTimeRegex =
-			/(\w{3} \w{3} \d{2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4})/;
-		const match = notification.match(dateTimeRegex);
-
+		const timestampRegex = /<timestamp>(.*?)<\/timestamp>/;
+		const match = notification.match(timestampRegex);
 		if (match) {
-			const dateTimeString = match[1];
-			const date = new Date(dateTimeString);
-			const formattedDate = date.toLocaleString();
-			return notification.replace(dateTimeString, formattedDate);
+			const formattedDate = formatInTimeZone(
+				match[1],
+				Intl.DateTimeFormat().resolvedOptions().timeZone,
+				'MMM d, yyyy h:mm a'
+			);
+			return notification.replace(match[0], formattedDate);
 		}
-
 		return notification;
 	};
 
@@ -91,7 +91,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 				(notification: any) => notification.id
 			);
 			await markNotificationsAsReadAction(ids);
-			fetchNotifications(); // Refetch to update the UI
+			fetchNotifications();
 		}
 	};
 

@@ -189,6 +189,7 @@ export async function updateGameAction(
 			// host doesnt need notification
 			if (joinerId === userId) continue;
 			// notification for users should show old info to more easily recognize the game
+			// timestamp will be regexed and formatted to user timezone on frontend
 			await createUserNotificationAction({
 				id: uuidv4(),
 				userId: joinerId,
@@ -196,18 +197,9 @@ export async function updateGameAction(
 					game.hostUsername
 				} has changed the ${changedItems.join(
 					' and '
-				)} for the game at ${currentLocationName} on ${new Date(
-					currentDate as Date
-				)
-					.toLocaleString('en-US', {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric',
-						hour: 'numeric',
-						minute: 'numeric',
-						hour12: true,
-					})
-					.replace(/ (AM|PM)/, '$1')}. Please check the game details.`,
+				)} for the game at ${currentLocationName} on <timestamp>${new Date(
+					currentDate || ''
+				).toISOString()}</timestamp>. Please check the game details.`,
 				createdAt: new Date(),
 				gameId: gameId,
 			});

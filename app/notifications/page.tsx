@@ -19,6 +19,7 @@ import {
 } from '@/actions/userNotifications-actions';
 import { toast } from '@/components/ui/use-toast';
 import Link from 'next/link';
+import { formatInTimeZone } from 'date-fns-tz';
 
 type Notification = {
 	id: string;
@@ -93,6 +94,20 @@ export default function NotificationsPage() {
 		}
 	};
 
+	const formatNotification = (notification: string) => {
+		const timestampRegex = /<timestamp>(.*?)<\/timestamp>/;
+		const match = notification.match(timestampRegex);
+		if (match) {
+			const formattedDate = formatInTimeZone(
+				match[1],
+				Intl.DateTimeFormat().resolvedOptions().timeZone,
+				'MMM d, yyyy h:mm a'
+			);
+			return notification.replace(match[0], formattedDate);
+		}
+		return notification;
+	};
+
 	return (
 		<div className='container mx-auto p-4 max-w-2xl'>
 			<Card>
@@ -127,7 +142,7 @@ export default function NotificationsPage() {
 												<div className='flex justify-between items-start'>
 													<div className='space-y-1'>
 														<p className='text-sm text-muted-foreground'>
-															{notification.notification}
+															{formatNotification(notification.notification)}
 															{notification.gameId && (
 																<Link
 																	href={`/games/${notification.gameId}`}
