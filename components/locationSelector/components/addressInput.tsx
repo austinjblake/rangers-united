@@ -86,6 +86,7 @@ export function AddressInput({ onAddressChange }: AddressInputProps) {
 							handleAddressChange(val, 'country');
 						}}
 						classes='w-full p-2 border rounded'
+						priorityOptions={['US']}
 					/>
 					<RegionDropdown
 						country={country}
