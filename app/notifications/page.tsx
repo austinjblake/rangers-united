@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, Check, Trash2 } from 'lucide-react';
+import { Bell, Check, Trash2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -18,12 +18,14 @@ import {
 	markAllNotificationsAsReadAction,
 } from '@/actions/userNotifications-actions';
 import { toast } from '@/components/ui/use-toast';
+import Link from 'next/link';
 
 type Notification = {
 	id: string;
 	notification: string;
 	createdAt: Date;
 	isRead: boolean;
+	gameId?: string;
 };
 
 export default function NotificationsPage() {
@@ -126,6 +128,14 @@ export default function NotificationsPage() {
 													<div className='space-y-1'>
 														<p className='text-sm text-muted-foreground'>
 															{notification.notification}
+															{notification.gameId && (
+																<Link
+																	href={`/games/${notification.gameId}`}
+																	className='ml-2 text-primary hover:underline inline-flex items-center'
+																>
+																	View <ArrowRight className='h-4 w-4 ml-1' />
+																</Link>
+															)}
 														</p>
 														<p className='text-xs text-muted-foreground'>
 															{new Date(

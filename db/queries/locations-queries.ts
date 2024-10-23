@@ -165,3 +165,19 @@ export const isLocationInUse = async (locationId: string) => {
 		throw error;
 	}
 };
+
+// Get location name by ID
+export const fetchLocationNameById = async (locationId: string) => {
+	try {
+		const result = await db
+			.select({ name: locationsTable.name })
+			.from(locationsTable)
+			.where(eq(locationsTable.id, locationId))
+			.limit(1);
+
+		return result[0]?.name || 'Other Location';
+	} catch (error) {
+		console.error('Error fetching location name by ID:', error);
+		throw error;
+	}
+};

@@ -5,7 +5,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Bell, BellRing, Menu, Moon, Shield, Sun } from 'lucide-react';
+import {
+	Bell,
+	BellRing,
+	Menu,
+	Moon,
+	Shield,
+	Sun,
+	ArrowRight,
+} from 'lucide-react';
 import {
 	getUserNotificationsAction,
 	markNotificationsAsReadAction,
@@ -282,6 +290,14 @@ export default function Component({ children }: { children: React.ReactNode }) {
 															className='text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700'
 														>
 															{formatNotification(notification.notification)}
+															{notification.gameId && (
+																<Link
+																	href={`/games/${notification.gameId}`}
+																	className='ml-2 text-primary hover:underline inline-flex items-center'
+																>
+																	View <ArrowRight className='h-4 w-4 ml-1' />
+																</Link>
+															)}
 														</div>
 													))}
 											</div>

@@ -9,6 +9,7 @@ export const userNotificationsTable = pgTable('user_notifications', {
 	notification: text('message').notNull(),
 	isRead: boolean('is_read').default(false),
 	createdAt: timestamp('created_at').defaultNow(),
+	gameId: text('game_id'), // not referenced to games table because games could be deleted before userNotifications
 });
 
 export type InsertUserNotification = typeof userNotificationsTable.$inferInsert;

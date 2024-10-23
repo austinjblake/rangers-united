@@ -1,0 +1,1 @@
+ALTER TABLE "user_notifications" ADD COLUMN "game_id" text;

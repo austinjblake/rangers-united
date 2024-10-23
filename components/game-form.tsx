@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
 	CalendarIcon,
@@ -58,6 +58,7 @@ export default function GameForm({
 	);
 	const [selectedLocation, setSelectedLocation] =
 		useState<SelectLocation | null>(initialData?.location || null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleLocationSelect = (
 		location: SelectLocation | SelectLocation[]
@@ -74,12 +75,16 @@ export default function GameForm({
 	};
 
 	const handleSubmit = async () => {
+		if (isSubmitting) return;
+		setIsSubmitting(true);
+
 		if (!gameDate || !gameTime || !selectedLocation) {
 			toast({
 				title: 'Error',
 				description: 'Please fill in all fields.',
 				variant: 'destructive',
 			});
+			setIsSubmitting(false);
 			return;
 		}
 
@@ -151,6 +156,8 @@ export default function GameForm({
 				});
 			}
 		}
+
+		setIsSubmitting(false);
 	};
 
 	return (
@@ -268,11 +275,16 @@ export default function GameForm({
 				)}
 
 				<Button
-					disabled={!gameDate || !gameTime || !selectedLocation}
+					disabled={!gameDate || !gameTime || !selectedLocation || isSubmitting}
 					onClick={handleSubmit}
 					className='w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900'
+					aria-busy={isSubmitting}
 				>
-					{isEditing ? 'Update Game' : 'Create Game'}
+					{isSubmitting
+						? 'Processing...'
+						: isEditing
+						? 'Update Game'
+						: 'Create Game'}
 				</Button>
 			</div>
 		</div>

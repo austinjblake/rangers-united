@@ -7,6 +7,7 @@ import {
 	deleteGame,
 	getGamesByLocationRadius,
 	getGameInfoForSlot,
+	getJoinerIdsForGame,
 } from '@/db/queries/games-queries';
 import { InsertGame } from '@/db/schema/games-schema';
 import { ActionState } from '@/types';
@@ -22,8 +23,12 @@ import { createLocationAction } from './locations-actions';
 import { SelectLocation } from '@/db/schema/locations-schema';
 import { metersToMiles, milesToMeters } from '@/lib/places';
 import { createGameNotificationAction } from './gameNotifications-actions';
-import { deleteNotificationsForGameAction } from './userNotifications-actions';
+import {
+	createUserNotificationAction,
+	deleteNotificationsForGameAction,
+} from './userNotifications-actions';
 import { hasUserReachedMaxSlots } from '@/db/queries/slots-queries';
+import { fetchLocationNameById } from '@/db/queries/locations-queries';
 
 // Action to create a new game
 export async function createGameAction(
@@ -122,8 +127,28 @@ export async function updateGameAction(
 			};
 		}
 
+		const currentGame = await getGameById(gameId);
+		const currentLocation = currentGame[0].locationId;
+		const currentLocationName = await fetchLocationNameById(currentLocation);
+		const currentDate = currentGame[0].date;
+
+		const newDate = new Date(data.date || '');
+		const currentDateObj = new Date(currentDate || '');
+
+		const dateHasChanged =
+			newDate.getFullYear() !== currentDateObj.getFullYear() ||
+			newDate.getMonth() !== currentDateObj.getMonth() ||
+			newDate.getDate() !== currentDateObj.getDate();
+
+		const timeHasChanged =
+			newDate.getHours() !== currentDateObj.getHours() ||
+			newDate.getMinutes() !== currentDateObj.getMinutes();
+
+		const locationHasChanged = data.location?.id !== currentLocation;
+
 		let updateData = { locationId: data.location?.id, date: data.date };
 
+		// host changed location to non saved location. create and save as temp
 		if (data.location && data.location.id === '') {
 			const locationObj = {
 				id: '',
@@ -140,18 +165,61 @@ export async function updateGameAction(
 		}
 
 		await updateGame(gameId, updateData);
+
+		// Create game notification
+		const changedItems = [
+			locationHasChanged && 'location',
+			dateHasChanged && 'date',
+			timeHasChanged && 'time',
+		].filter(Boolean);
+
 		await createGameNotificationAction({
 			id: uuidv4(),
 			gameId,
-			notification: 'Host updated game location/time details',
+			notification: `Host updated game ${changedItems.join(' and ')}`,
 			createdAt: new Date(),
 		});
+
+		// Create user notifications for joiners
+		const gameInfo = await getGameInfoForSlot(userId, gameId);
+		const game = gameInfo[0];
+		const joiners = await getJoinerIdsForGame(gameId);
+
+		for (const joinerId of joiners) {
+			// host doesnt need notification
+			if (joinerId === userId) continue;
+			// notification for users should show old info to more easily recognize the game
+			await createUserNotificationAction({
+				id: uuidv4(),
+				userId: joinerId,
+				notification: `Game update: ${
+					game.hostUsername
+				} has changed the ${changedItems.join(
+					' and '
+				)} for the game at ${currentLocationName} on ${new Date(
+					currentDate as Date
+				)
+					.toLocaleString('en-US', {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric',
+						hour: 'numeric',
+						minute: 'numeric',
+						hour12: true,
+					})
+					.replace(/ (AM|PM)/, '$1')}. Please check the game details.`,
+				createdAt: new Date(),
+				gameId: gameId,
+			});
+		}
+
 		revalidatePath(`/games/${gameId}`);
 		return {
 			status: 'success',
 			message: 'Game updated successfully',
 		};
 	} catch (error) {
+		console.error('Error updating game:', error);
 		return { status: 'error', message: 'Failed to update game' };
 	}
 }
