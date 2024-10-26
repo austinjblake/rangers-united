@@ -41,7 +41,7 @@ export async function hasUserJoinedGame(userId: string, gameId: string) {
 		.limit(1);
 
 	if (!gameSlot.length) {
-		throw new Error('User has not joined this game');
+		return false;
 	}
 	return true; // User is a participant in the game
 }

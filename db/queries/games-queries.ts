@@ -348,3 +348,33 @@ export const checkIfGameIsFull = async (gameId: string) => {
 		throw error;
 	}
 };
+
+export const getGameInfoForNonJoiner = async (gameId: string) => {
+	try {
+		const result = await db
+			.select({
+				hostId: gamesTable.hostId,
+				gameLocationId: gamesTable.locationId,
+				gameDate: gamesTable.date,
+				locationName: locationsTable.name,
+				locationIsPrivate: locationsTable.isPrivate,
+				locationIsFLGS: locationsTable.isFLGS,
+				isFull: gamesTable.isFull,
+				hostUsername: profilesTable.username,
+				joinerCount: sql`(
+          SELECT COUNT(${gameSlotsTable.userId})
+          FROM ${gameSlotsTable}
+          WHERE ${gameSlotsTable.gameId} = ${gamesTable.id}
+        )`.as('joinerCount'),
+			})
+			.from(gamesTable)
+			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id))
+			.leftJoin(profilesTable, eq(gamesTable.hostId, profilesTable.userId))
+			.where(eq(gamesTable.id, gameId));
+
+		return result;
+	} catch (error) {
+		console.error('Error fetching game information:', error);
+		throw error;
+	}
+};

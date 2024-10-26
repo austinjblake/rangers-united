@@ -30,7 +30,7 @@ import { SelectLocation } from '@/db/schema';
 import { Button } from '@/components/ui/button';
 
 interface LocationSelectorProps {
-	type: 'searchGame' | 'hostGame';
+	type: 'searchGame' | 'hostGame' | 'joinGame';
 	onUseLocation: (location: SelectLocation) => void;
 	children?: React.ReactNode;
 }
@@ -143,6 +143,8 @@ export default function LocationSelector({
 					{type === 'hostGame' && 'Choose a location to host your game'}
 					{type === 'searchGame' &&
 						'Choose a location to search for a nearby game'}
+					{type === 'joinGame' &&
+						'Choose a location to use for joining the game'}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -219,6 +221,7 @@ export default function LocationSelector({
 					>
 						{type === 'hostGame' && 'Use this location to host a game'}
 						{type === 'searchGame' && 'Search for games near this location'}
+						{type === 'joinGame' && 'Use this location to join the game'}
 					</Button>
 				</CardFooter>
 			)}

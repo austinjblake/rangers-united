@@ -8,6 +8,7 @@ import {
 	getGamesByLocationRadius,
 	getGameInfoForSlot,
 	getJoinerIdsForGame,
+	getGameInfoForNonJoiner,
 } from '@/db/queries/games-queries';
 import { InsertGame } from '@/db/schema/games-schema';
 import { ActionState } from '@/types';
@@ -274,9 +275,12 @@ export async function getAllGameInfoAction(
 		const joinedGame = await hasUserJoinedGame(userId, gameId);
 		const isAdmin = await isUserAdmin(userId);
 		if (!joinedGame && !isAdmin) {
+			// if user has not joined, get basic game info only
+			const basicGameInfo = await getGameInfoForNonJoiner(gameId);
 			return {
-				status: 'error',
-				message: 'You are not authorized to view this game',
+				status: 'success',
+				message: 'Game retrieved successfully',
+				data: { ...basicGameInfo[0], notJoined: true },
 			};
 		}
 		const result = await getGameInfoForSlot(userId, gameId);
@@ -292,6 +296,7 @@ export async function getAllGameInfoAction(
 			data: gameWithDistanceInMiles,
 		};
 	} catch (error) {
+		console.error('Error fetching game info:', error);
 		return { status: 'error', message: 'Failed to retrieve game' };
 	}
 }
