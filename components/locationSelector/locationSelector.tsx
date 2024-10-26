@@ -148,10 +148,16 @@ export default function LocationSelector({
 			<CardContent>
 				{!showDetails ? (
 					<Tabs value={activeTab} onValueChange={handleTabChange}>
-						<TabsList className='grid w-full grid-cols-3'>
-							<TabsTrigger value='saved'>Saved Locations</TabsTrigger>
-							<TabsTrigger value='new'>New Location</TabsTrigger>
-							<TabsTrigger value='flgs'>Search FLGS</TabsTrigger>
+						<TabsList className='grid w-full grid-cols-3 min-w-[500px] overflow-x-auto gap-1 p-1'>
+							<TabsTrigger value='saved' className='whitespace-nowrap px-6'>
+								Saved Locations
+							</TabsTrigger>
+							<TabsTrigger value='new' className='whitespace-nowrap px-6'>
+								New Location
+							</TabsTrigger>
+							<TabsTrigger value='flgs' className='whitespace-nowrap px-6'>
+								Search FLGS
+							</TabsTrigger>
 						</TabsList>
 						<TabsContent value='saved'>
 							<SavedLocations
