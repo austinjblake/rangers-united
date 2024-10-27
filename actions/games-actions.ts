@@ -276,7 +276,7 @@ export async function getAllGameInfoAction(
 		const isAdmin = await isUserAdmin(userId);
 		if (!joinedGame && !isAdmin) {
 			// if user has not joined, get basic game info only
-			const basicGameInfo = await getGameInfoForNonJoiner(gameId);
+			const basicGameInfo = await getGameInfoForNonJoiner(gameId, userId);
 			return {
 				status: 'success',
 				message: 'Game retrieved successfully',

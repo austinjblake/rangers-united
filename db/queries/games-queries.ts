@@ -4,6 +4,7 @@ import { gamesTable, InsertGame } from '../schema/games-schema';
 import { locationsTable } from '../schema/locations-schema';
 import { profilesTable } from '../schema/profiles-schema';
 import {
+	bannedUsersTable,
 	gameNotificationsTable,
 	gameSlotsTable,
 	messagesTable,
@@ -243,7 +244,7 @@ export const getGamesByLocationRadius = async (
 	}
 };
 
-// 7. Get all games (for general browsing or admin purposes)
+// 7. Get all games by host
 export const getAllHostedGames = async (hostId: string) => {
 	try {
 		const result = await db
@@ -349,7 +350,10 @@ export const checkIfGameIsFull = async (gameId: string) => {
 	}
 };
 
-export const getGameInfoForNonJoiner = async (gameId: string) => {
+export const getGameInfoForNonJoiner = async (
+	gameId: string,
+	userId: string
+) => {
 	try {
 		const result = await db
 			.select({
@@ -366,6 +370,11 @@ export const getGameInfoForNonJoiner = async (gameId: string) => {
           FROM ${gameSlotsTable}
           WHERE ${gameSlotsTable.gameId} = ${gamesTable.id}
         )`.as('joinerCount'),
+				isBanned: sql`EXISTS (
+					SELECT 1 FROM ${bannedUsersTable}
+					WHERE ${bannedUsersTable.bannedUserId} = ${userId}
+					AND ${bannedUsersTable.hostId} = ${gamesTable.hostId}
+				)`.as('isBanned'),
 			})
 			.from(gamesTable)
 			.leftJoin(locationsTable, eq(gamesTable.locationId, locationsTable.id))

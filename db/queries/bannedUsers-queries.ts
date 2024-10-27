@@ -107,3 +107,27 @@ export async function getBannedUsersForHost(hostId: string) {
 		throw new Error('Failed to get banned users for host');
 	}
 }
+
+export async function checkIfUserBannedUsingGame(
+	userId: string,
+	gameId: string
+) {
+	try {
+		const result = await db
+			.select()
+			.from(bannedUsersTable)
+			.innerJoin(gamesTable, eq(gamesTable.hostId, bannedUsersTable.hostId))
+			.where(
+				and(
+					eq(gamesTable.id, gameId),
+					eq(bannedUsersTable.bannedUserId, userId)
+				)
+			)
+			.limit(1);
+
+		return result.length > 0;
+	} catch (error) {
+		console.error('Error checking if user is banned from game:', error);
+		throw new Error('Failed to check if user is banned from game');
+	}
+}

@@ -17,7 +17,7 @@ import { metersToMiles } from '@/lib/places';
 import { createGameNotificationAction } from './gameNotifications-actions';
 import { getProfileByUserId } from '@/db/queries/profiles-queries';
 import { checkIfGameIsFull } from '@/db/queries/games-queries';
-import { checkIfUserBanned } from '@/db/queries/bannedUsers-queries';
+import { checkIfUserBannedUsingGame } from '@/db/queries/bannedUsers-queries';
 // Action to create a new game slot
 export async function createGameSlotAction(
 	data: Omit<Partial<InsertGameSlot>, 'id' | 'userId'>
@@ -33,7 +33,11 @@ export async function createGameSlotAction(
 		if (isGameFull) {
 			throw new Error('Game is already full');
 		}
-		const isBanned = await checkIfUserBanned(user, data.gameId as string);
+		const isBanned = await checkIfUserBannedUsingGame(
+			user,
+			data.gameId as string
+		);
+
 		if (isBanned) {
 			throw new Error('User is banned from this game');
 		}

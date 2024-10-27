@@ -14,7 +14,8 @@ import { deleteGameSlot } from '@/db/queries/slots-queries';
 import { v4 as uuidv4 } from 'uuid';
 import { getUserIdAction } from './profiles-actions';
 import { createUserNotificationAction } from './userNotifications-actions';
-import { requireAuth } from '@/lib/auth-utils';
+import { hasUserJoinedGame, requireAuth } from '@/lib/auth-utils';
+import { getAllHostedGames } from '@/db/queries/games-queries';
 
 export async function checkIfUserBannedAction(
 	hostId: string,
@@ -34,27 +35,36 @@ export async function checkIfUserBannedAction(
 export async function banUserAction(banData: InsertBannedUser, gameId: string) {
 	const banned = { ...banData, id: uuidv4(), createdAt: new Date() };
 	try {
-		// remove user's game slot
-		await deleteGameSlot(banData.bannedUserId, gameId);
-		// create game notification
 		const userProfile = await getProfileByUserId(banData.bannedUserId);
 		const hostProfile = await getProfileByUserId(banData.hostId);
-		const username = userProfile?.username;
-		await createGameNotificationAction({
-			id: uuidv4(),
-			gameId: gameId,
-			notification: `${username} has been banned from the game`,
-			createdAt: new Date(),
-		});
-		// create user notification for banned user
-		await createUserNotificationAction({
-			id: uuidv4(),
-			userId: banData.bannedUserId,
-			notification: `${hostProfile?.username} has banned you from their game. ${
-				banData.reason ? `Reason: ${banData.reason}` : ''
-			}`,
-			createdAt: new Date(),
-		});
+		const allGamesByHost = await getAllHostedGames(banData.hostId);
+		// user will be banned from all games by host
+		for (const game of allGamesByHost) {
+			if (await hasUserJoinedGame(banData.bannedUserId, game.id)) {
+				// remove user's game slot. will remove temp location and messages
+				await deleteGameSlot(banData.bannedUserId, game.id);
+				// create game notification
+				const username = userProfile?.username;
+				await createGameNotificationAction({
+					id: uuidv4(),
+					gameId: game.id,
+					notification: `${username} has been banned from the game`,
+					createdAt: new Date(),
+				});
+				// create user notification for banned user
+				await createUserNotificationAction({
+					id: uuidv4(),
+					userId: banData.bannedUserId,
+					notification: `${
+						hostProfile?.username
+					} has banned you from their game. ${
+						banData.reason ? `Reason: ${banData.reason}` : ''
+					}`,
+					createdAt: new Date(),
+				});
+			}
+		}
+		// ban is dependent on host/user so only need to ban once
 		return await banUser(banned);
 	} catch (error) {
 		console.error('Error banning user:', error, { banData });

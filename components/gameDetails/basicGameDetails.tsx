@@ -33,6 +33,7 @@ interface BasicGameDetailsProps {
 		locationIsFLGS: boolean;
 		hostUsername: string;
 		joinerCount: string;
+		isBanned: boolean;
 	};
 	setRefetch: () => void;
 }
@@ -150,11 +151,11 @@ export function BasicGameDetails({ game, setRefetch }: BasicGameDetailsProps) {
 					<p className='mt-2 flex items-center space-x-2'>
 						<strong>Status:&nbsp;</strong>
 						<span className='text-xs font-medium px-2 py-1 rounded-full bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-200'>
-							Not Joined
+							{game.isBanned ? 'Banned' : 'Not Joined'}
 						</span>
 					</p>
 					<div className='mt-4 flex justify-end gap-4'>
-						{!showLocationSelector && (
+						{!showLocationSelector && !game.isBanned && (
 							<Button onClick={() => setShowLocationSelector(true)}>
 								Join Game
 							</Button>
