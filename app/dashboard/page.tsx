@@ -271,7 +271,7 @@ function GameSlot({
 								{game.distance.toFixed(1)} miles away from{' '}
 								{showFullAddress
 									? game.readableAddress
-									: truncateAddress(game.readableAddress, 15)}
+									: truncateAddress(game.readableAddress, 10)}
 							</span>
 						)}
 					</span>

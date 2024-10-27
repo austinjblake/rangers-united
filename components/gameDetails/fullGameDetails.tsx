@@ -27,6 +27,7 @@ import { deleteGameSlotAction } from '@/actions/slots-actions';
 import { LocationIcon } from '@/components/location-icon';
 import { cn } from '@/lib/utils';
 import useChat from '@/lib/use-chat';
+import { ExpandableShareButton } from '@/components/ExpandableShareButton';
 
 interface FullGameDetailsProps {
 	game: any;
@@ -118,7 +119,15 @@ export default function FullGameDetails({
 			<div className='bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden'>
 				{/* Game Details */}
 				<div className='p-6 bg-secondary text-secondary-foreground'>
-					<h1 className='text-2xl font-bold mb-4'>Game Details</h1>
+					<h1 className='text-2xl font-bold flex items-center gap-2 mb-4'>
+						Game Details
+						<ExpandableShareButton
+							url={`${window.location.origin}/games/${game.gameId}`}
+							title={`Check out this Power Rangers Heroes of the Grid Game on ${formatDate(
+								game.gameDate
+							)} at ${game.locationName}`}
+						/>
+					</h1>
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						<div>
 							<p className='flex items-center'>

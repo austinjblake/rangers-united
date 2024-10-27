@@ -316,6 +316,23 @@ export default function Help() {
 						</div>
 						<div>
 							<h3 className='font-semibold'>
+								I&apos;m looking at the page for a game but I don&apos;t see the
+								chat or notifications.
+							</h3>
+							<p>
+								In addition to finding games by searching nearby, users can also
+								share the link to their game directly. If you arrive at a game
+								page after following one of these links, you can see some basic
+								information for the game but you will not have access to the
+								full details. To participate in the chat and view notifications,
+								you will need to join the game. Click the &quot;Join Game&quot;
+								button, and then add a location that you want to be associated
+								with your joining that game(ex: see how far away the host is
+								from your selected location)
+							</p>
+						</div>
+						<div>
+							<h3 className='font-semibold'>
 								I want to add another game but I already have all 5 slots
 								filled.
 							</h3>
