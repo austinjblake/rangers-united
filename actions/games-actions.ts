@@ -271,9 +271,30 @@ export async function getAllGameInfoAction(
 	gameId: string
 ): Promise<ActionState> {
 	try {
-		const userId = await requireAuth();
-		const joinedGame = await hasUserJoinedGame(userId, gameId);
-		const isAdmin = await isUserAdmin(userId);
+		let userId = '';
+		let joinedGame = false;
+		let isAdmin = false;
+		try {
+			userId = await requireAuth();
+			joinedGame = await hasUserJoinedGame(userId, gameId);
+			isAdmin = await isUserAdmin(userId);
+		} catch (error) {
+			if (
+				error instanceof Error &&
+				error.message === 'User is not authenticated'
+			) {
+				// user is not logged in
+				const basicGameInfo = await getGameInfoForNonJoiner(gameId, userId);
+				return {
+					status: 'success',
+					message: 'Game retrieved successfully',
+					data: { ...basicGameInfo[0], notJoined: true },
+				};
+			}
+			// Re-throw any other errors
+			console.error('Error fetching game info 1:', error);
+			throw error;
+		}
 		if (!joinedGame && !isAdmin) {
 			// if user has not joined, get basic game info only
 			const basicGameInfo = await getGameInfoForNonJoiner(gameId, userId);

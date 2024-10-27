@@ -9,7 +9,7 @@ export default function LoginPage() {
 
 	return (
 		<SignIn
-			forceRedirectUrl='/dashboard'
+			fallbackRedirectUrl='/dashboard'
 			appearance={{ baseTheme: theme === 'dark' ? dark : undefined }}
 		/>
 	);

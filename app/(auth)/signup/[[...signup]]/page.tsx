@@ -9,7 +9,7 @@ export default function SignUpPage() {
 
 	return (
 		<SignUp
-			forceRedirectUrl='/dashboard'
+			fallbackRedirectUrl='/dashboard'
 			appearance={{ baseTheme: theme === 'dark' ? dark : undefined }}
 		/>
 	);

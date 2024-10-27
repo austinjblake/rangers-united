@@ -21,11 +21,14 @@ export default function GameDetailsPage() {
 		const fetchData = async () => {
 			setLoading(true);
 			const gameResult = await getAllGameInfoAction(gameId as string);
-			const user = await getUserIdAction();
+			let user = '';
 			if (gameResult.status === 'success') {
 				setNotJoined(gameResult.data.notJoined || false);
 				setGame(gameResult.data);
-				setUserId(user || '');
+				if (!gameResult.data.notJoined) {
+					user = await getUserIdAction();
+				}
+				setUserId(user);
 			}
 			setLoading(false);
 		};

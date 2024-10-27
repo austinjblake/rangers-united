@@ -24,6 +24,7 @@ import {
 } from '@radix-ui/react-tooltip';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { createLocationAction } from '@/actions/locations-actions';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 interface BasicGameDetailsProps {
 	game: {
@@ -155,18 +156,29 @@ export function BasicGameDetails({ game, setRefetch }: BasicGameDetailsProps) {
 						</span>
 					</p>
 					<div className='mt-4 flex justify-end gap-4'>
-						{!showLocationSelector && !game.isBanned && (
-							<Button onClick={() => setShowLocationSelector(true)}>
-								Join Game
+						<SignedIn>
+							{!showLocationSelector && !game.isBanned && (
+								<Button onClick={() => setShowLocationSelector(true)}>
+									Join Game
+								</Button>
+							)}
+							<Button
+								variant='outline'
+								onClick={() => router.push('/dashboard')}
+								className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
+							>
+								Back to Dashboard
 							</Button>
-						)}
-						<Button
-							variant='outline'
-							onClick={() => router.push('/dashboard')}
-							className='text-foreground hover:bg-primary/10 hover:text-primary transition-colors'
-						>
-							Back to Dashboard
-						</Button>
+						</SignedIn>
+
+						<SignedOut>
+							<SignInButton
+								fallbackRedirectUrl='/dashboard'
+								signUpFallbackRedirectUrl='/dashboard'
+							>
+								<Button>Sign In To Join This Game</Button>
+							</SignInButton>
+						</SignedOut>
 					</div>
 
 					{showLocationSelector && (
