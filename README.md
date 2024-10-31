@@ -1,107 +1,112 @@
+[![Rangers United](https://www.rangersunited.com/og-image.png)](https://www.rangersunited.com)
 
 # Project Overview: Power Rangers Heroes of the Grid Group Finder
 
 ## Synopsis
 
-This is a web application designed for players of the **Power Rangers Heroes of the Grid** board game to find, host, and join games. The app helps players connect with others in their area or online to organize game sessions. Key features include game scheduling, geolocation search, messaging between players, and hosting games at local game stores (FLGS). The app is built using **Next.js**, **Supabase**, **Clerk**, and **Drizzle ORM** for type-safe database management.
+This web application helps players of **Power Rangers Heroes of the Grid** connect and find local games, allowing users to host or join sessions with ease. Key features include location-based game search, real-time messaging, user notifications, and hosting options at private residences or **Friendly Local Game Stores (FLGS)**. Built with **Next.js**, **Supabase**, **Clerk**, and **Drizzle ORM** for type-safe database management, the app combines location-based search and interactive features to create a comprehensive player matchmaking experience.
 
 ---
 
 ## Goal
 
-The primary goal of this app is to facilitate group play for **Power Rangers Heroes of the Grid** by allowing users to:
-- Create an account and manage time slots for hosting or joining games.
-- Search for games within a specific radius of their location or zip code.
+The app’s main objective is to simplify group play for **Power Rangers Heroes of the Grid** by enabling users to:
+
+- Create accounts and manage game slots for hosting or joining.
+- Find games within a radius of their set location, with a dynamic search feature.
 - Host games at either private residences or **Friendly Local Game Stores (FLGS)**.
-- Communicate with other players using a chat system for each hosted game.
-- Notify joiners if the game details change (e.g., time, location) or if the game is deleted.
+- Chat with other players in real-time for game coordination.
+- Receive notifications if game details change (e.g., time, location) or if the game is deleted.
+- Access a **saved search** feature for email notifications about new games within their preferred area.
 
 ---
 
 ## High-Level Structure
 
 ### 1. **User Authentication and Profiles**
-- **Clerk** will handle user authentication, allowing players to sign up, log in, and manage their profiles.
-- Users can configure their time slots, either hosting a game or joining one.
-- Each user has a profile page that allows them to edit their information and manage up to **five time slots**.
+
+- **Clerk** manages user authentication, supporting sign-up, login, and profile management.
+- Users can configure time slots for hosting or joining games.
+- Profile pages allow users to manage details and game slots, with **5 slots** for standard users, expanding to **20 slots** for premium members.
 
 ### 2. **Game Hosting and Joining**
-- Users can create a game by specifying the **date**, **time**, and **location**.
-- Location can be manually entered via **zip code** or detected via **Geolocation API**.
-- Users have the option to host at a **Friendly Local Game Store (FLGS)** by searching for nearby stores using **Google Places API** or **Mapbox**.
-- Players can search for games within a set radius of their location to join.
-- Each game has a status such as **Scheduled**, **Ongoing**, **Completed**, or **Cancelled**.
+
+- Users can specify **date**, **time**, and **location** for games, using zip code entry or **geolocation detection**.
+- Game hosts can choose nearby **FLGS** locations through a search feature, using **PostGIS** for precise geolocation.
+- Users search within a configurable radius for available games and receive real-time updates on game status, including **Scheduled**, **Ongoing**, **Completed**, and **Cancelled**.
 
 ### 3. **Messaging System**
-- Each hosted game has a dedicated chat interface.
-- Hosts have **admin controls** to delete any messages.
-- Joiners can edit or delete their own messages.
-- If a joiner leaves a game, their messages become invisible to other players but are still visible to the host with a flag indicating that they are from a previous member.
+
+- A dedicated chat for each game enables seamless communication.
+- Hosts have **admin controls** to moderate the chat, with the ability to delete any message, while joiners can edit or delete their own messages.
+- Messages from joiners who leave the game are flagged and visible only to the host, helping retain context in case of rejoining.
 
 ### 4. **Notifications**
-- Notifications are triggered for joiners when:
-    - A host changes the game details (time, location, etc.).
-    - The host cancels or deletes the game.
-- Notifications will be sent through in-app notifications and/or email.
-- Reminders will be sent to both hosts and joiners prior to the game (e.g., 24 hours before the game).
+
+- Notifications keep joiners updated on:
+  - Host changes to game details.
+  - Game cancellations or deletions.
+- **Game-specific notifications** are shown on the game details page, while **user notifications** appear in the header for broader updates, like saved search results and game deletions.
+- Real-time notifications are powered by **Supabase Realtime**, with additional email notifications for saved search results.
 
 ### 5. **Geolocation and Search**
-- For global use, geolocation will be used to automatically detect the user’s location. For those who prefer manual entry, zip code input will be available.
-- Users can search for hosted games within a radius of their location, configurable in the search settings.
-- Users can choose to host games at **FLGS** locations through the app's FLGS search feature.
+
+- **PostGIS** geolocation enables efficient distance-based game searches, while **Supabase** facilitates spatial queries.
+- **Saved Search**: Users can set a weekly saved search that emails them about new games within a specified radius.
 
 ### 6. **Database Structure and Type Safety (Using Drizzle ORM)**
-- **Drizzle ORM** will be used for database management to ensure strong type safety.
-- The database will include tables for:
-    - **Users**: To store user profiles and game slots.
-    - **GameSlots**: To store user-specific hosting/joining time slots.
-    - **Games**: To manage all hosted games and their details.
-    - **Messages**: To store messages exchanged between users in each game’s chat.
-    - **Notifications**: To track notifications sent to users.
-- **Supabase** will provide the database, storage, and real-time capabilities like subscriptions for the messaging and notification systems.
+
+- **Drizzle ORM** provides type-safe schema management for tables including:
+  - **Users**: Profiles and game slot configurations.
+  - **GameSlots**: Hosting/joining times linked to each user.
+  - **Games**: Detailed game records.
+  - **Messages**: Real-time message data for each game’s chat.
+  - **Game and User Notifications**: Manages both game-specific and broader user notifications.
+- **Supabase** powers real-time messaging and notifications, ensuring timely delivery and sync across devices.
 
 ### 7. **User Interface and Responsiveness**
-- The user interface will be designed using **Next.js** with a focus on mobile responsiveness, as many users may access the app from smartphones.
-- **Tailwind CSS** or **Material UI** can be used for styling.
-- The design will prioritize clarity and ease of use, ensuring smooth navigation for creating and joining games, as well as communicating in the game chats.
+
+- **Next.js** front-end is optimized for mobile, enhancing accessibility.
+- **Tailwind CSS** offers flexible styling with a responsive, mobile-first approach.
+- UI design is simple, emphasizing clear navigation and easy access to search, join, and messaging features.
 
 ---
 
 ## Core Features Checklist
 
-- **Authentication**: Sign up, log in, and manage profiles using Clerk.
-- **Game Hosting**: Create and manage games, input location, and time.
-- **Game Joining**: Search for games within a certain radius of the user’s location.
-- **Messaging System**: Chat interface for game coordination, admin privileges for hosts.
-- **Geolocation**: Detect location or allow manual zip code entry for hosting/joining.
-- **FLGS Integration**: Search for local game stores to host events.
-- **Notifications**: Alerts for game changes or cancellations, reminders.
-- **Database Management**: Type-safe schema with Drizzle ORM for Users, Games, Messages, and Notifications.
-- **Mobile-First Design**: Prioritize mobile usability and responsiveness.
+- **Authentication**: Managed by Clerk for secure account and profile handling.
+- **Game Hosting**: Create and customize game slots with date, time, and location.
+- **Game Joining**: Radius-based search for nearby games, powered by PostGIS.
+- **Messaging System**: Real-time chat with host moderation options.
+- **Geolocation**: Automatically detect or manually enter location for hosting/joining.
+- **FLGS Integration**: Easily find and host games at local game stores.
+- **Notifications**: In-app and email notifications for game changes, cancellations, and saved search results.
+- **Database Management**: Type-safe schema managed via Drizzle ORM for consistency.
+- **Mobile-First Design**: Responsive layout designed for mobile accessibility.
 
 ---
 
 ## Future Enhancements
 
-- **User Ratings**: Introduce a system for rating hosts and joiners to build community trust.
-- **Third-Party Integration**: Sync with calendars, Discord, or Slack for easier coordination.
-- **Game Status and Analytics**: Provide analytics to hosts on joiners and game activity.
-- **Localization**: Add multi-language support and time zone adjustments for international users.
-- **Moderation and Reporting**: Allow users to report inappropriate behavior or messages in game chats.
+- **User Ratings**: Build a reputation system for trust within the community.
+- **Third-Party Integration**: Sync with calendar apps, Discord, or Slack for game coordination.
+- **Game Analytics**: Offer insights for hosts on player engagement and game participation.
+- **Localization**: Add multi-language support for international players.
+- **Moderation Tools**: Additional reporting and moderation controls for in-chat safety.
 
 ---
 
 ## Tech Stack
 
 - **Frontend**: Next.js, Tailwind CSS / Material UI
-- **Backend**: Supabase (Database, Authentication, Realtime)
+- **Backend**: Supabase (Database, Realtime, Notifications)
 - **Authentication**: Clerk
 - **Database ORM**: Drizzle ORM
-- **Location Services**: Geolocation API, Google Places API / Mapbox
-- **Notifications**: Supabase Realtime, In-app, and Email Notifications
+- **Geolocation**: PostGIS
+- **Notifications**: Supabase Realtime for real-time in-app notifications; scheduled emails for saved searches
 
 ---
 
 ### Conclusion
 
-This app aims to create a smooth and secure experience for **Power Rangers Heroes of the Grid** players to find groups, schedule games, and coordinate effectively through messaging. By leveraging modern web development tools, the app will ensure seamless performance, scalability, and a rich user experience.
+This app delivers a secure, intuitive, and dynamic experience for **Power Rangers Heroes of the Grid** players, allowing them to find and join game groups easily. By leveraging real-time messaging, geolocation, and automated notifications, the app provides a feature-rich environment that brings together players and enhances group coordination. The architecture prioritizes performance, scalability, and usability, ensuring an engaging and seamless user experience.
