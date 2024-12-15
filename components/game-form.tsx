@@ -35,6 +35,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { LocationIcon } from '@/components/location-icon';
 
 interface GameFormProps {
 	initialData?: {
@@ -219,21 +220,11 @@ export default function GameForm({
 						</CardHeader>
 						<CardContent>
 							<div className='flex items-center space-x-2'>
-								{selectedLocation.isFLGS && (
-									<span title='Friendly Local Game Store'>
-										<StoreIcon className='h-5 w-5' />
-									</span>
-								)}
-								{selectedLocation.isPrivate && (
-									<span title='Private Location'>
-										<HomeIcon className='h-5 w-5' />
-									</span>
-								)}
-								{!selectedLocation.isFLGS && !selectedLocation.isPrivate && (
-									<span title='Other Location'>
-										<MapPinIcon className='h-5 w-5' />
-									</span>
-								)}
+								<LocationIcon
+									isFLGS={selectedLocation.isFLGS || false}
+									isPrivate={selectedLocation.isPrivate || false}
+									className='h-5 w-5'
+								/>
 								<p>{selectedLocation.name || 'Other Location'}</p>
 								<div className='text-sm text-gray-500'>
 									{selectedLocation.readableAddress}

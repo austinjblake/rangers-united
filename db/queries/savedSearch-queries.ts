@@ -1,5 +1,8 @@
 import { db } from '../db';
-import { savedSearchesTable } from '@/db/schema/savedSearch-schema';
+import {
+	InsertSavedSearch,
+	savedSearchesTable,
+} from '@/db/schema/savedSearch-schema';
 import { profilesTable } from '@/db/schema/profiles-schema';
 import { eq, and, gte, inArray } from 'drizzle-orm';
 import { getGamesByLocationRadius } from './games-queries';
@@ -39,4 +42,22 @@ export async function updateSavedSearchTimestamps(searchIds: string[]) {
 		.update(savedSearchesTable)
 		.set({ updatedAt: new Date() })
 		.where(inArray(savedSearchesTable.id, searchIds));
+}
+
+export async function getSavedSearchesByUserId(userId: string) {
+	return await db
+		.select()
+		.from(savedSearchesTable)
+		.where(eq(savedSearchesTable.userId, userId));
+}
+
+export async function createSavedSearch(data: InsertSavedSearch) {
+	return await db.insert(savedSearchesTable).values(data).returning();
+}
+
+export async function deleteSavedSearch(id: string) {
+	return await db
+		.delete(savedSearchesTable)
+		.where(eq(savedSearchesTable.id, id))
+		.returning();
 }
