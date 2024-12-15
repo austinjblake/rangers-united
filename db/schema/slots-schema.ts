@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean } from 'drizzle-orm/pg-core';
 import { profilesTable } from './profiles-schema';
 import { locationsTable } from './locations-schema';
 import { gamesTable } from './games-schema';

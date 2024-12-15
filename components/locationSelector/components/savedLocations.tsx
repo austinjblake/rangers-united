@@ -69,7 +69,7 @@ export function SavedLocations({
 				toast({
 					title: 'Error',
 					description:
-						'Failed to delete location. This location is currently being used for a game you are hosting or have joined. You must delete these from My Games before you can remove this location. If you need more help, contact support@rangersunited.com',
+						'Failed to delete location. This location is currently being used for a game you are participating in or for a Saved Search. You must delete these from My Games and remove the Saved Search before you can remove this location. If you need more help, contact support@rangersunited.com',
 					variant: 'destructive',
 				});
 			}

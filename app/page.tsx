@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { CardContent, Card } from '@/components/ui/card';
 import { Users, MapPin, MessageCircle, Calendar, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { SignedIn, SignedOut } from '@clerk/nextjs';
 
 export default function LandingPage() {
 	return (
@@ -32,22 +33,31 @@ export default function LandingPage() {
 							</div>
 							<div className='w-full max-w-sm space-y-4'>
 								<div className='flex items-center justify-center space-x-4'>
-									<Link href='/signup' className='flex-1'>
-										<Button className='w-full py-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
-											Sign Up Now
-										</Button>
-									</Link>
-									<span className='text-gray-600 dark:text-gray-400 font-medium'>
-										or
-									</span>
-									<Link href='/login' className='flex-1'>
-										<Button
-											variant='outline'
-											className='w-full py-6 text-lg font-semibold bg-transparent hover:bg-gray-100 text-gray-900 dark:bg-transparent dark:hover:bg-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 transition-colors duration-200 shadow-lg hover:shadow-xl'
-										>
-											Sign In
-										</Button>
-									</Link>
+									<SignedOut>
+										<Link href='/signup' className='flex-1'>
+											<Button className='w-full py-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
+												Sign Up Now
+											</Button>
+										</Link>
+										<span className='text-gray-600 dark:text-gray-400 font-medium'>
+											or
+										</span>
+										<Link href='/login' className='flex-1'>
+											<Button
+												variant='outline'
+												className='w-full py-6 text-lg font-semibold bg-transparent hover:bg-gray-100 text-gray-900 dark:bg-transparent dark:hover:bg-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 transition-colors duration-200 shadow-lg hover:shadow-xl'
+											>
+												Sign In
+											</Button>
+										</Link>
+									</SignedOut>
+									<SignedIn>
+										<Link href='/dashboard' className='flex-1'>
+											<Button className='w-full py-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
+												View My Games Dashboard
+											</Button>
+										</Link>
+									</SignedIn>
 								</div>
 							</div>
 						</div>
@@ -229,22 +239,31 @@ export default function LandingPage() {
 							</div>
 							<div className='w-full max-w-sm space-y-4'>
 								<div className='flex items-center justify-center space-x-4'>
-									<Link href='/signup' className='flex-1'>
-										<Button className='w-full py-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
-											Sign Up Now
-										</Button>
-									</Link>
-									<span className='text-gray-600 dark:text-gray-400 font-medium'>
-										or
-									</span>
-									<Link href='/login' className='flex-1'>
-										<Button
-											variant='outline'
-											className='w-full py-6 text-lg font-semibold bg-transparent hover:bg-gray-100 text-gray-900 dark:bg-transparent dark:hover:bg-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 transition-colors duration-200 shadow-lg hover:shadow-xl'
-										>
-											Sign In
-										</Button>
-									</Link>
+									<SignedOut>
+										<Link href='/signup' className='flex-1'>
+											<Button className='w-full py-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
+												Sign Up Now
+											</Button>
+										</Link>
+										<span className='text-gray-600 dark:text-gray-400 font-medium'>
+											or
+										</span>
+										<Link href='/login' className='flex-1'>
+											<Button
+												variant='outline'
+												className='w-full py-6 text-lg font-semibold bg-transparent hover:bg-gray-100 text-gray-900 dark:bg-transparent dark:hover:bg-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 transition-colors duration-200 shadow-lg hover:shadow-xl'
+											>
+												Sign In
+											</Button>
+										</Link>
+									</SignedOut>
+									<SignedIn>
+										<Link href='/dashboard' className='flex-1'>
+											<Button className='w-full py-6 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-gray-900 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-gray-900 transition-colors duration-200 shadow-lg hover:shadow-xl'>
+												View My Games Dashboard
+											</Button>
+										</Link>
+									</SignedIn>
 								</div>
 							</div>
 						</div>

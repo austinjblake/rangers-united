@@ -162,6 +162,25 @@ export default function Component({ children }: { children: React.ReactNode }) {
 				<span>Host a Game</span>
 			</Link>
 			<Link
+				href='/saved-searches'
+				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
+				onClick={onLinkClick}
+			>
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					className='h-5 w-5'
+					viewBox='0 0 24 24'
+					fill='none'
+					stroke='currentColor'
+					strokeWidth='2'
+					strokeLinecap='round'
+					strokeLinejoin='round'
+				>
+					<path d='m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z' />
+				</svg>
+				<span>Saved Searches</span>
+			</Link>
+			<Link
 				href='/settings'
 				className='flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800'
 				onClick={onLinkClick}
